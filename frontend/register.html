@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - PelatihanMargono</title>
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="assets/css/main.css" rel="stylesheet" />
+</head>
+
+<body class="d-flex align-items-center justify-content-center vh-100 bg-light">
+  <div class="card shadow p-4" style="width: 420px;">
+    <h4 class="text-center mb-3">Daftar Akun</h4>
+
+    <form id="registerForm">
+      <div class="mb-3">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-control" name="nama_lengkap" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" name="email" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" name="password" required />
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Daftar</button>
+      <div class="text-center mt-3">
+        <small>Sudah punya akun? <a href="login.html">Login</a></small>
+      </div>
+    </form>
+
+    <div id="msg" class="alert mt-3 d-none"></div>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        nama_lengkap: form.nama_lengkap.value,
+        email: form.email.value,
+        password: form.password.value
+      };
+
+      const msg = document.getElementById("msg");
+      msg.classList.add("d-none");
+
+      try {
+        const res = await fetch("http://localhost:5000/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        msg.classList.remove("d-none");
+        msg.textContent = result.message;
+        msg.className = `alert mt-3 ${res.ok ? 'alert-success' : 'alert-danger'}`;
+
+        if (res.ok) setTimeout(() => window.location.href = "index.html", 1500);
+      } catch (err) {
+        msg.classList.remove("d-none");
+        msg.textContent = "Gagal terhubung ke server";
+        msg.className = "alert mt-3 alert-danger";
+      }
+    });
+  </script>
+  <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const isRegistered = localStorage.getItem("isRegistered");
+    const btnLogin = document.getElementById("btn-login");
+
+    if (isRegistered && btnLogin) {
+      btnLogin.style.display = "none"; // sembunyikan tombol login
+    }
+  });
+</script>
+</body>
+</html>

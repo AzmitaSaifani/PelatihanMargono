@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Login - DIKLAT RSMS</title>
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+</head>
+
+<body class="appointment-page">
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="header-container container-fluid container-xl d-flex align-items-center justify-content-between">
+
+      <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
+        <h1 class="sitename">DIKLAT RSMS</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted" href="register.html">Register</a>
+    </div>
+  </header>
+  <!-- End Header -->
+
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title mt-5 pt-5 text-center" data-aos="fade-up">
+      <h1>Login Akun</h1>
+      <p>Masuk ke akun Diklat Margono Anda untuk melanjutkan.</p>
+    </div>
+
+    <!-- Login Section -->
+    <section class="section d-flex align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="200">
+      <div class="container" style="max-width: 480px;">
+        <div class="card shadow-sm border-0 rounded-4">
+          <div class="card-body p-4">
+            <h4 class="text-center mb-4"><i class="bi bi-person-circle me-2"></i>Login</h4>
+
+            <form id="loginForm">
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" placeholder="Masukkan email" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Masukkan password" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
+              </button>
+
+              <div class="text-center mt-3">
+                <small>Belum punya akun? <a href="register.html">Daftar</a></small>
+              </div>
+            </form>
+
+            <div id="msg" class="alert mt-3 d-none"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer position-relative light-background">
+    <div class="container text-center py-3">
+      <p>© <strong>PelatihanMargono</strong> All Rights Reserved</p>
+    </div>
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/js/main.js"></script>
+
+  <!-- Login Script -->
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        email: form.email.value,
+        password: form.password.value
+      };
+
+      const msg = document.getElementById("msg");
+      msg.classList.add("d-none");
+
+      try {
+        const res = await fetch("http://localhost:5000/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        msg.classList.remove("d-none");
+        msg.textContent = result.message;
+        msg.className = `alert mt-3 ${res.ok ? 'alert-success' : 'alert-danger'}`;
+
+        if (res.ok) setTimeout(() => window.location.href = "index.html", 1200);
+      } catch (err) {
+        msg.classList.remove("d-none");
+        msg.textContent = "Gagal terhubung ke server";
+        msg.className = "alert mt-3 alert-danger";
+      }
+    });
+  </script>
+</body>
+</html>
