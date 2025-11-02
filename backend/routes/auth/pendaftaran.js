@@ -33,7 +33,7 @@ const upload = multer({ storage });
 router.post(
   "/daftar",
   upload.fields([
-    { name: "bukti_pembayaran", maxCount: 1 },
+    // { name: "bukti_pembayaran", maxCount: 1 },
     { name: "surat_tugas", maxCount: 1 },
   ]),
   (req, res) => {
@@ -82,14 +82,14 @@ router.post(
       });
     }
 
-    const bukti_pembayaran = req.files?.bukti_pembayaran?.[0]?.filename || null;
+    // const bukti_pembayaran = req.files?.bukti_pembayaran?.[0]?.filename || null;
     const surat_tugas = req.files?.surat_tugas?.[0]?.filename || null;
 
-    if (!bukti_pembayaran) {
-      return res.status(400).json({
-        message: "❌ Bukti pembayaran wajib diupload!",
-      });
-    }
+    // if (!bukti_pembayaran) {
+    //   return res.status(400).json({
+    //     message: "❌ Bukti pembayaran wajib diupload!",
+    //   });
+    // }
 
     const sql = `
       INSERT INTO pendaftaran (
@@ -97,9 +97,9 @@ router.post(
         asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
         status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email,
         profesi, jabatan, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
-        provinsi_kantor, bukti_pembayaran, surat_tugas
+        provinsi_kantor, surat_tugas
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -129,7 +129,7 @@ router.post(
       jenis_nakes,
       kabupaten_kantor,
       provinsi_kantor,
-      bukti_pembayaran,
+    //   bukti_pembayaran,
       surat_tugas,
     ];
 

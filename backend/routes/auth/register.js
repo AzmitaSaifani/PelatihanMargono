@@ -5,6 +5,7 @@ import db from "../../config/db.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
+  console.log("Body diterima:", req.body); // DEBUG
   const { email, password, nama_lengkap } = req.body;
 
   try {
