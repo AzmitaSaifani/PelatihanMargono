@@ -4,13 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Appointment - MediTrust Bootstrap Template</title>
+  <title></title>
   <meta name="description" content="">
   <meta name="keywords" content="">
 
-  <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+ <!-- Favicons -->
+    <link rel="icon" href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png" sizes="180x180">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -28,6 +28,9 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
+  <!-- FullCalendar JS GLOBAL BUILD -->
+   <script src="https://unpkg.com/fullcalendar@6.1.8/index.global.min.js"></script>
+
   <!-- =======================================================
   * Template Name: MediTrust
   * Template URL: https://bootstrapmade.com/meditrust-bootstrap-hospital-website-template/
@@ -37,53 +40,7 @@
   ======================================================== -->
 </head>
 
-<!-- script POST Pelatihan -->
-<script>
-  const form = document.getElementById("pelatihanForm");
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const data = {
-      nama_pelatihan: form.nama_pelatihan.value,
-      deskripsi: form.deskripsi.value,
-      narasumber: form.narasumber.value,
-      lokasi: form.lokasi.value,
-      alamat_lengkap: form.alamat_lengkap.value,
-      tanggal_mulai: form.tanggal_mulai.value,
-      tanggal_selesai: form.tanggal_selesai.value,
-      waktu_mulai: form.waktu_mulai.value,
-      waktu_selesai: form.waktu_selesai.value,
-      kuota: form.kuota.value,
-      kategori: form.kategori.value,
-      tipe_pelatihan: form.tipe_pelatihan.value,
-      durasi: form.durasi.value,
-      flyer_url: form.flyer_url.value,
-      status: "draft",
-      created_by: 1 // id user/admin sementara
-    };
-
-    try {
-      const res = await fetch("http://localhost:8080/api/pelatihan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        alert("✅ Pelatihan berhasil ditambahkan!");
-        form.reset();
-      } else {
-        alert("❌ Gagal menambahkan pelatihan: " + result.message);
-      }
-    } catch (err) {
-      alert("⚠️ Terjadi kesalahan koneksi ke server!");
-      console.error(err);
-    }
-  });
-</script>
-
-<body class="appointment-page">
+<body class="page-404">
 
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
@@ -127,13 +84,13 @@
             <ul>
               <li><a href="department-details.html">Department Details</a></li>
               <li><a href="service-details.html">Service Details</a></li>
-              <li><a href="appointment.html" class="active">Appointment</a></li>
+              <li><a href="appointment.html">Appointment</a></li>
               <li><a href="testimonials.html">Testimonials</a></li>
               <li><a href="faq.html">Frequently Asked Questions</a></li>
               <li><a href="gallery.html">Gallery</a></li>
               <li><a href="terms.html">Terms</a></li>
               <li><a href="privacy.html">Privacy</a></li>
-              <li><a href="404.html">404</a></li>
+              <li><a href="404.html" class="active">404</a></li>
             </ul>
           </li>
           <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
@@ -172,212 +129,197 @@
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="#"><i class="bi bi-house"></i> Home</a></li>
             <li class="breadcrumb-item"><a href="#">Category</a></li>
-            <li class="breadcrumb-item active current">Appointment</li>
+            <li class="breadcrumb-item active current">404</li>
           </ol>
         </nav>
       </div>
 
       <div class="title-wrapper">
-        <h1>Appointment</h1>
+        <h1>404</h1>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.</p>
       </div>
     </div><!-- End Page Title -->
 
-    <!-- Appointmnet Section -->
-    <section id="appointmnet" class="appointmnet section">
+    <!-- Error 404 Section -->
+    <section id="error-404" class="error-404 section">
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <!-- Calendar Section -->
+        <div class="container section-title" data-aos="fade-up">
+          <h2 style="text-align:center; margin-top:30px;">
+            📅 KALENDER JADWAL PELATIHAN
+          </h2>
 
-        <div class="row gy-4">
+          <div id="calendar"></div>
 
-          <!-- Appointment Info -->
-          <div class="col-lg-6">
-            <div class="appointment-info">
-              <h3>Quick &amp; Easy Online Booking</h3>
-              <p class="mb-4">Book your appointment in just a few simple steps. Our healthcare professionals are ready to provide you with the best medical care tailored to your needs.</p>
+          <!-- FullCalendar JS -->
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const calendarEl = document.getElementById("calendar");
 
-              <div class="info-items">
-                <div class="info-item d-flex align-items-center mb-3" data-aos="fade-up" data-aos-delay="200">
-                  <div class="icon-wrapper me-3">
-                    <i class="bi bi-calendar-check"></i>
-                  </div>
-                  <div>
-                    <h5>Flexible Scheduling</h5>
-                    <p class="mb-0">Choose from available time slots that fit your busy schedule</p>
-                  </div>
-                </div><!-- End Info Item -->
+              const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth",
+                headerToolbar: {
+                  left: "prev,next today",
+                  center: "title",
+                  right: "dayGridMonth,timeGridWeek,listWeek",
+                },
+                displayEventTime: false,
 
-                <div class="info-item d-flex align-items-center mb-3" data-aos="fade-up" data-aos-delay="250">
-                  <div class="icon-wrapper me-3">
-                    <i class="bi bi-stopwatch"></i>
-                  </div>
-                  <div>
-                    <h5>Quick Response</h5>
-                    <p class="mb-0">Get confirmation within 15 minutes of submitting your request</p>
-                  </div>
-                </div><!-- End Info Item -->
+                events: async function (fetchInfo, successCallback, failureCallback) {
+                  try {
+                    const response = await fetch("http://localhost:5000/api/pelatihan");
+                    const data = await response.json();
 
-                <div class="info-item d-flex align-items-center mb-3" data-aos="fade-up" data-aos-delay="300">
-                  <div class="icon-wrapper me-3">
-                    <i class="bi bi-shield-check"></i>
-                  </div>
-                  <div>
-                    <h5>Expert Medical Care</h5>
-                    <p class="mb-0">Board-certified doctors and specialists at your service</p>
-                  </div>
-                </div><!-- End Info Item -->
+                    // ===============================
+                    // FILTER: hanya tampilkan status "publish"
+                    // ===============================
+                    const filteredData = data.filter(item => item.status === "publish");
+
+                    // ===============================
+                    // MAPPING KE FULLCALENDAR
+                    // ===============================
+                    const mapped = filteredData.map(item => ({
+                      id: item.id_pelatihan,
+                      title: item.nama_pelatihan,
+                      start: item.tanggal_mulai,
+
+                      backgroundColor: item.warna || "#28c7a8",
+                      borderColor: item.warna || "#28c7a8",
+                      textColor: "#ffffff",
+
+                      extendedProps: {
+                        kuota: item.sisa_kuota,
+                        totalKuota: item.kuota,
+                        lokasi: item.lokasi,
+                        tanggal_mulai: item.tanggal_mulai,
+                        tanggal_selesai: item.tanggal_selesai,
+                        waktu_mulai: item.waktu_mulai,
+                        waktu_selesai: item.waktu_selesai,
+                        kategori: item.kategori,
+                      }
+                    }));
+
+                    successCallback(mapped);
+                  } catch (err) {
+                    console.error("Gagal load event:", err);
+                    failureCallback(err);
+                  }
+                },
+
+                eventClick: function (info) {
+                  document.getElementById("modalPelatihan").style.display = "flex";
+
+                  function formatTanggal(tanggal) {
+                    return new Date(tanggal).toLocaleDateString("id-ID", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    });
+                  }
+
+                  function formatWaktu(waktuDB) {
+                    return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
+                  }
+
+                  document.getElementById("modalTitle").innerText = info.event.title;
+
+                  document.getElementById("modalMulai").innerText =
+                    formatTanggal(info.event.extendedProps.tanggal_mulai) +
+                    " | " +
+                    formatWaktu(info.event.extendedProps.waktu_mulai);
+
+                  document.getElementById("modalSelesai").innerText =
+                    formatTanggal(info.event.extendedProps.tanggal_selesai) +
+                    " | " +
+                    formatWaktu(info.event.extendedProps.waktu_selesai);
+
+                  document.getElementById("modalPeserta").innerText =
+                    info.event.extendedProps.kuota + " / " + info.event.extendedProps.totalKuota;
+
+                  document.getElementById("modalLokasi").innerText =
+                    info.event.extendedProps.lokasi;
+
+                  document.getElementById("modalKategori").innerText =
+                    info.event.extendedProps.kategori || "-";
+
+                  // ambil elemen tombol
+                  const btnDetail = document.getElementById("btnDetail");
+
+                  // AMBIL KUOTA SISANYA (di sini error kamu tadi)
+                  const kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+
+                  // ===============================
+                  // LOGIKA KUOTA PENUH
+                  // ===============================
+                  if (kuotaSisa <= 0) {
+                    btnDetail.innerText = "Kuota Penuh";
+                    btnDetail.style.background = "#777";
+                    btnDetail.style.cursor = "not-allowed";
+                    btnDetail.onclick = null;
+                  } else {
+                    btnDetail.innerText = "Daftar Pelatihan";
+                    btnDetail.style.background = "#28c7a8";
+                    btnDetail.style.cursor = "pointer";
+
+                    btnDetail.onclick = function () {
+                      window.location.href =
+                        "/pelatihanmargono/frontend/daftarpelatihan.html?id=" + info.event.id;
+                    };
+                    }
+                  },
+                });
+
+                calendar.render();
+              });
+            </script>
+
+            <!-- ==== MODAL DETAIL PELATIHAN ==== -->
+            <div id="modalPelatihan" class="modal" style="
+              display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); 
+              justify-content:center; align-items:center; z-index:9999;
+            ">
+              <div style="
+                background:white; 
+                padding:25px; 
+                width:400px; 
+                border-radius:12px;
+                box-shadow:0 6px 20px rgba(0,0,0,0.3); 
+                position: relative;
+                text-align:left;
+              ">
+
+                <h3 id="modalTitle" style="font-weight: bold;"></h3>
+                <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                <p><b>Mulai:</b> <span id="modalMulai"></span></p>
+                <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
+                <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
+                <p><b>Kuota:</b> <span id="modalPeserta"></span></p>
+
+                <button 
+                  class="btn btn-outline" 
+                  id="btnDetail"
+                  style="margin-top:15px; padding:10px 20px; background:#0062cc; 
+                  color:white; border:none; border-radius:8px; width:100%;">
+                    Daftar Pelatihan
+                </button>
+
+                <button onclick="tutupModal()" style="
+                  margin-top:10px; padding:10px 20px; background:#aaa;
+                  color:white; border:none; border-radius:8px; width:100%;
+                ">
+                  Tutup
+                </button>
+
               </div>
-
-              <div class="emergency-contact mt-4" data-aos="fade-up" data-aos-delay="350">
-                <div class="emergency-card p-3">
-                  <h6 class="mb-2"><i class="bi bi-telephone-fill me-2"></i>Emergency Hotline</h6>
-                  <p class="mb-0">Call <strong>+1 (555) 911-4567</strong> for urgent medical assistance</p>
-                </div>
-              </div>
-
             </div>
-          </div><!-- End Appointment Info -->
 
-          <!-- Appointment Form -->
-          <!-- Form Daftar Pelatihan -->
-            <div class="col-lg-6">
-              <div class="appointment-form-wrapper" data-aos="fade-up" data-aos-delay="200">
-                <form id="pelatihanForm" class="appointment-form">
-                  <div class="row gy-3">
+            <script>
+            function tutupModal() {
+              document.getElementById("modalPelatihan").style.display = "none";
+            }
+            </script>
 
-                    <div class="col-md-12">
-                      <input type="text" name="nama_pelatihan" class="form-control" placeholder="Nama Pelatihan" required>
-                    </div>
-
-                    <div class="col-md-12">
-                      <textarea name="deskripsi" class="form-control" placeholder="Deskripsi Pelatihan" rows="3" required></textarea>
-                    </div>
-
-                    <div class="col-md-6">
-                      <input type="text" name="narasumber" class="form-control" placeholder="Narasumber" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <input type="text" name="lokasi" class="form-control" placeholder="Lokasi (Gedung / Ruangan)">
-                    </div>
-
-                    <div class="col-md-12">
-                      <input type="text" name="alamat_lengkap" class="form-control" placeholder="Alamat Lengkap" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Tanggal Mulai</label>
-                      <input type="date" name="tanggal_mulai" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Tanggal Selesai</label>
-                      <input type="date" name="tanggal_selesai" class="form-control" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Waktu Mulai</label>
-                      <input type="time" name="waktu_mulai" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Waktu Selesai</label>
-                      <input type="time" name="waktu_selesai" class="form-control">
-                    </div>
-
-                    <div class="col-md-4">
-                      <input type="number" name="kuota" class="form-control" placeholder="Kuota Peserta" required>
-                    </div>
-
-                    <div class="col-md-4">
-                      <select name="kategori" class="form-select" required>
-                        <option value="">Pilih Kategori</option>
-                        <option value="internal">Internal</option>
-                        <option value="eksternal">Eksternal</option>
-                        <option value="umum">Umum</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-4">
-                      <input type="text" name="tipe_pelatihan" class="form-control" placeholder="Tipe Pelatihan (Online/Offline)">
-                    </div>
-
-                    <div class="col-md-6">
-                      <input type="text" name="durasi" class="form-control" placeholder="Durasi (misal: 2 hari)" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <input type="text" name="flyer_url" class="form-control" placeholder="URL Flyer (opsional)">
-                    </div>
-
-                    <div class="col-12 mt-3">
-                      <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-send me-2"></i>Tambah Pelatihan
-                      </button>
-                    </div>
-
-                  </div>
-                </form>
-              </div>
-            </div>
-
-          </div><!-- End Appointment Form -->
-
-        </div>
-
-        <!-- Process Steps -->
-        <div class="process-steps mt-5" data-aos="fade-up" data-aos-delay="300">
-          <div class="row text-center gy-4">
-            <div class="col-lg-3 col-md-6">
-              <div class="step-item">
-                <div class="step-number">1</div>
-                <div class="step-icon">
-                  <i class="bi bi-person-fill"></i>
-                </div>
-                <h5>Fill Details</h5>
-                <p>Provide your personal information and select your preferred department</p>
-              </div>
-            </div><!-- End Step -->
-
-            <div class="col-lg-3 col-md-6">
-              <div class="step-item">
-                <div class="step-number">2</div>
-                <div class="step-icon">
-                  <i class="bi bi-calendar-event"></i>
-                </div>
-                <h5>Choose Date</h5>
-                <p>Select your preferred date and time slot from available options</p>
-              </div>
-            </div><!-- End Step -->
-
-            <div class="col-lg-3 col-md-6">
-              <div class="step-item">
-                <div class="step-number">3</div>
-                <div class="step-icon">
-                  <i class="bi bi-check-circle"></i>
-                </div>
-                <h5>Confirmation</h5>
-                <p>Receive instant confirmation and appointment details via email or SMS</p>
-              </div>
-            </div><!-- End Step -->
-
-            <div class="col-lg-3 col-md-6">
-              <div class="step-item">
-                <div class="step-number">4</div>
-                <div class="step-icon">
-                  <i class="bi bi-heart-pulse"></i>
-                </div>
-                <h5>Get Treatment</h5>
-                <p>Visit our clinic at your scheduled time and receive quality healthcare</p>
-              </div>
-            </div><!-- End Step -->
-
-          </div>
-        </div><!-- End Process Steps -->
-
-      </div>
-
-    </section><!-- /Appointmnet Section -->
+    </section><!-- /Error 404 Section -->
 
   </main>
 

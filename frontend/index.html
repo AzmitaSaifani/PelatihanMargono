@@ -43,7 +43,11 @@
     />
 
     <!-- Main CSS File -->
-    <link href="assets/css/main.css" rel="stylesheet" />
+    <link href="./assets/css/main.css" rel="stylesheet" />
+
+    <!-- FullCalendar JS GLOBAL BUILD -->
+    <script src="https://unpkg.com/fullcalendar@6.1.8/index.global.min.js"></script>
+
 
     <!-- =======================================================
   * Template Name: MediTrust
@@ -193,8 +197,8 @@
               ></a>
               <ul>
                 <li><a href="menupelatihan.html">Menu Pelatihan</a></li>
-                <li><a href="service-details.html">Kalender Pelatihan</a></li>
-                <li><a href="appointment.html">Daftar Pelatihan</a></li>
+                <li><a href="kalender.html">Kalender Pelatihan</a></li>
+                <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
                 <li><a href="privacy.html">Alur Pendaftaran</a></li>
                 <li><a href="gallery.html">Statistik</a></li>
               </ul>
@@ -243,114 +247,53 @@
     <main class="main">
       <!-- Hero Section -->
       <section id="hero" class="hero section dark-background">
-        <div class="container-fluid p-0">
-          <div class="hero-wrapper">
-            <div class="hero-image">
-              <img
-                src="/pelatihanmargono/backend/uploads/foto/RSMS2.jpg"
-                alt="RSMS"
-                class="img-fluid"
-              />
-            </div>
+        <div class="hero-wrapper">
+          <div class="hero-image">
+            <img
+              src="/pelatihanmargono/backend/uploads/foto/RSMS2.jpg"
+              alt="RSMS"
+              class="img-fluid"
+            />
+          </div>
 
-            <div class="hero-content">
-              <div class="container">
-                <div class="row">
-                  <div
-                    class="col-lg-7 col-md-10"
-                    data-aos="fade-right"
-                    data-aos-delay="100"
-                  >
-                    <div class="content-box">
-                      <h3 data-aos="fade-up" data-aos-delay="250">
-                        Halo, Selamat Datang di
-                      </h3>
-                      <h1 data-aos="fade-up" data-aos-delay="200">
-                        Pelatihan Diklat <br> Prof. Dr. Margono Soekarjo
-                        Purwokerto
-                      </h1>
-                      <div
-                        class="cta-group"
-                        data-aos="fade-up"
-                        data-aos-delay="300"
-                      >
-                        <a href="appointment.html" class="btn btn-primary"
-                          >Daftar Pelatihan</a
-                        >
-                        <a href="menupelatihan.html" class="btn btn-outline"
-                          >Menu Pelatihan</a
-                        >
-                        <br><br>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div class="hero-content">
+            <div class="container">
+              <div class="row">
+                <div
+                  class="col-lg-7 col-md-10"
+                  data-aos="fade-right"
+                  data-aos-delay="100"
+                >
+                  <div class="content-box">
+                    
+                    <h3 data-aos="fade-up" data-aos-delay="250">
+                      Halo, Selamat Datang di
+                    </h3>
 
-                <div class="features-wrapper">
-                  <div class="row gy-4">
-                    <div class="col-lg-4">
-                      <div
-                        class="feature-item"
-                        data-aos="fade-up"
-                        data-aos-delay="450"
-                      >
-                        <div class="feature-icon">
-                          <i class="bi bi-heart-pulse-fill"></i>
-                        </div>
-                        <div class="feature-text">
-                          <h3>Cardiology</h3>
-                          <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit.
-                          </p>
-                        </div>
-                      </div>
+                    <h1 data-aos="fade-up" data-aos-delay="200">
+                      Pelatihan Diklat <br />
+                      Prof. Dr. Margono Soekarjo <br />Purwokerto
+                    </h1>
+
+                    <div class="cta-group" data-aos="fade-up" data-aos-delay="300">
+                      <a href="daftarpelatihan.html" class="btn btn-primary">
+                        Daftar Pelatihan
+                      </a>
+
+                      <a href="menupelatihan.html" class="btn btn-outline">
+                        Menu Pelatihan
+                      </a>
                     </div>
 
-                    <div class="col-lg-4">
-                      <div
-                        class="feature-item"
-                        data-aos="fade-up"
-                        data-aos-delay="500"
-                      >
-                        <div class="feature-icon">
-                          <i class="bi bi-lungs-fill"></i>
-                        </div>
-                        <div class="feature-text">
-                          <h3>Pulmonology</h3>
-                          <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                      <div
-                        class="feature-item"
-                        data-aos="fade-up"
-                        data-aos-delay="550"
-                      >
-                        <div class="feature-icon">
-                          <i class="bi bi-capsule"></i>
-                        </div>
-                        <div class="feature-text">
-                          <h3>Diagnostics</h3>
-                          <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </section>
+
       <!-- /Hero Section -->
 
       <!-- Home About Section -->
@@ -373,19 +316,25 @@
 
             <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
               <div class="about-content">
-                <h2>Committed to Exceptional Patient Care</h2>
+                <h2>PROFIL SINGKAT</h2>
                 <p class="lead">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-                  elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus
-                  leo.
+                  Histori Singkat RSMS Institusi Penyelenggara Pelatihan:
                 </p>
+                <ul>
+                  <li>Berawal dari Pengampuan oleh BAPELKES Provinsi Jawa Tengah pada tahun 2018–2019</li>
+                  <li>Divisi Diklat RSMS sebagai Institusi Penyelenggara Pelatihan Bidang Kesehatan berdasarkan SK KAPUS BPPSDMK Nomor HK.02.02/I/1826/2020 tanggal 21 Oktober 2020</li>
+                  <li>Kategori Akreditasi A (berlaku 5 tahun)</li>
+                </ul>
 
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                  consequat magna eu accumsan mattis. Duis non augue in tortor
-                  facilisis tincidunt ac sit amet sapien. Suspendisse id risus
-                  non nisi sodales condimentum.
+                <p class="lead">
+                  Pendayagunaan SDM RSMS:
                 </p>
+                <ul>
+                  <li>Tim Penyusun Mutu Pelatihan Tim Penjaminan Mutu Pelatihan</li>
+                  <li>TPM Tim Audit Mutu Internal</li>
+                  <li>Fasilitator Pelatihan (Narasumber & Instruktur)</li>
+                  <li>Panitia Penyelenggara Pelatihan</li>
+                </ul>
 
                 <div class="row g-4 mt-4">
                   <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
@@ -393,10 +342,7 @@
                       <div class="icon">
                         <i class="bi bi-heart-pulse"></i>
                       </div>
-                      <h4>Compassionate Care</h4>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      </p>
+                      <h4>RSUD Prof. Dr. Margono Soekarjo Purwokerto menjadi RS Kelas A Pendidikan sejak tahun 2023</h4>
                     </div>
                   </div>
 
@@ -405,19 +351,21 @@
                       <div class="icon">
                         <i class="bi bi-star"></i>
                       </div>
-                      <h4>Medical Excellence</h4>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      </p>
+                      <h4>SK Kemenkes RI Nomor HK.02.02/F/2866/2023 <a href="http://asik.rsmargono.go.id:7222/pelatihan_diklat/assets/download/SK%20RSUD%20PROF%20DR.MARGONO%20SOEKARJO%20(UTAMA%20FK%20UNIV.JENDERAL%20SOEDIRMAN).pdf" 
+                      target="_blank" 
+                      style="font-size: 14px; margin-left: 10px; text-decoration: none;"
+                    >
+                        Tampilan SK pdf/download
+                    </a></h4>
                     </div>
                   </div>
                 </div>
 
                 <div class="cta-wrapper mt-4">
                   <a href="about.html" class="btn btn-primary"
-                    >Learn More About Us</a
+                    >Profil Selengkapnya</a
                   >
-                  <a href="#" class="btn btn-outline">Meet Our Team</a>
+                  <a href="#" class="btn btn-outline">Tim Diklat</a>
                 </div>
               </div>
             </div>
@@ -428,262 +376,323 @@
             data-aos="fade-up"
             data-aos-delay="600"
           >
-            <div class="col-12 text-center mb-4">
-              <h4 class="certification-title">Our Accreditations</h4>
-            </div>
-            <div class="col-12">
-              <div class="certifications">
-                <div
-                  class="certification-item"
-                  data-aos="zoom-in"
-                  data-aos-delay="700"
-                >
-                  <img
-                    src="assets/img/clients/clients-1.webp"
-                    alt="Certification"
-                  />
-                </div>
-                <div
-                  class="certification-item"
-                  data-aos="zoom-in"
-                  data-aos-delay="800"
-                >
-                  <img
-                    src="assets/img/clients/clients-2.webp"
-                    alt="Certification"
-                  />
-                </div>
-                <div
-                  class="certification-item"
-                  data-aos="zoom-in"
-                  data-aos-delay="900"
-                >
-                  <img
-                    src="assets/img/clients/clients-3.webp"
-                    alt="Certification"
-                  />
-                </div>
-                <div
-                  class="certification-item"
-                  data-aos="zoom-in"
-                  data-aos-delay="1000"
-                >
-                  <img
-                    src="assets/img/clients/clients-4.webp"
-                    alt="Certification"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
       <!-- /Home About Section -->
 
+      <!-- Calendar Section -->
+        <div class="container section-title" data-aos="fade-up">
+          <h2 style="text-align:center; margin-top:30px;">
+            📅 KALENDER JADWAL PELATIHAN
+          </h2>
+
+          <div id="calendar"></div>
+
+          <!-- FullCalendar JS -->
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              const calendarEl = document.getElementById("calendar");
+
+              const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth",
+                headerToolbar: {
+                  left: "prev,next today",
+                  center: "title",
+                  right: "dayGridMonth,timeGridWeek,listWeek",
+                },
+                displayEventTime: false,
+
+                events: async function (fetchInfo, successCallback, failureCallback) {
+                  try {
+                    const response = await fetch("http://localhost:5000/api/pelatihan");
+                    const data = await response.json();
+
+                    // ===============================
+                    // FILTER: hanya tampilkan status "publish"
+                    // ===============================
+                    const filteredData = data.filter(item => item.status === "publish");
+
+                    // ===============================
+                    // MAPPING KE FULLCALENDAR
+                    // ===============================
+                    const mapped = filteredData.map(item => ({
+                      id: item.id_pelatihan,
+                      title: item.nama_pelatihan,
+                      start: item.tanggal_mulai,
+
+                      backgroundColor: item.warna || "#28c7a8",
+                      borderColor: item.warna || "#28c7a8",
+                      textColor: "#ffffff",
+
+                      extendedProps: {
+                        kuota: item.sisa_kuota,
+                        totalKuota: item.kuota,
+                        lokasi: item.lokasi,
+                        tanggal_mulai: item.tanggal_mulai,
+                        tanggal_selesai: item.tanggal_selesai,
+                        waktu_mulai: item.waktu_mulai,
+                        waktu_selesai: item.waktu_selesai,
+                        kategori: item.kategori,
+                      }
+                    }));
+
+                    successCallback(mapped);
+                  } catch (err) {
+                    console.error("Gagal load event:", err);
+                    failureCallback(err);
+                  }
+                },
+
+                eventClick: function (info) {
+                  document.getElementById("modalPelatihan").style.display = "flex";
+
+                  function formatTanggal(tanggal) {
+                    return new Date(tanggal).toLocaleDateString("id-ID", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    });
+                  }
+
+                  function formatWaktu(waktuDB) {
+                    return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
+                  }
+
+                  document.getElementById("modalTitle").innerText = info.event.title;
+
+                  document.getElementById("modalMulai").innerText =
+                    formatTanggal(info.event.extendedProps.tanggal_mulai) +
+                    " | " +
+                    formatWaktu(info.event.extendedProps.waktu_mulai);
+
+                  document.getElementById("modalSelesai").innerText =
+                    formatTanggal(info.event.extendedProps.tanggal_selesai) +
+                    " | " +
+                    formatWaktu(info.event.extendedProps.waktu_selesai);
+
+                  document.getElementById("modalPeserta").innerText =
+                    info.event.extendedProps.kuota + " / " + info.event.extendedProps.totalKuota;
+
+                  document.getElementById("modalLokasi").innerText =
+                    info.event.extendedProps.lokasi;
+
+                  document.getElementById("modalKategori").innerText =
+                    info.event.extendedProps.kategori || "-";
+
+                  // ambil elemen tombol
+                  const btnDetail = document.getElementById("btnDetail");
+
+                  // AMBIL KUOTA SISANYA (di sini error kamu tadi)
+                  const kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+
+                  // ===============================
+                  // LOGIKA KUOTA PENUH
+                  // ===============================
+                  if (kuotaSisa <= 0) {
+                    btnDetail.innerText = "Kuota Penuh";
+                    btnDetail.style.background = "#777";
+                    btnDetail.style.cursor = "not-allowed";
+                    btnDetail.onclick = null;
+                  } else {
+                    btnDetail.innerText = "Daftar Pelatihan";
+                    btnDetail.style.background = "#28c7a8";
+                    btnDetail.style.cursor = "pointer";
+
+                    btnDetail.onclick = function () {
+                      window.location.href =
+                        "/pelatihanmargono/frontend/daftarpelatihan.html?id=" + info.event.id;
+                    };
+                    }
+                  },
+                });
+
+                calendar.render();
+              });
+            </script>
+
+            <!-- ==== MODAL DETAIL PELATIHAN ==== -->
+            <div id="modalPelatihan" class="modal" style="
+              display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); 
+              justify-content:center; align-items:center; z-index:9999;
+            ">
+              <div style="
+                background:white; 
+                padding:25px; 
+                width:400px; 
+                border-radius:12px;
+                box-shadow:0 6px 20px rgba(0,0,0,0.3); 
+                position: relative;
+                text-align:left;
+              ">
+
+                <h3 id="modalTitle" style="font-weight: bold;"></h3>
+                <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                <p><b>Mulai:</b> <span id="modalMulai"></span></p>
+                <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
+                <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
+                <p><b>Kuota:</b> <span id="modalPeserta"></span></p>
+
+                <button 
+                  class="btn btn-outline" 
+                  id="btnDetail"
+                  style="margin-top:15px; padding:10px 20px; background:#0062cc; 
+                  color:white; border:none; border-radius:8px; width:100%;">
+                    Daftar Pelatihan
+                </button>
+
+                <button onclick="tutupModal()" style="
+                  margin-top:10px; padding:10px 20px; background:#aaa;
+                  color:white; border:none; border-radius:8px; width:100%;
+                ">
+                  Tutup
+                </button>
+
+              </div>
+            </div>
+
+            <script>
+            function tutupModal() {
+              document.getElementById("modalPelatihan").style.display = "none";
+            }
+            </script>
+          <!-- </section> -->
+
       <!-- Featured Departments Section -->
       <section id="featured-departments" class="featured-departments section">
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Featured Departments</h2>
-          <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
-          </p>
-        </div>
-        <!-- End Section Title -->
+          <div class="container section-title" data-aos="fade-up">
+            <h2>Featured Departments</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+          </div><!-- End Section Title -->
 
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="row gy-4">
+          <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="row gy-4">
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/cardiology-3.webp" alt="Cardiology Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Cardiology</h3>
+                    <p>Comprehensive cardiovascular care with advanced diagnostic techniques and treatment options for heart conditions, ensuring optimal cardiac health for all patients.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/neurology-2.webp" alt="Neurology Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Neurology</h3>
+                    <p>Expert neurological care specializing in brain and nervous system disorders, providing cutting-edge treatments and compassionate support for neurological conditions.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/orthopedics-4.webp" alt="Orthopedics Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-bone"></i>
+                    </div>
+                    <h3>Orthopedics</h3>
+                    <p>Advanced musculoskeletal care focusing on bones, joints, and muscles with innovative surgical and non-surgical treatment approaches for mobility restoration.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/pediatrics-3.webp" alt="Pediatrics Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-baby"></i>
+                    </div>
+                    <h3>Pediatrics</h3>
+                    <p>Specialized healthcare for children from infancy through adolescence, offering comprehensive medical care in a child-friendly environment with experienced pediatric specialists.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/oncology-4.webp" alt="Oncology Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Oncology</h3>
+                    <p>Comprehensive cancer care with multidisciplinary approach, offering advanced treatment options, clinical trials, and compassionate support throughout the cancer journey.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="department-card">
+                  <div class="department-image">
+                    <img src="assets/img/health/emergency-2.webp" alt="Emergency Department" class="img-fluid">
+                  </div>
+                  <div class="department-content">
+                    <div class="department-icon">
+                      <i class="fas fa-ambulance"></i>
+                    </div>
+                    <h3>Emergency Care</h3>
+                    <p>Round-the-clock emergency medical services with rapid response capabilities, state-of-the-art equipment, and experienced emergency physicians for critical care.</p>
+                    <a href="department-details.html" class="btn-learn-more">
+                      <span>Learn More</span>
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </div>
+                </div>
+              </div><!-- End Department Card -->
+
+            </div>
+
+          </div>
+            <!-- End Department Card -->
+
             <div
               class="col-lg-4 col-md-6"
               data-aos="fade-up"
               data-aos-delay="100"
             >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/cardiology-3.webp"
-                    alt="Cardiology Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-heartbeat"></i>
-                  </div>
-                  <h3>Cardiology</h3>
-                  <p>
-                    Comprehensive cardiovascular care with advanced diagnostic
-                    techniques and treatment options for heart conditions,
-                    ensuring optimal cardiac health for all patients.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Department Card -->
-
-            <div
-              class="col-lg-4 col-md-6"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/neurology-2.webp"
-                    alt="Neurology Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-brain"></i>
-                  </div>
-                  <h3>Neurology</h3>
-                  <p>
-                    Expert neurological care specializing in brain and nervous
-                    system disorders, providing cutting-edge treatments and
-                    compassionate support for neurological conditions.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Department Card -->
-
-            <div
-              class="col-lg-4 col-md-6"
-              data-aos="fade-up"
-              data-aos-delay="300"
-            >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/orthopedics-4.webp"
-                    alt="Orthopedics Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-bone"></i>
-                  </div>
-                  <h3>Orthopedics</h3>
-                  <p>
-                    Advanced musculoskeletal care focusing on bones, joints, and
-                    muscles with innovative surgical and non-surgical treatment
-                    approaches for mobility restoration.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Department Card -->
-
-            <div
-              class="col-lg-4 col-md-6"
-              data-aos="fade-up"
-              data-aos-delay="100"
-            >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/pediatrics-3.webp"
-                    alt="Pediatrics Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-baby"></i>
-                  </div>
-                  <h3>Pediatrics</h3>
-                  <p>
-                    Specialized healthcare for children from infancy through
-                    adolescence, offering comprehensive medical care in a
-                    child-friendly environment with experienced pediatric
-                    specialists.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Department Card -->
-
-            <div
-              class="col-lg-4 col-md-6"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/oncology-4.webp"
-                    alt="Oncology Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-shield-alt"></i>
-                  </div>
-                  <h3>Oncology</h3>
-                  <p>
-                    Comprehensive cancer care with multidisciplinary approach,
-                    offering advanced treatment options, clinical trials, and
-                    compassionate support throughout the cancer journey.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Department Card -->
-
-            <div
-              class="col-lg-4 col-md-6"
-              data-aos="fade-up"
-              data-aos-delay="300"
-            >
-              <div class="department-card">
-                <div class="department-image">
-                  <img
-                    src="assets/img/health/emergency-2.webp"
-                    alt="Emergency Department"
-                    class="img-fluid"
-                  />
-                </div>
-                <div class="department-content">
-                  <div class="department-icon">
-                    <i class="fas fa-ambulance"></i>
-                  </div>
-                  <h3>Emergency Care</h3>
-                  <p>
-                    Round-the-clock emergency medical services with rapid
-                    response capabilities, state-of-the-art equipment, and
-                    experienced emergency physicians for critical care.
-                  </p>
-                  <a href="menupelatihan-details.html" class="btn-learn-more">
-                    <span>Learn More</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
             </div>
             <!-- End Department Card -->
           </div>
@@ -1137,7 +1146,7 @@
               </p>
 
               <div class="cta-buttons" data-aos="fade-up" data-aos-delay="300">
-                <a href="appointment.html" class="btn-primary"
+                <a href="daftarpelatihan.html" class="btn-primary"
                   >Book Appointment</a
                 >
                 <a href="doctors.html" class="btn-secondary">Find a Doctor</a>

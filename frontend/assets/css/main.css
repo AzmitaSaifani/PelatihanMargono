@@ -14,13 +14,15 @@
 --------------------------------------------------------------*/
 /* Fonts */
 :root {
-  --default-font: "Roboto",  system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --heading-font: "Raleway",  sans-serif;
-  --nav-font: "Lato",  sans-serif;
+  --default-font: "Roboto", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --heading-font: "Raleway", sans-serif;
+  --nav-font: "Lato", sans-serif;
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
-:root { 
+:root {
   --background-color: #ffffff; /* Background color for the entire website, including individual sections */
   --default-color: #2c3031; /* Default color used for the majority of the text content across the entire website */
   --heading-color: #18444c; /* Color for headings, subheadings and title throughout the website */
@@ -31,7 +33,7 @@
 
 /* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
 :root {
-  --nav-color: #496268;  /* The default color of the main navmenu links */
+  --nav-color: #496268; /* The default color of the main navmenu links */
   --nav-hover-color: #049ebb; /* Applied to main navmenu links when they are hovered over or active */
   --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
   --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
@@ -139,6 +141,60 @@ h6 {
   100% {
     transform: rotate(360deg);
   }
+}
+/* 
+.calendar .calendar {
+  background: var(--surface-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px
+    color-mix(in srgb, var(--default-color), transparent 85%);
+  transition: all 0.3s ease;
+  height: 100%;
+} */
+
+/* Container Kalender */
+#calendar {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Hilangkan label aneh bawaan FullCalendar (Thu Friday dll) */
+.fc-event-main-frame {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Judul event rapi, tidak keluar kolom */
+.fc-daygrid-event .fc-event-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* titik-titik */
+  max-width: 100%;
+  display: inline-block;
+}
+
+/* Style event box */
+.fc-daygrid-event {
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+  max-width: 100% !important;
+}
+
+/* Supaya container event tidak overflow */
+.fc-daygrid-day-events {
+  overflow: hidden !important;
+}
+
+/* Hover biar lebih oke */
+.fc-daygrid-event:hover {
+  filter: brightness(1.1);
+  cursor: pointer;
 }
 
 /*--------------------------------------------------------------
@@ -258,12 +314,12 @@ h6 {
     position: relative;
   }
 
-  .navmenu>ul>li {
+  .navmenu > ul > li {
     white-space: nowrap;
     padding: 15px 14px;
   }
 
-  .navmenu>ul>li:last-child {
+  .navmenu > ul > li:last-child {
     padding-right: 0;
   }
 
@@ -290,7 +346,7 @@ h6 {
     transition: 0.3s;
   }
 
-  .navmenu>ul>li>a:before {
+  .navmenu > ul > li > a:before {
     content: "";
     position: absolute;
     width: 100%;
@@ -304,13 +360,13 @@ h6 {
   }
 
   .navmenu a:hover:before,
-  .navmenu li:hover>a:before,
+  .navmenu li:hover > a:before,
   .navmenu .active:before {
     visibility: visible;
     width: 100%;
   }
 
-  .navmenu li:hover>a,
+  .navmenu li:hover > a,
   .navmenu .active,
   .navmenu .active:focus {
     color: var(--nav-hover-color);
@@ -349,11 +405,11 @@ h6 {
 
   .navmenu .dropdown ul a:hover,
   .navmenu .dropdown ul .active:hover,
-  .navmenu .dropdown ul li:hover>a {
+  .navmenu .dropdown ul li:hover > a {
     color: var(--nav-dropdown-hover-color);
   }
 
-  .navmenu .dropdown:hover>ul {
+  .navmenu .dropdown:hover > ul {
     opacity: 1;
     top: 100%;
     visibility: visible;
@@ -365,7 +421,7 @@ h6 {
     visibility: hidden;
   }
 
-  .navmenu .dropdown .dropdown:hover>ul {
+  .navmenu .dropdown .dropdown:hover > ul {
     opacity: 1;
     top: 0;
     left: -100%;
@@ -467,7 +523,7 @@ h6 {
     background-color: rgba(33, 37, 41, 0.1);
   }
 
-  .navmenu .dropdown>.dropdown-active {
+  .navmenu .dropdown > .dropdown-active {
     display: block;
     background-color: rgba(33, 37, 41, 0.03);
   }
@@ -494,7 +550,7 @@ h6 {
     transition: 0.3s;
   }
 
-  .mobile-nav-active .navmenu>ul {
+  .mobile-nav-active .navmenu > ul {
     display: block;
   }
 }
@@ -511,7 +567,8 @@ h6 {
 
 .footer .footer-top {
   padding-top: 50px;
-  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .footer .footer-about .logo {
@@ -605,7 +662,8 @@ h6 {
 
 .footer .copyright {
   padding: 25px 0;
-  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .footer .copyright p {
@@ -738,7 +796,11 @@ h6 {
   margin-right: 0.2rem;
 }
 
-.page-title .breadcrumbs .breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+.page-title
+  .breadcrumbs
+  .breadcrumb
+  .breadcrumb-item
+  + .breadcrumb-item::before {
   color: color-mix(in srgb, var(--default-color), transparent 50%);
 }
 
@@ -791,7 +853,6 @@ section,
 }
 
 @media (max-width: 1199px) {
-
   section,
   .section {
     scroll-margin-top: 66px;
@@ -839,15 +900,25 @@ section,
   padding: 0;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100vh; /* FULL SATU LAYAR */
 }
 
 .hero .hero-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 70vh;
+  /* position: relative; */
+  /* width: 100%; */
+  /* min-height: 70vh; */
   display: flex;
   align-items: center;
   padding: 120px 0 60px 0;
+}
+
+hero-image img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  object-fit: cover; /* Biar full tanpa ketarik */
+  object-position: center;
 }
 
 .hero .hero-image {
@@ -866,7 +937,11 @@ section,
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--background-color), transparent 20%) 0%, color-mix(in srgb, var(--background-color), transparent 50%) 100%);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--background-color), transparent 20%) 0%,
+    color-mix(in srgb, var(--background-color), transparent 50%) 100%
+  );
   z-index: 2;
 }
 
@@ -975,7 +1050,13 @@ section,
   font-size: 0.9rem;
 }
 
-.hero .hero-content .content-box .info-badges .badge-item .badge-content strong {
+.hero
+  .hero-content
+  .content-box
+  .info-badges
+  .badge-item
+  .badge-content
+  strong {
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -1057,7 +1138,8 @@ section,
 
   .hero .floating-features .features-wrapper .feature-item {
     padding: 1rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--default-color), transparent 90%);
   }
 
   .hero .floating-features .features-wrapper .feature-item:last-child {
@@ -1071,7 +1153,11 @@ section,
   }
 
   .hero .hero-image::after {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.7) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
   }
 
   .hero .hero-content .content-box h1 {
@@ -1247,7 +1333,8 @@ section,
 }
 
 .home-about .certifications-row {
-  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .home-about .certifications-row .certification-title {
@@ -1312,14 +1399,16 @@ section,
   background: var(--surface-color);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 5px 15px color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 5px 15px
+    color-mix(in srgb, var(--default-color), transparent 85%);
   transition: all 0.3s ease;
   height: 100%;
 }
 
 .featured-departments .department-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 30px color-mix(in srgb, var(--default-color), transparent 75%);
+  box-shadow: 0 15px 30px
+    color-mix(in srgb, var(--default-color), transparent 75%);
 }
 
 .featured-departments .department-image {
@@ -1355,7 +1444,8 @@ section,
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 5px 15px color-mix(in srgb, var(--accent-color), transparent 40%);
+  box-shadow: 0 5px 15px
+    color-mix(in srgb, var(--accent-color), transparent 40%);
 }
 
 .featured-departments .department-icon i {
@@ -1452,7 +1542,8 @@ section,
 
 .featured-services .service-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 10px 30px
+    color-mix(in srgb, var(--default-color), transparent 85%);
   border-color: color-mix(in srgb, var(--accent-color), transparent 70%);
 }
 
@@ -1463,7 +1554,11 @@ section,
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, var(--accent-color), color-mix(in srgb, var(--accent-color), var(--heading-color) 30%));
+  background: linear-gradient(
+    90deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), var(--heading-color) 30%)
+  );
 }
 
 .featured-services .service-icon {
@@ -1607,7 +1702,8 @@ section,
   background: var(--surface-color);
   border-radius: 15px;
   padding: 2rem;
-  box-shadow: 0 10px 30px color-mix(in srgb, var(--default-color), transparent 90%);
+  box-shadow: 0 10px 30px
+    color-mix(in srgb, var(--default-color), transparent 90%);
   margin-bottom: 2rem;
 }
 
@@ -1623,7 +1719,8 @@ section,
 .find-a-doctor .search-form .form-control:focus,
 .find-a-doctor .search-form .form-select:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 85%);
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--accent-color), transparent 85%);
 }
 
 .find-a-doctor .search-form .btn-primary {
@@ -1668,12 +1765,14 @@ section,
   border-radius: 15px;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 5px 25px color-mix(in srgb, var(--default-color), transparent 92%);
+  box-shadow: 0 5px 25px
+    color-mix(in srgb, var(--default-color), transparent 92%);
 }
 
 .find-a-doctor .doctor-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 15px 40px
+    color-mix(in srgb, var(--default-color), transparent 85%);
 }
 
 .find-a-doctor .doctor-card .doctor-image {
@@ -1774,12 +1873,20 @@ section,
   transition: all 0.3s ease;
 }
 
-.find-a-doctor .doctor-card .doctor-info .appointment-actions .btn-outline-primary {
+.find-a-doctor
+  .doctor-card
+  .doctor-info
+  .appointment-actions
+  .btn-outline-primary {
   border: 2px solid var(--accent-color);
   color: var(--accent-color);
 }
 
-.find-a-doctor .doctor-card .doctor-info .appointment-actions .btn-outline-primary:hover {
+.find-a-doctor
+  .doctor-card
+  .doctor-info
+  .appointment-actions
+  .btn-outline-primary:hover {
   background: var(--accent-color);
   color: var(--contrast-color);
 }
@@ -1790,7 +1897,11 @@ section,
   color: var(--contrast-color);
 }
 
-.find-a-doctor .doctor-card .doctor-info .appointment-actions .btn-primary:hover {
+.find-a-doctor
+  .doctor-card
+  .doctor-info
+  .appointment-actions
+  .btn-primary:hover {
   background: color-mix(in srgb, var(--accent-color), black 15%);
   border-color: color-mix(in srgb, var(--accent-color), black 15%);
 }
@@ -1812,7 +1923,7 @@ section,
     padding: 1.5rem;
   }
 
-  .find-a-doctor .search-form .row.g-3>* {
+  .find-a-doctor .search-form .row.g-3 > * {
     margin-bottom: 1rem;
   }
 
@@ -1852,7 +1963,11 @@ section,
 # Call To Action Section
 --------------------------------------------------------------*/
 .call-to-action {
-  background: linear-gradient(135deg, var(--surface-color) 0%, color-mix(in srgb, var(--accent-color), transparent 95%) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--surface-color) 0%,
+    color-mix(in srgb, var(--accent-color), transparent 95%) 100%
+  );
 }
 
 .call-to-action .content h2 {
@@ -1890,7 +2005,6 @@ section,
 }
 
 @media (max-width: 576px) {
-
   .call-to-action .cta-buttons .btn-primary,
   .call-to-action .cta-buttons .btn-secondary {
     display: block;
@@ -2006,7 +2120,11 @@ section,
 }
 
 .call-to-action .emergency-alert {
-  background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), black 20%) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent-color) 0%,
+    color-mix(in srgb, var(--accent-color), black 20%) 100%
+  );
   padding: 2rem;
   border-radius: 15px;
   margin-top: 3rem;
@@ -2247,7 +2365,12 @@ section,
   font-size: 1rem;
 }
 
-.emergency-info .emergency-contacts .contact-card .card-content .contact-info span,
+.emergency-info
+  .emergency-contacts
+  .contact-card
+  .card-content
+  .contact-info
+  span,
 .emergency-info .emergency-contacts .contact-card .card-content .address span {
   font-weight: 500;
 }
@@ -2280,7 +2403,11 @@ section,
   display: inline-block;
 }
 
-.emergency-info .emergency-contacts .contact-card .card-action .btn-contact:hover {
+.emergency-info
+  .emergency-contacts
+  .contact-card
+  .card-action
+  .btn-contact:hover {
   background-color: color-mix(in srgb, var(--accent-color), black 10%);
   transform: translateY(-2px);
   color: var(--contrast-color);
@@ -2504,7 +2631,8 @@ section,
 .about .certifications-section {
   margin-top: 4rem;
   padding-top: 3rem;
-  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .about .certifications-section .section-header {
@@ -2554,7 +2682,11 @@ section,
   transition: filter 0.3s ease;
 }
 
-.about .certifications-section .certifications-grid .certification-item:hover img {
+.about
+  .certifications-section
+  .certifications-grid
+  .certification-item:hover
+  img {
   filter: grayscale(0) opacity(1);
 }
 
@@ -2619,7 +2751,8 @@ section,
   border-radius: 16px;
   padding: 25px;
   margin-bottom: 25px;
-  box-shadow: 0 8px 25px color-mix(in srgb, var(--default-color), transparent 92%);
+  box-shadow: 0 8px 25px
+    color-mix(in srgb, var(--default-color), transparent 92%);
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 92%);
   transition: all 0.3s ease;
   height: fit-content;
@@ -2627,7 +2760,8 @@ section,
 
 .departments .department-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px color-mix(in srgb, var(--accent-color), transparent 85%);
+  box-shadow: 0 15px 40px
+    color-mix(in srgb, var(--accent-color), transparent 85%);
   border-color: color-mix(in srgb, var(--accent-color), transparent 80%);
 }
 
@@ -2648,7 +2782,11 @@ section,
 .departments .department-header .department-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #000 20%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #000 20%)
+  );
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -2758,11 +2896,16 @@ section,
 }
 
 .departments .featured-department {
-  background: linear-gradient(145deg, var(--surface-color), color-mix(in srgb, var(--accent-color), transparent 95%));
+  background: linear-gradient(
+    145deg,
+    var(--surface-color),
+    color-mix(in srgb, var(--accent-color), transparent 95%)
+  );
   border-radius: 20px;
   padding: 30px;
   height: 100%;
-  box-shadow: 0 12px 35px color-mix(in srgb, var(--accent-color), transparent 88%);
+  box-shadow: 0 12px 35px
+    color-mix(in srgb, var(--accent-color), transparent 88%);
   border: 1px solid color-mix(in srgb, var(--accent-color), transparent 85%);
   position: relative;
   overflow: hidden;
@@ -2775,7 +2918,11 @@ section,
   right: 0;
   width: 100px;
   height: 100px;
-  background: radial-gradient(circle, color-mix(in srgb, var(--accent-color), transparent 85%), transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent-color), transparent 85%),
+    transparent
+  );
   border-radius: 50%;
   transform: translate(30px, -30px);
 }
@@ -2808,13 +2955,18 @@ section,
 .departments .featured-header .featured-icon {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #000 25%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #000 25%)
+  );
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  box-shadow: 0 8px 25px color-mix(in srgb, var(--accent-color), transparent 70%);
+  box-shadow: 0 8px 25px
+    color-mix(in srgb, var(--accent-color), transparent 70%);
 }
 
 .departments .featured-header .featured-icon i {
@@ -2856,7 +3008,11 @@ section,
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, color-mix(in srgb, var(--default-color), transparent 20%), transparent);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--default-color), transparent 20%),
+    transparent
+  );
   padding: 20px;
 }
 
@@ -2925,13 +3081,15 @@ section,
   align-items: center;
   gap: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent-color), transparent 70%);
+  box-shadow: 0 8px 20px
+    color-mix(in srgb, var(--accent-color), transparent 70%);
 }
 
 .departments .featured-content .featured-btn:hover {
   background: color-mix(in srgb, var(--accent-color), #000 15%);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px color-mix(in srgb, var(--accent-color), transparent 60%);
+  box-shadow: 0 12px 30px
+    color-mix(in srgb, var(--accent-color), transparent 60%);
   color: var(--contrast-color);
 }
 
@@ -3044,7 +3202,11 @@ section,
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.department-details .department-overview .department-image .experience-badge span {
+.department-details
+  .department-overview
+  .department-image
+  .experience-badge
+  span {
   font-size: 2.25rem;
   font-weight: 700;
   line-height: 1;
@@ -3064,11 +3226,19 @@ section,
     padding: 1rem;
   }
 
-  .department-details .department-overview .department-image .experience-badge span {
+  .department-details
+    .department-overview
+    .department-image
+    .experience-badge
+    span {
     font-size: 1.8rem;
   }
 
-  .department-details .department-overview .department-image .experience-badge p {
+  .department-details
+    .department-overview
+    .department-image
+    .experience-badge
+    p {
     font-size: 0.75rem;
   }
 }
@@ -3086,11 +3256,18 @@ section,
   margin-bottom: 2rem;
 }
 
-.department-details .department-overview .department-services .service-card:last-child {
+.department-details
+  .department-overview
+  .department-services
+  .service-card:last-child {
   margin-bottom: 0;
 }
 
-.department-details .department-overview .department-services .service-card .icon {
+.department-details
+  .department-overview
+  .department-services
+  .service-card
+  .icon {
   flex-shrink: 0;
   width: 60px;
   height: 60px;
@@ -3102,19 +3279,34 @@ section,
   margin-right: 1.25rem;
 }
 
-.department-details .department-overview .department-services .service-card .icon i {
+.department-details
+  .department-overview
+  .department-services
+  .service-card
+  .icon
+  i {
   font-size: 1.8rem;
   color: var(--accent-color);
 }
 
-.department-details .department-overview .department-services .service-card .content h4 {
+.department-details
+  .department-overview
+  .department-services
+  .service-card
+  .content
+  h4 {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--heading-color);
   margin-bottom: 0.75rem;
 }
 
-.department-details .department-overview .department-services .service-card .content p {
+.department-details
+  .department-overview
+  .department-services
+  .service-card
+  .content
+  p {
   color: color-mix(in srgb, var(--default-color), transparent 25%);
   margin-bottom: 0;
   line-height: 1.7;
@@ -3129,7 +3321,11 @@ section,
 .department-details .department-stats {
   margin-top: 5rem;
   padding: 3rem 0;
-  background-color: color-mix(in srgb, var(--background-color), transparent 95%);
+  background-color: color-mix(
+    in srgb,
+    var(--background-color),
+    transparent 95%
+  );
   border-radius: 12px;
 }
 
@@ -3222,25 +3418,45 @@ section,
   transition: all 0.3s ease;
 }
 
-.department-details .key-services .cta-wrapper .cta-content .cta-buttons .btn.btn-primary {
+.department-details
+  .key-services
+  .cta-wrapper
+  .cta-content
+  .cta-buttons
+  .btn.btn-primary {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   color: var(--contrast-color);
 }
 
-.department-details .key-services .cta-wrapper .cta-content .cta-buttons .btn.btn-primary:hover {
+.department-details
+  .key-services
+  .cta-wrapper
+  .cta-content
+  .cta-buttons
+  .btn.btn-primary:hover {
   background-color: color-mix(in srgb, var(--accent-color), black 15%);
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
-.department-details .key-services .cta-wrapper .cta-content .cta-buttons .btn.btn-outline {
+.department-details
+  .key-services
+  .cta-wrapper
+  .cta-content
+  .cta-buttons
+  .btn.btn-outline {
   background-color: transparent;
   border: 2px solid var(--accent-color);
   color: var(--accent-color);
 }
 
-.department-details .key-services .cta-wrapper .cta-content .cta-buttons .btn.btn-outline:hover {
+.department-details
+  .key-services
+  .cta-wrapper
+  .cta-content
+  .cta-buttons
+  .btn.btn-outline:hover {
   background-color: var(--accent-color);
   color: var(--contrast-color);
   transform: translateY(-3px);
@@ -3325,7 +3541,11 @@ section,
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #007acc 50%));
+  background: linear-gradient(
+    90deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #007acc 50%)
+  );
   transition: left 0.3s ease;
   z-index: -1;
 }
@@ -3341,7 +3561,11 @@ section,
 }
 
 .services .services-tabs .nav-tabs .nav-link.active {
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #007acc 50%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #007acc 50%)
+  );
   color: var(--contrast-color);
   border-color: var(--accent-color);
 }
@@ -3365,7 +3589,8 @@ section,
 }
 
 .services .service-item:hover {
-  box-shadow: 0 10px 40px color-mix(in srgb, var(--default-color), transparent 85%);
+  box-shadow: 0 10px 40px
+    color-mix(in srgb, var(--default-color), transparent 85%);
   transform: translateY(-5px);
   border-color: color-mix(in srgb, var(--accent-color), transparent 60%);
 }
@@ -3392,11 +3617,16 @@ section,
 
 .services .service-item.featured {
   border: 2px solid var(--accent-color);
-  box-shadow: 0 5px 30px color-mix(in srgb, var(--accent-color), transparent 80%);
+  box-shadow: 0 5px 30px
+    color-mix(in srgb, var(--accent-color), transparent 80%);
 }
 
 .services .service-item.featured .service-icon-wrapper {
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #007acc 50%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #007acc 50%)
+  );
 }
 
 .services .service-item.featured .service-icon-wrapper i {
@@ -3408,7 +3638,11 @@ section,
 }
 
 .services .service-item.emergency-highlight {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 95%), var(--surface-color));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-color), transparent 95%),
+    var(--surface-color)
+  );
   border: 2px solid var(--accent-color);
   text-align: center;
   padding: 50px 30px;
@@ -3495,7 +3729,11 @@ section,
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #007acc 50%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #007acc 50%)
+  );
   border-radius: 20px;
   transform: scale(0);
   transition: transform 0.3s ease;
@@ -3575,7 +3813,8 @@ section,
   background: var(--surface-color);
   padding: 60px 40px;
   border-radius: 30px;
-  box-shadow: 0 10px 50px color-mix(in srgb, var(--default-color), transparent 90%);
+  box-shadow: 0 10px 50px
+    color-mix(in srgb, var(--default-color), transparent 90%);
   border: 2px solid color-mix(in srgb, var(--accent-color), transparent 80%);
   position: relative;
   overflow: hidden;
@@ -3603,7 +3842,7 @@ section,
   border-radius: 50%;
 }
 
-.services .services-cta .cta-content>* {
+.services .services-cta .cta-content > * {
   position: relative;
   z-index: 2;
 }
@@ -4043,14 +4282,16 @@ section,
   background: var(--surface-color);
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 5px 30px color-mix(in srgb, var(--default-color), transparent 90%);
+  box-shadow: 0 5px 30px
+    color-mix(in srgb, var(--default-color), transparent 90%);
   transition: all 0.3s ease;
   height: 100%;
 }
 
 .doctors .doctor-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 15px 40px color-mix(in srgb, var(--default-color), transparent 80%);
+  box-shadow: 0 15px 40px
+    color-mix(in srgb, var(--default-color), transparent 80%);
 }
 
 .doctors .doctor-card .doctor-image {
@@ -4071,7 +4312,11 @@ section,
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 10%) 0%, color-mix(in srgb, var(--accent-color), transparent 20%) 100%);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-color), transparent 10%) 0%,
+    color-mix(in srgb, var(--accent-color), transparent 20%) 100%
+  );
   opacity: 0;
   display: flex;
   align-items: center;
@@ -4199,7 +4444,8 @@ section,
   background: var(--accent-color);
   color: var(--contrast-color);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px color-mix(in srgb, var(--accent-color), transparent 60%);
+  box-shadow: 0 8px 25px
+    color-mix(in srgb, var(--accent-color), transparent 60%);
 }
 
 @media (max-width: 768px) {
@@ -4310,7 +4556,8 @@ section,
 .appointmnet .appointment-form .form-control:focus,
 .appointmnet .appointment-form .form-select:focus {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--accent-color), transparent 85%);
+  box-shadow: 0 0 0 0.2rem
+    color-mix(in srgb, var(--accent-color), transparent 85%);
 }
 
 .appointmnet .appointment-form .form-control::placeholder,
@@ -4572,7 +4819,7 @@ section,
 
 .testimonials .testimonial-item .stars {
   margin-bottom: 15px;
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .testimonials .testimonial-item .stars i {
@@ -4613,7 +4860,12 @@ section,
   color: var(--heading-color);
 }
 
-.testimonials .testimonial-item .testimonial-footer .testimonial-author div span {
+.testimonials
+  .testimonial-item
+  .testimonial-footer
+  .testimonial-author
+  div
+  span {
   font-size: 14px;
   color: color-mix(in srgb, var(--default-color), transparent 30%);
 }
@@ -4643,11 +4895,21 @@ section,
     height: 45px;
   }
 
-  .testimonials .testimonial-item .testimonial-footer .testimonial-author div h5 {
+  .testimonials
+    .testimonial-item
+    .testimonial-footer
+    .testimonial-author
+    div
+    h5 {
     font-size: 16px;
   }
 
-  .testimonials .testimonial-item .testimonial-footer .testimonial-author div span {
+  .testimonials
+    .testimonial-item
+    .testimonial-footer
+    .testimonial-author
+    div
+    span {
     font-size: 13px;
   }
 
@@ -4760,7 +5022,12 @@ section,
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.1) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   display: flex;
   align-items: flex-end;
   padding: 20px;
@@ -4932,7 +5199,11 @@ section,
 
 .faq .faq-contact-card {
   height: 100%;
-  background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), var(--heading-color) 30%));
+  background: linear-gradient(
+    135deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), var(--heading-color) 30%)
+  );
   border-radius: 10px;
   padding: 40px 30px;
   display: flex;
@@ -5070,7 +5341,11 @@ section,
 }
 
 .contact .contact-info-panel {
-  background: linear-gradient(145deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #1a4372 40%));
+  background: linear-gradient(
+    145deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #1a4372 40%)
+  );
   color: var(--contrast-color);
   border-radius: 20px;
   padding: 40px 30px;
@@ -5215,7 +5490,11 @@ section,
   font-weight: 700;
   margin-bottom: 15px;
   color: var(--heading-color);
-  background: linear-gradient(120deg, var(--heading-color), color-mix(in srgb, var(--heading-color), var(--accent-color) 30%));
+  background: linear-gradient(
+    120deg,
+    var(--heading-color),
+    color-mix(in srgb, var(--heading-color), var(--accent-color) 30%)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -5262,7 +5541,11 @@ section,
 }
 
 .contact .form-container .btn-submit {
-  background: linear-gradient(145deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #1a4372 30%));
+  background: linear-gradient(
+    145deg,
+    var(--accent-color),
+    color-mix(in srgb, var(--accent-color), #1a4372 30%)
+  );
   color: var(--contrast-color);
   border: none;
   padding: 15px 25px;
@@ -5277,7 +5560,8 @@ section,
 
 .contact .form-container .btn-submit:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--accent-color), transparent 75%);
+  box-shadow: 0 10px 20px
+    color-mix(in srgb, var(--accent-color), transparent 75%);
 }
 
 .contact .form-container .btn-submit i {
@@ -5446,7 +5730,11 @@ section,
   }
 }
 
-.terms-of-service .tos-content .content-section .prohibited-list .prohibited-item {
+.terms-of-service
+  .tos-content
+  .content-section
+  .prohibited-list
+  .prohibited-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -5455,12 +5743,22 @@ section,
   border-radius: 12px;
 }
 
-.terms-of-service .tos-content .content-section .prohibited-list .prohibited-item i {
+.terms-of-service
+  .tos-content
+  .content-section
+  .prohibited-list
+  .prohibited-item
+  i {
   color: #dc3545;
   font-size: 1.2rem;
 }
 
-.terms-of-service .tos-content .content-section .prohibited-list .prohibited-item span {
+.terms-of-service
+  .tos-content
+  .content-section
+  .prohibited-list
+  .prohibited-item
+  span {
   font-size: 0.95rem;
   color: color-mix(in srgb, var(--default-color), transparent 20%);
 }
@@ -5491,7 +5789,12 @@ section,
   font-size: 0.95rem;
 }
 
-.terms-of-service .tos-content .content-section .disclaimer-box ul li:last-child {
+.terms-of-service
+  .tos-content
+  .content-section
+  .disclaimer-box
+  ul
+  li:last-child {
   margin-bottom: 0;
 }
 
@@ -5528,7 +5831,11 @@ section,
 }
 
 .terms-of-service .tos-contact .contact-box {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 95%) 0%, color-mix(in srgb, var(--accent-color), transparent 98%) 100%);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-color), transparent 95%) 0%,
+    color-mix(in srgb, var(--accent-color), transparent 98%) 100%
+  );
   border-radius: 20px;
   padding: 40px;
   display: flex;
@@ -5586,7 +5893,11 @@ section,
   transition: all 0.3s;
 }
 
-.terms-of-service .tos-contact .contact-box .contact-content .contact-link:hover {
+.terms-of-service
+  .tos-contact
+  .contact-box
+  .contact-content
+  .contact-link:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
@@ -5612,7 +5923,8 @@ section,
 .privacy .privacy-header {
   margin-bottom: 60px;
   text-align: center;
-  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
   padding-bottom: 40px;
 }
 
@@ -5702,7 +6014,8 @@ section,
   max-width: 800px;
   margin: 0 auto;
   padding-top: 40px;
-  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid
+    color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .privacy .privacy-contact h2 {

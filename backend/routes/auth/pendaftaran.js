@@ -10,29 +10,53 @@ const router = express.Router();
 // Konfigurasi upload file
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    let dir;
+
     if (file.fieldname === "surat_tugas") {
-      const dir = "uploads/surat_tugas";
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      cb(null, dir);
+      dir = "uploads/surat_tugas";
+    } else if (file.fieldname === "foto_4x6") {
+      dir = "uploads/foto_4x6";
     } else {
-      cb(new Error("Field file tidak dikenal"));
+      return cb(new Error("Field file tidak dikenal"));
     }
+
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
+
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   },
 });
 
-const upload = multer({ storage });
+// VALIDASI FILE
+function fileFilter(req, file, cb) {
+  const allowed = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+
+  if (!allowed.includes(file.mimetype)) {
+    return cb(new Error("Format file tidak didukung"));
+  }
+
+  cb(null, true);
+}
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
+});
 
 // Route Pendaftaran
 router.post(
   "/",
-  upload.single("surat_tugas"), // hanya 1 file
+  upload.fields([
+    { name: "surat_tugas", maxCount: 1 },
+    { name: "foto_4x6", maxCount: 1 },
+  ]),
   (req, res) => {
     const {
-      id_user,
+      id_pendaftaran,
       id_pelatihan,
       nik,
       nip,
@@ -53,6 +77,7 @@ router.post(
       email,
       profesi,
       jabatan,
+      tanggal_daftar,
       str,
       provinsi_asal,
       jenis_nakes,
@@ -62,7 +87,6 @@ router.post(
 
     // Validasi data wajib
     if (
-      !id_user ||
       !id_pelatihan ||
       !nik ||
       !nip ||
@@ -77,64 +101,95 @@ router.post(
       });
     }
 
-    const surat_tugas = req.file ? req.file.filename : null;
+    const surat_tugas = req.files["surat_tugas"]
+      ? req.files["surat_tugas"][0].filename
+      : null;
+    const foto_4x6 = req.files["foto_4x6"]
+      ? req.files["foto_4x6"][0].filename
+      : null;
 
-    const sql = `
+    const cekKuota = `
+      SELECT kuota - (
+        SELECT COUNT(*) FROM pendaftaran_tb WHERE id_pelatihan = ?
+      ) AS sisa
+      FROM pelatihan_tb 
+      WHERE id_pelatihan = ?
+    `;
+
+    connection.query(
+      cekKuota,
+      [id_pelatihan, id_pelatihan],
+      (err, kuotaRes) => {
+        if (err) {
+          console.error("❌ Error cek kuota:", err);
+          return res.status(500).json({ message: "Gagal mengecek kuota" });
+        }
+
+        const sisa = kuotaRes[0]?.sisa ?? 0;
+
+        if (sisa <= 0) {
+          return res.status(400).json({
+            message: "❌ Kuota sudah penuh! Anda tidak dapat mendaftar.",
+          });
+        }
+
+        const sql = `
       INSERT INTO pendaftaran_tb (
-        id_user, id_pelatihan, nik, nip, gelar_depan, nama_peserta, gelar_belakang,
+        id_pendaftaran, id_pelatihan, nik, nip, gelar_depan, nama_peserta, gelar_belakang,
         asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
-        status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email,
-        profesi, jabatan, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
-        provinsi_kantor, surat_tugas
+        status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, tanggal_daftar, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
+        provinsi_kantor, surat_tugas, foto_4x6
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [
-      id_user,
-      id_pelatihan,
-      nik,
-      nip,
-      gelar_depan,
-      nama_peserta,
-      gelar_belakang,
-      asal_instansi,
-      tempat_lahir,
-      tanggal_lahir,
-      pendidikan,
-      jenis_kelamin,
-      agama,
-      status_pegawai,
-      kabupaten_asal,
-      alamat_kantor,
-      alamat_rumah,
-      no_wa,
-      email,
-      profesi,
-      jabatan,
-      str,
-      provinsi_asal,
-      jenis_nakes,
-      kabupaten_kantor,
-      provinsi_kantor,
-      surat_tugas,
-    ];
+        const values = [
+          id_pendaftaran,
+          id_pelatihan,
+          nik,
+          nip,
+          gelar_depan,
+          nama_peserta,
+          gelar_belakang,
+          asal_instansi,
+          tempat_lahir,
+          tanggal_lahir,
+          pendidikan,
+          jenis_kelamin,
+          agama,
+          status_pegawai,
+          kabupaten_asal,
+          alamat_kantor,
+          alamat_rumah,
+          no_wa,
+          email,
+          tanggal_daftar,
+          str,
+          provinsi_asal,
+          jenis_nakes,
+          kabupaten_kantor,
+          provinsi_kantor,
+          surat_tugas,
+          foto_4x6,
+        ];
 
-    // Gunakan pool.getConnection biar koneksi stabil
-    connection.query(sql, values, (err, result) => {
-      if (err) {
-        console.error("❌ Error insert pendaftaran:", err);
-        return res.status(500).json({
-          message: "Gagal mendaftar pelatihan",
-          error: err.message,
+        // Gunakan pool.getConnection biar koneksi stabil
+        connection.query(sql, values, (err, result) => {
+          if (err) {
+            console.error("❌ Error insert pendaftaran:", err);
+            return res.status(500).json({
+              message: "Gagal mendaftar pelatihan",
+              error: err.message,
+            });
+          }
+
+          res.status(201).json({
+            message: "✅ Pendaftaran pelatihan berhasil dikirim!",
+            id_pendaftaran: result.insertId,
+          });
         });
       }
-
-      res.status(201).json({
-        message: "✅ Pendaftaran pelatihan berhasil dikirim!",
-        id_pendaftaran: result.insertId,
-      });
-    });
+    );
   }
 );
 
@@ -161,8 +216,7 @@ router.put("/:id", upload.single("surat_tugas"), (req, res) => {
     alamat_rumah,
     no_wa,
     email,
-    profesi,
-    jabatan,
+    tanggal_daftar,
     str,
     provinsi_asal,
     jenis_nakes,
@@ -171,6 +225,9 @@ router.put("/:id", upload.single("surat_tugas"), (req, res) => {
   } = req.body;
 
   const surat_tugas = req.file ? req.file.filename : null;
+  const foto_4x6 = req.files["foto_4x6"]
+    ? req.files["foto_4x6"][0].filename
+    : null;
 
   // Ambil data lama buat hapus file kalau ada file baru
   const getOldFile = `SELECT surat_tugas FROM pendaftaran_tb WHERE id_pendaftaran = ?`;
@@ -192,9 +249,8 @@ router.put("/:id", upload.single("surat_tugas"), (req, res) => {
       UPDATE pendaftaran_tb SET
         nik=?, nip=?, gelar_depan=?, nama_peserta=?, gelar_belakang=?, asal_instansi=?,
         tempat_lahir=?, tanggal_lahir=?, pendidikan=?, jenis_kelamin=?, agama=?,
-        status_pegawai=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?,
-        profesi=?, jabatan=?, str=?, provinsi_asal=?, jenis_nakes=?, kabupaten_kantor=?,
-        provinsi_kantor=?, surat_tugas=?
+        status_pegawai=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?, tangggal_daftar=?, str=?, provinsi_asal=?, jenis_nakes=?, kabupaten_kantor=?,
+        provinsi_kantor=?, surat_tugas=?, foto_4x6=?
       WHERE id_pendaftaran=?
     `;
 
@@ -216,14 +272,14 @@ router.put("/:id", upload.single("surat_tugas"), (req, res) => {
       alamat_rumah,
       no_wa,
       email,
-      profesi,
-      jabatan,
+      tanggal_daftar,
       str,
       provinsi_asal,
       jenis_nakes,
       kabupaten_kantor,
       provinsi_kantor,
       surat_tugas || oldFile,
+      foto_4x6 || oldFile,
       id,
     ];
 
@@ -274,6 +330,56 @@ router.delete("/:id", (req, res) => {
       res
         .status(200)
         .json({ message: "✅ Data pendaftaran berhasil dihapus!" });
+    });
+  });
+});
+
+// ========================================================
+// 4️⃣ STATUS: ACCEPT (WAITING → WAITING_PAYMENT)
+// ========================================================
+router.put("/:id/accept", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+      UPDATE pendaftaran_tb 
+      SET status = 'WAITING_PAYMENT'
+      WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json({ message: "❌ Error update status" });
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
+
+    res.json({
+      message: "✅ Pendaftaran diterima!",
+      status: "WAITING_PAYMENT",
+    });
+  });
+});
+
+// ========================================================
+// 5️⃣ STATUS: REJECT (WAITING → REJECTED)
+// ========================================================
+router.put("/:id/reject", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+      UPDATE pendaftaran_tb 
+      SET status = 'REJECTED'
+      WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json({ message: "❌ Error update status" });
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
+
+    res.json({
+      message: "❌ Pendaftaran ditolak!",
+      status: "REJECTED",
     });
   });
 });
