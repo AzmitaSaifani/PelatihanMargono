@@ -98,40 +98,42 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
 router.get("/", (req, res) => {
   const sql = `
   SELECT 
-        p.id_pelatihan,
-        p.nama_pelatihan,
-        p.deskripsi,
-        p.narasumber,
-        p.lokasi,
-        p.alamat_lengkap,
-        p.tanggal_mulai,
-        p.tanggal_selesai,
-        p.waktu_mulai,
-        p.waktu_selesai,
-        p.kuota,
-        p.kategori,
-        p.tipe_pelatihan,
-        p.durasi,
-        p.flyer_url,
-        p.status,
-        p.created_by,
-        p.created_at,
-        p.updated_at,
+    p.id_pelatihan,
+    p.nama_pelatihan,
+    p.deskripsi,
+    p.narasumber,
+    p.lokasi,
+    p.alamat_lengkap,
+    p.tanggal_mulai,
+    p.tanggal_selesai,
+    p.waktu_mulai,
+    p.waktu_selesai,
+    p.kuota,
+    p.kategori,
+    p.tipe_pelatihan,
+    p.durasi,
+    p.flyer_url,
+    p.status,
+    p.created_by,
+    p.created_at,
+    p.updated_at,
 
-        -- jumlah peserta terdaftar
-        (
-          SELECT COUNT(*) 
-          FROM pendaftaran_tb d 
-          WHERE d.id_pelatihan = p.id_pelatihan
-        ) AS jumlah_pendaftar,
+    /* jumlah peserta yang status = diterima */
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'diterima'
+    ) AS jumlah_diterima,
 
-        -- sisa kuota
-        p.kuota -
-        (
-          SELECT COUNT(*) 
-          FROM pendaftaran_tb d 
-          WHERE d.id_pelatihan = p.id_pelatihan
-        ) AS sisa_kuota
+    /* sisa kuota (kuota - peserta diterima) */
+    p.kuota -
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'diterima'
+    ) AS sisa_kuota
 
     FROM pelatihan_tb p
     ORDER BY p.tanggal_mulai ASC

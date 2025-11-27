@@ -6226,6 +6226,39 @@ hero-image img {
   }
 }
 
+.institusi-section {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.institusi-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.institusi-item {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.institusi-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.institusi-item img:hover {
+  transform: scale(1.1);
+}
+
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
