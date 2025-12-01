@@ -211,7 +211,6 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
       durasi,
       flyer_url || oldFlyer,
       status,
-      updated_by,
       id,
     ];
 

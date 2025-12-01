@@ -6259,6 +6259,18 @@ hero-image img {
   transform: scale(1.1);
 }
 
+.flyer-rectangle {
+  width: 100%;
+  height: auto;
+}
+
+.flyer-rectangle img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
 /*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
