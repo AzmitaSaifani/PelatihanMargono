@@ -36,7 +36,7 @@ router.post("/", upload.single("foto"), (req, res) => {
     INSERT INTO gallery_tb (keterangan, foto, status)
     VALUES (?, ?, ?)
   `;
-  const values = [keterangan || null, foto, status || "A"];
+  const values = [keterangan || null, foto, status || "1"];
 
   connection.query(sql, values, (err, result) => {
     if (err) {
@@ -57,7 +57,7 @@ router.post("/", upload.single("foto"), (req, res) => {
 // ===============   READ ALL GALLERY   =================
 // ======================================================
 router.get("/", (req, res) => {
-  const sql = "SELECT * FROM gallery_tb ORDER BY id DESC";
+  const sql = "SELECT * FROM gallery_tb WHERE status = '1' ORDER BY id DESC";
 
   connection.query(sql, (err, results) => {
     if (err) {

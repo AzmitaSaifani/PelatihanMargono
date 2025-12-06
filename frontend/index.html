@@ -199,8 +199,8 @@
                 <li><a href="menupelatihan.html">Menu Pelatihan</a></li>
                 <li><a href="kalender.html">Kalender Pelatihan</a></li>
                 <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
-                <li><a href="privacy.html">Alur Pendaftaran</a></li>
-                <li><a href="gallery.html">Statistik</a></li>
+                <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
               </ul>
             </li>
             <li class="dropdown">
@@ -486,7 +486,26 @@
                   const btnDetail = document.getElementById("btnDetail");
 
                   // AMBIL KUOTA SISANYA (di sini error kamu tadi)
-                  const kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+                  let  kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+                  const totalKuota = Number(info.event.extendedProps.totalKuota) || 0;
+                  // ===============================
+                  // LOGIKA 1 — CEK EXPIRED (tanggal mulai sudah lewat)
+                  // ===============================
+                  const today = new Date().setHours(0,0,0,0);
+                  const eventDate = new Date(info.event.extendedProps.tanggal_mulai).setHours(0,0,0,0);
+
+                  if (today > eventDate) {
+                    // Anggap kuota 0 di tampilan & logika
+                    kuotaSisa = 0;
+
+                    document.getElementById("modalPeserta").innerText = `0 / ${totalKuota}`;
+
+                    btnDetail.innerText = "Pendaftaran Ditutup";
+                    btnDetail.style.background = "#777";
+                    btnDetail.style.cursor = "not-allowed";
+                    btnDetail.onclick = null;
+                    return;
+                  }
 
                   // ===============================
                   // LOGIKA KUOTA PENUH
@@ -759,6 +778,9 @@
 
                         const p = data.find(x => x.id_pelatihan == id);
 
+                        const btnDetail = document.getElementById("btnDetail");
+
+
                         // Fill flyer
                         document.getElementById("modalFlyer").src =
                           `http://localhost:5000/uploads/flyer/${p.flyer_url}`;
@@ -780,8 +802,30 @@
                         document.getElementById("modalPeserta").innerText =
                           p.sisa_kuota + " / " + p.kuota;
 
+                           // =============================
+                          // LOGIKA: Tanggal Sudah Lewat
+                          // =============================
+                          const today = new Date().setHours(0,0,0,0);
+                          const eventDate = new Date(p.tanggal_mulai).setHours(0,0,0,0);
+
+                          let sisaKuota = Number(p.sisa_kuota) || 0;
+                          const totalKuota = Number(p.kuota) || 0;
+
+                          if (today > eventDate) {
+                            // Set kuota ke 0 di tampilan
+                            sisaKuota = 0;
+                            document.getElementById("modalPeserta").innerText = `0 / ${totalKuota}`;
+
+                            btnDetail.innerText = "Pendaftaran Ditutup";
+                            btnDetail.style.background = "#777";
+                            btnDetail.style.cursor = "not-allowed";
+                            btnDetail.onclick = null;
+
+                            document.getElementById("modalPelatihan").style.display = "flex";
+                            return;
+                          }
+
                         // ===== Logika Tombol Daftar =====
-                        const btnDetail = document.getElementById("btnDetail");
 
                         if (p.sisa_kuota <= 0) {
                           btnDetail.innerText = "Kuota Penuh";
@@ -828,778 +872,66 @@
         </section>
         <!-- END MENU PELATIHAN Section -->
 
-      <!-- Featured Services Section -->
-      <section
-        id="featured-services"
-        class="featured-services section light-background"
-      >
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Featured Services</h2>
-          <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
-          </p>
-        </div>
-        <!-- End Section Title -->
-
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="row gy-4">
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-              <div class="service-card">
-                <div class="service-icon">
-                  <i class="fas fa-heartbeat"></i>
-                </div>
-                <div class="service-content">
-                  <h3>Cardiology Excellence</h3>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
-                  </p>
-                  <ul class="service-features">
-                    <li>
-                      <i class="fas fa-check-circle"></i>Advanced Heart Surgery
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>24/7 Emergency Care
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Preventive Screenings
-                    </li>
-                  </ul>
-                  <a href="services.html" class="service-btn">
-                    Learn More
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Service Card -->
-
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="300">
-              <div class="service-card">
-                <div class="service-icon">
-                  <i class="fas fa-brain"></i>
-                </div>
-                <div class="service-content">
-                  <h3>Neurology &amp; Brain Health</h3>
-                  <p>
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                    laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                    irure dolor in reprehenderit in voluptate velit esse.
-                  </p>
-                  <ul class="service-features">
-                    <li>
-                      <i class="fas fa-check-circle"></i>Brain Imaging &amp;
-                      Diagnostics
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Stroke Treatment Center
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Neurological
-                      Rehabilitation
-                    </li>
-                  </ul>
-                  <a href="services.html" class="service-btn">
-                    Learn More
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Service Card -->
-
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
-              <div class="service-card">
-                <div class="service-icon">
-                  <i class="fas fa-bone"></i>
-                </div>
-                <div class="service-content">
-                  <h3>Orthopedic Surgery</h3>
-                  <p>
-                    Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia deserunt mollit anim id est laborum. Sed
-                    ut perspiciatis unde omnis iste natus error.
-                  </p>
-                  <ul class="service-features">
-                    <li>
-                      <i class="fas fa-check-circle"></i>Joint Replacement
-                      Surgery
-                    </li>
-                    <li><i class="fas fa-check-circle"></i>Sports Medicine</li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Minimally Invasive
-                      Procedures
-                    </li>
-                  </ul>
-                  <a href="services.html" class="service-btn">
-                    Learn More
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Service Card -->
-
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="500">
-              <div class="service-card">
-                <div class="service-icon">
-                  <i class="fas fa-ambulance"></i>
-                </div>
-                <div class="service-content">
-                  <h3>Emergency &amp; Trauma Care</h3>
-                  <p>
-                    Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut
-                    odit aut fugit, sed quia consequuntur magni dolores eos qui
-                    ratione voluptatem sequi nesciunt.
-                  </p>
-                  <ul class="service-features">
-                    <li>
-                      <i class="fas fa-check-circle"></i>24/7 Emergency
-                      Department
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Level 1 Trauma Center
-                    </li>
-                    <li>
-                      <i class="fas fa-check-circle"></i>Critical Care Units
-                    </li>
-                  </ul>
-                  <a href="services.html" class="service-btn">
-                    Learn More
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-            <!-- End Service Card -->
-          </div>
-        </div>
-      </section>
-      <!-- /Featured Services Section -->
-
-      <!-- Find A Doctor Section -->
-      <section id="find-a-doctor" class="find-a-doctor section">
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Find A Doctor</h2>
-          <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
-          </p>
-        </div>
-        <!-- End Section Title -->
-
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div
-            class="row justify-content-center"
-            data-aos="fade-up"
-            data-aos-delay="200"
-          >
-            <div class="col-lg-12">
-              <div class="search-container">
-                <form
-                  class="search-form"
-                  action="forms/doctor-search.php"
-                  method="get"
-                >
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <input
-                        type="text"
-                        class="form-control"
-                        name="doctor_name"
-                        placeholder="Doctor name or keyword"
-                      />
-                    </div>
-                    <div class="col-md-4">
-                      <select
-                        class="form-select"
-                        name="specialty"
-                        id="specialty-select"
-                      >
-                        <option value="">Select Specialty</option>
-                        <option value="cardiology">Cardiology</option>
-                        <option value="neurology">Neurology</option>
-                        <option value="orthopedics">Orthopedics</option>
-                        <option value="pediatrics">Pediatrics</option>
-                        <option value="dermatology">Dermatology</option>
-                        <option value="oncology">Oncology</option>
-                        <option value="surgery">Surgery</option>
-                        <option value="emergency">Emergency Medicine</option>
-                      </select>
-                    </div>
-                    <div class="col-md-4">
-                      <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-search me-2"></i>Search Doctor
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          <div class="row" data-aos="fade-up" data-aos-delay="400">
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-3.webp"
-                    alt="Dr. Sarah Mitchell"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge online">Available</div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. Sarah Mitchell</h5>
-                  <p class="specialty">Cardiology</p>
-                  <p class="experience">15+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <span class="rating-text">(4.9)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-7.webp"
-                    alt="Dr. Michael Rodriguez"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge busy">In Surgery</div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. Michael Rodriguez</h5>
-                  <p class="specialty">Neurology</p>
-                  <p class="experience">12+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                    <span class="rating-text">(4.7)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-1.webp"
-                    alt="Dr. Emily Chen"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge online">Available</div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. Emily Chen</h5>
-                  <p class="specialty">Pediatrics</p>
-                  <p class="experience">8+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <span class="rating-text">(5.0)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-9.webp"
-                    alt="Dr. James Thompson"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge offline">
-                    Next: Tomorrow 9AM
-                  </div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. James Thompson</h5>
-                  <p class="specialty">Orthopedics</p>
-                  <p class="experience">20+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                    <span class="rating-text">(4.8)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-5.webp"
-                    alt="Dr. Lisa Anderson"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge online">Available</div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. Lisa Anderson</h5>
-                  <p class="specialty">Dermatology</p>
-                  <p class="experience">10+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star"></i>
-                    <span class="rating-text">(4.6)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="doctor-card">
-                <div class="doctor-image">
-                  <img
-                    src="assets/img/health/staff-12.webp"
-                    alt="Dr. Robert Kim"
-                    class="img-fluid"
-                  />
-                  <div class="availability-badge online">Available</div>
-                </div>
-                <div class="doctor-info">
-                  <h5>Dr. Robert Kim</h5>
-                  <p class="specialty">Oncology</p>
-                  <p class="experience">18+ years experience</p>
-                  <div class="rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <span class="rating-text">(4.9)</span>
-                  </div>
-                  <div class="appointment-actions">
-                    <a href="#" class="btn btn-outline-primary btn-sm"
-                      >View Profile</a
-                    >
-                    <a href="#" class="btn btn-primary btn-sm"
-                      >Book Appointment</a
-                    >
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Doctor Card -->
-          </div>
-        </div>
-      </section>
-      <!-- /Find A Doctor Section -->
-
       <!-- Call To Action Section -->
       <section id="call-to-action" class="call-to-action section">
         <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-              <h2 data-aos="fade-up" data-aos-delay="200">
-                Your Health is Our Priority
-              </h2>
-              <p data-aos="fade-up" data-aos-delay="250">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-              </p>
-
-              <div class="cta-buttons" data-aos="fade-up" data-aos-delay="300">
-                <a href="daftarpelatihan.html" class="btn-primary"
-                  >Book Appointment</a
-                >
-                <a href="doctors.html" class="btn-secondary">Find a Doctor</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="row features-row" data-aos="fade-up" data-aos-delay="400">
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="feature-card">
-                <div class="icon-wrapper">
-                  <i class="bi bi-heart-pulse"></i>
-                </div>
-                <h5>24/7 Emergency Care</h5>
-                <p>
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo.
-                </p>
-                <a href="#" class="feature-link">
-                  <span>Learn More</span>
-                  <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="feature-card">
-                <div class="icon-wrapper">
-                  <i class="bi bi-calendar-check"></i>
-                </div>
-                <h5>Easy Online Booking</h5>
-                <p>
-                  Duis aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur.
-                </p>
-                <a href="#" class="feature-link">
-                  <span>Book Now</span>
-                  <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-              <div class="feature-card">
-                <div class="icon-wrapper">
-                  <i class="bi bi-people"></i>
-                </div>
-                <h5>Expert Medical Team</h5>
-                <p>
-                  Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                  qui officia deserunt mollit anim.
-                </p>
-                <a href="#" class="feature-link">
-                  <span>Meet Our Doctors</span>
-                  <i class="bi bi-arrow-right"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="emergency-alert" data-aos="zoom-in" data-aos-delay="500">
-            <div class="row align-items-center">
-              <div class="col-lg-8">
-                <div class="emergency-content">
-                  <div class="emergency-icon">
-                    <i class="bi bi-telephone-fill"></i>
-                  </div>
-                  <div class="emergency-text">
-                    <h4>Medical Emergency?</h4>
-                    <p>
-                      Call our 24/7 emergency hotline for immediate assistance
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="col-lg-4 text-end">
-                <a href="tel:911" class="emergency-btn">
-                  <i class="bi bi-telephone-fill"></i>
-                  Call (555) 123-4567
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- /Call To Action Section -->
-
-      <!-- Emergency Info Section -->
-      <section id="emergency-info" class="emergency-info section">
-        <!-- Section Title -->
-        <div class="container section-title" data-aos="fade-up">
-          <h2>Emergency Info</h2>
-          <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
-          </p>
-        </div>
-        <!-- End Section Title -->
-
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-              <!-- Emergency Alert Banner -->
-              <div
-                class="emergency-alert"
-                data-aos="zoom-in"
-                data-aos-delay="100"
-              >
-                <div class="alert-icon">
-                  <i class="bi bi-exclamation-triangle-fill"></i>
-                </div>
-                <div class="alert-content">
-                  <h3>Medical Emergency?</h3>
-                  <p>
-                    If you are experiencing a life-threatening emergency, call
-                    911 immediately or go to your nearest emergency room.
-                  </p>
-                </div>
-                <div class="alert-action">
-                  <a href="tel:911" class="btn btn-emergency">
-                    <i class="bi bi-telephone-fill"></i>
-                    Call 911
-                  </a>
-                </div>
-              </div>
-              <!-- End Emergency Alert -->
-
-              <!-- Emergency Contact Grid -->
-              <div
-                class="row emergency-contacts"
-                data-aos="fade-up"
-                data-aos-delay="200"
-              >
-                <div class="col-md-6 mb-4">
-                  <div class="contact-card urgent">
-                    <div class="card-icon">
-                      <i class="bi bi-hospital"></i>
-                    </div>
-                    <div class="card-content">
-                      <h4>Emergency Room</h4>
-                      <p class="contact-info">
-                        <i class="bi bi-telephone"></i>
-                        <span>+1 (555) 123-4567</span>
-                      </p>
-                      <p class="address">
-                        <i class="bi bi-geo-alt"></i>
-                        1245 Healthcare Blvd, Medical City, CA 90210
-                      </p>
-                      <p class="hours">Open 24/7</p>
-                    </div>
-                    <div class="card-action">
-                      <a href="tel:+15551234567" class="btn btn-contact"
-                        >Call Now</a
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- End Emergency Room Card -->
-
-                <div class="col-md-6 mb-4">
-                  <div class="contact-card">
-                    <div class="card-icon">
-                      <i class="bi bi-clock"></i>
-                    </div>
-                    <div class="card-content">
-                      <h4>Urgent Care</h4>
-                      <p class="contact-info">
-                        <i class="bi bi-telephone"></i>
-                        <span>+1 (555) 987-6543</span>
-                      </p>
-                      <p class="address">
-                        <i class="bi bi-geo-alt"></i>
-                        892 Wellness Ave, Health District, CA 90211
-                      </p>
-                      <p class="hours">Mon-Sun: 7:00 AM - 10:00 PM</p>
-                    </div>
-                    <div class="card-action">
-                      <a href="tel:+15559876543" class="btn btn-contact"
-                        >Call Now</a
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- End Urgent Care Card -->
-
-                <div class="col-md-6 mb-4">
-                  <div class="contact-card">
-                    <div class="card-icon">
-                      <i class="bi bi-headset"></i>
-                    </div>
-                    <div class="card-content">
-                      <h4>Nurse Helpline</h4>
-                      <p class="contact-info">
-                        <i class="bi bi-telephone"></i>
-                        <span>+1 (555) 456-7890</span>
-                      </p>
-                      <p class="description">
-                        24/7 medical advice and guidance
-                      </p>
-                      <p class="hours">Available 24/7</p>
-                    </div>
-                    <div class="card-action">
-                      <a href="tel:+15554567890" class="btn btn-contact"
-                        >Call Now</a
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- End Nurse Helpline Card -->
-
-                <div class="col-md-6 mb-4">
-                  <div class="contact-card">
-                    <div class="card-icon">
+          <div class="container section-title" data-aos="fade-up">
+            <h3>MENU CEPAT</h3>
+              <div class="row features-row" data-aos="fade-up" data-aos-delay="400">
+                <div class="col-lg-4 col-md-6 mb-4">
+                  <div class="feature-card">
+                    <div class="icon-wrapper">
                       <i class="bi bi-heart-pulse"></i>
                     </div>
-                    <div class="card-content">
-                      <h4>Poison Control</h4>
-                      <p class="contact-info">
-                        <i class="bi bi-telephone"></i>
-                        <span>1-800-222-1222</span>
-                      </p>
-                      <p class="description">National poison control hotline</p>
-                      <p class="hours">Available 24/7</p>
-                    </div>
-                    <div class="card-action">
-                      <a href="tel:18002221222" class="btn btn-contact"
-                        >Call Now</a
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- End Poison Control Card -->
-              </div>
-              <!-- End Emergency Contacts -->
-
-              <!-- Quick Actions -->
-              <div
-                class="quick-actions"
-                data-aos="fade-up"
-                data-aos-delay="300"
-              >
-                <h4>Quick Actions</h4>
-                <div class="row">
-                  <div class="col-sm-6 col-lg-3">
-                    <a href="#" class="action-link">
-                      <i class="bi bi-geo-alt-fill"></i>
-                      <span>Get Directions</span>
+                    <h5>24/7 Emergency Care</h5>
+                    <p>
+                      Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                      laboris nisi ut aliquip ex ea commodo.
+                    </p>
+                    <a href="#" class="feature-link">
+                      <span>Learn More</span>
+                      <i class="bi bi-arrow-right"></i>
                     </a>
                   </div>
-                  <div class="col-sm-6 col-lg-3">
-                    <a href="#" class="action-link">
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4">
+                  <div class="feature-card">
+                    <div class="icon-wrapper">
                       <i class="bi bi-calendar-check"></i>
-                      <span>Book Appointment</span>
-                    </a>
-                  </div>
-                  <div class="col-sm-6 col-lg-3">
-                    <a href="#" class="action-link">
-                      <i class="bi bi-person-badge"></i>
-                      <span>Find a Doctor</span>
-                    </a>
-                  </div>
-                  <div class="col-sm-6 col-lg-3">
-                    <a href="#" class="action-link">
-                      <i class="bi bi-chat-dots"></i>
-                      <span>Live Chat</span>
+                    </div>
+                    <h5>Easy Online Booking</h5>
+                    <p>
+                      Duis aute irure dolor in reprehenderit in voluptate velit esse
+                      cillum dolore eu fugiat nulla pariatur.
+                    </p>
+                    <a href="#" class="feature-link">
+                      <span>Book Now</span>
+                      <i class="bi bi-arrow-right"></i>
                     </a>
                   </div>
                 </div>
-              </div>
-              <!-- End Quick Actions -->
 
-              <!-- Emergency Preparation Tips -->
-              <div
-                class="emergency-tips"
-                data-aos="fade-up"
-                data-aos-delay="400"
-              >
-                <h4>When to Seek Emergency Care</h4>
-                <div class="row">
-                  <div class="col-md-6">
-                    <ul class="emergency-list">
-                      <li>
-                        <i class="bi bi-check-circle"></i> Chest pain or
-                        difficulty breathing
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> Severe allergic
-                        reactions
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> Major trauma or
-                        injuries
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> Signs of stroke or
-                        heart attack
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="col-md-6">
-                    <ul class="emergency-list">
-                      <li>
-                        <i class="bi bi-check-circle"></i> Severe burns or
-                        bleeding
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> Loss of consciousness
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> Severe abdominal pain
-                      </li>
-                      <li>
-                        <i class="bi bi-check-circle"></i> High fever with
-                        confusion
-                      </li>
-                    </ul>
+                <div class="col-lg-4 col-md-6 mb-4">
+                  <div class="feature-card">
+                    <div class="icon-wrapper">
+                      <i class="bi bi-people"></i>
+                    </div>
+                    <h5>Expert Medical Team</h5>
+                    <p>
+                      Excepteur sint occaecat cupidatat non proident, sunt in culpa
+                      qui officia deserunt mollit anim.
+                    </p>
+                    <a href="#" class="feature-link">
+                      <span>Meet Our Doctors</span>
+                      <i class="bi bi-arrow-right"></i>
+                    </a>
                   </div>
                 </div>
               </div>
-              <!-- End Emergency Tips -->
-            </div>
           </div>
         </div>
       </section>
-      <!-- /Emergency Info Section -->
     </main>
 
     <footer id="footer" class="footer position-relative light-background">

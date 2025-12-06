@@ -5484,7 +5484,7 @@ hero-image img {
 
 .contact .map-container {
   width: 100%;
-  height: 280px;
+  height: 100%;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
@@ -6377,11 +6377,17 @@ hero-image img {
 /* Tombol close */
 .zoom-close {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 30px;
+  top: 5px;
+  right: 20px;
+  font-size: 32px;
+  font-weight: bold;
   cursor: pointer;
-  color: #333;
+  
+  color: #ffffff;                /* putih, paling aman */
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.7); /* supaya tetap terlihat di background terang */
+  
+  z-index: 999999;
+  line-height: 1;
 }
 
 @keyframes fadeIn {
@@ -6399,26 +6405,74 @@ hero-image img {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   z-index: 9999;
-  padding-top: 120px;       /* ⬅ Jarak aman dari atas */
+  /* padding-top: 120px;
   padding-left: 20px;
   padding-right: 20px;
-  padding-bottom: 40px;
-  overflow-y: auto;
+  padding-bottom: 40px; */
+  padding: 20px;
+  overflow-y: hidden;
 }
 
 .modal-content-pelatihan {
   background: white;
   padding: 25px;
   width: 400px;
-  max-width: 90%;      /* responsive untuk mobile */
+  max-width: 90%; /* responsive untuk mobile */
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   position: relative;
   text-align: left;
-  max-height: 85vh;      
-  overflow-y: auto; 
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.simple-gallery-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding-bottom: 10px;
+}
+
+.simple-gallery-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.simple-gallery-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 10px 5px;
+  color: #1d3b45;
+  /* text-align: center; */
+}
+
+.zoom-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.zoom-modal-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+}
+
+.zoom-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
+  color: white;
+  cursor: pointer;
 }
