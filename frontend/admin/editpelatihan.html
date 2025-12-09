@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Edit Pelatihan</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* body {
+        background: #f5f6fa;
+      }
+      .card {
+        border-radius: 10px;
+      } */
+
+      /* SCROLL DI DALAM HALAMAN */
+      /* .page-wrapper {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        max-height: 90vh;
+        overflow-y: auto;
+      } */
+    </style>
+  </head>
+  <body>
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">✏️ Edit Pelatihan</h2>
+
+      <div class="page-wrapper shadow p-4">
+        <form id="formEditPelatihan" enctype="multipart/form-data">
+          <input type="hidden" id="edit_id_pelatihan" />
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nama Pelatihan</label>
+            <input
+              type="text"
+              id="edit_nama_pelatihan"
+              name="nama_pelatihan"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Deskripsi</label>
+            <textarea
+              id="edit_deskripsi"
+              name="deskripsi"
+              class="form-control"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Narasumber</label>
+            <input
+              type="text"
+              id="edit_narasumber"
+              name="narasumber"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Lokasi</label>
+            <input
+              type="text"
+              id="edit_lokasi"
+              name="lokasi"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Alamat Lengkap</label>
+            <input
+              type="text"
+              id="edit_alamat_lengkap"
+              name="alamat_lengkap"
+              class="form-control"
+            />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Tanggal Mulai</label>
+              <input
+                type="date"
+                id="edit_tanggal_mulai"
+                name="tanggal_mulai"
+                class="form-control"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Tanggal Selesai</label>
+              <input
+                type="date"
+                id="edit_tanggal_selesai"
+                name="tanggal_selesai"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Waktu Mulai</label>
+              <input
+                type="time"
+                id="edit_waktu_mulai"
+                name="waktu_mulai"
+                class="form-control"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold">Waktu Selesai</label>
+              <input
+                type="time"
+                id="edit_waktu_selesai"
+                name="waktu_selesai"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Kuota Peserta</label>
+            <input
+              type="number"
+              id="edit_kuota"
+              name="kuota"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Kategori Peserta</label>
+            <select id="edit_kategori" name="kategori" class="form-control">
+              <option value="Umum">Umum</option>
+              <option value="Nakes Internal">Nakes Internal</option>
+              <option value="Nakes Eksternal">Nakes Eksternal</option>
+              <option value="Non-Nakes Internal">Non-Nakes Internal</option>
+              <option value="Non-Nakes Eksternal">Non-Nakes Eksternal</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Tipe Pelatihan</label>
+            <input
+              type="text"
+              id="edit_tipe_pelatihan"
+              name="tipe_pelatihan"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Durasi</label>
+            <input
+              type="text"
+              id="edit_durasi"
+              name="durasi"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Status</label>
+            <select id="edit_status" name="status" class="form-control">
+              <option value="draft">Draft</option>
+              <option value="publish">Publish</option>
+              <option value="selesai">Selesai</option>
+              <option value="batal">Batal</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Flyer</label>
+            <input
+              type="file"
+              id="edit_flyer_url"
+              name="flyer_url"
+              class="form-control"
+            />
+            <img
+              id="previewFlyer"
+              width="150"
+              class="mt-2 border rounded"
+              style="cursor: zoom-in"
+              onclick="zoomFlyer()"
+            />
+          </div>
+
+          <div class="text-end mt-4">
+            <a href="pelatihan.html" class="btn btn-secondary">Kembali</a>
+            <button type="submit" class="btn btn-primary">
+              Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL ZOOM FLYER -->
+    <div class="modal fade" id="modalZoomFlyer" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+          <img id="zoomFlyerImage" class="img-fluid rounded shadow" />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const API = "http://localhost:5000/api/pelatihan";
+
+        // AMBIL PARAMETER ID DARI URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+
+        if (!id) {
+          alert("ID pelatihan tidak ditemukan.");
+          window.location.href = "pelatihan.html";
+          return;
+        }
+
+        // =========================
+        // FORMAT TANGGAL UNTUK INPUT <date>
+        // =========================
+        function formatForInput(dateString) {
+          if (!dateString) return "";
+          return new Date(dateString).toISOString().split("T")[0];
+        }
+
+        // =========================
+        // LOAD DATA KE FORM EDIT
+        // =========================
+        async function loadData() {
+          const res = await fetch(`${API}/${id}`);
+          const data = await res.json();
+
+          if (!data) {
+            alert("Data tidak ditemukan!");
+            return;
+          }
+
+          document.getElementById("edit_id_pelatihan").value =
+            data.id_pelatihan;
+          document.getElementById("edit_nama_pelatihan").value =
+            data.nama_pelatihan;
+          document.getElementById("edit_deskripsi").value =
+            data.deskripsi || "";
+          document.getElementById("edit_narasumber").value =
+            data.narasumber || "";
+          document.getElementById("edit_lokasi").value = data.lokasi || "";
+          document.getElementById("edit_alamat_lengkap").value =
+            data.alamat_lengkap || "";
+          document.getElementById("edit_tanggal_mulai").value = formatForInput(
+            data.tanggal_mulai
+          );
+
+          document.getElementById("edit_tanggal_selesai").value =
+            formatForInput(data.tanggal_selesai);
+          document.getElementById("edit_waktu_mulai").value = data.waktu_mulai;
+          document.getElementById("edit_waktu_selesai").value =
+            data.waktu_selesai;
+          document.getElementById("edit_kuota").value = data.kuota ?? "";
+          document.getElementById("edit_kategori").value = data.kategori;
+          document.getElementById("edit_tipe_pelatihan").value =
+            data.tipe_pelatihan || "";
+          document.getElementById("edit_durasi").value = data.durasi || "";
+          document.getElementById("edit_status").value = data.status;
+
+          document.getElementById("previewFlyer").src = data.flyer_url
+            ? `http://localhost:5000/uploads/flyer/${data.flyer_url}`
+            : "";
+        }
+
+        await loadData();
+
+        // =========================
+        // SUBMIT EDIT
+        // =========================
+        document
+          .getElementById("formEditPelatihan")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(
+              document.getElementById("formEditPelatihan")
+            );
+
+            const updateRes = await fetch(`${API}/${id}`, {
+              method: "PUT",
+              body: formData,
+            });
+
+            const result = await updateRes.json();
+            alert(result.message);
+
+            window.location.href = "pelatihan.html";
+          });
+      }); // END DOMContentLoaded
+
+      // ============================================
+      // 🔍 FUNGSI ZOOM FLYER (HARUS DI LUAR DOM LOADED)
+      // ============================================
+      function zoomFlyer() {
+        const imgSrc = document.getElementById("previewFlyer").src;
+
+        if (!imgSrc) return;
+
+        document.getElementById("zoomFlyerImage").src = imgSrc;
+
+        const zoomModal = new bootstrap.Modal(
+          document.getElementById("modalZoomFlyer")
+        );
+        zoomModal.show();
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

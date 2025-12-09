@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Daftar Pelatihan - DIKLAT RSMS</title>
+  <title>Upload Pembayaran - DIKLAT RSMS</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
 
@@ -228,12 +228,11 @@
     <!-- Page Title -->
     <div class="page-title">
       <div class="title-wrapper">
-        <h1>DAFTAR PELATIHAN</h1><br>
+        <h1>UPLOAD BUKTI PEMBAYARAN PELATIHAN</h1><br>
         <div>
-          <h4>Selamat datang di Formulir Pendaftaran kami!</h4>
-          <p>Formulir pendaftaran kami berisi beberapa kelengkapan data, di mana Anda dapat memberikan informasi pribadi Anda secara rinci. Kami menjamin kerahasiaan dan keamanan data yang Anda berikan kepada kami.
+          <!-- <h4>Selamat datang di Formulir Pendaftaran kami!</h4> -->
+          <p>Silahkan untuk melampirkan bukti pembayaran pelatihan sesuai dengan informasi yang diterima melalui WhatsApp kami
           </p>
-          
         </div>
       </div>
     </div><!-- End Page Title -->
@@ -250,116 +249,18 @@
                 <form id="formPendaftaran" class="appointment-form">
                   <div class="row gy-3">
 
+                    <input type="hidden" name="id_pendaftaran" id="id_pendaftaran">
+
                     <div class="col-md-12">
                       <label class="form-label">Menu Pelatihan:</label>
                       <select id="menupelatihan" name="id_pelatihan" class="form-control" required>
                         <option value="">-- Pilih Pelatihan --</option>
                       </select>
                     </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Gelar Depan Akademik:</label>
-                      <input type="text" name="gelar_depan" class="form-control" placeholder="Gelar Depan Akademik (Abaikan jika tidak ada)">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">NIP:</label>
-                      <input type="text" name="nip" class="form-control" placeholder="(NIP bagi ASN atau NRP) Tanpa Spasi" required>
-                    </div>
-
+                    
                     <div class="col-md-6">
                       <label class="form-label">Nama Lengkap:</label>
                       <input type="text" name="nama_peserta" class="form-control" placeholder="Nama Lengkap" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Nomor Induk Kependudukan:</label>
-                      <input type="text" name="nik" class="form-control" placeholder="Nomor Induk Kependudukan/KTP (16 Digit)" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Gelar Belakang Akademik:</label>
-                      <input type="text" name="gelar_belakang" class="form-control" placeholder="Gelar Belakang Akademik (Abaikan jika tidak ada)">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Asal Instansi:</label>
-                      <input type="text" name="asal_instansi" class="form-control" placeholder="Asal Instansi">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Tanggal Lahir:</label>
-                      <input type="date" name="tanggal_lahir" class="form-control">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Tempat Lahir:</label>
-                      <input type="text" name="tempat_lahir" class="form-control" placeholder="Tempat Lahir">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Pendidikan Terakhir:</label>
-                      <select name="pendidikan" class="form-control" required>
-                        <option value="">Pilih Pendidikan</option>
-                        <option value="SMA">SMA</option>
-                        <option value="D1">D1</option>
-                        <option value="D2">D2</option>
-                        <option value="D3">D3</option>
-                        <option value="D4/S1">D4/S1</option>
-                        <option value="S2">S2</option>
-                        <option value="S3">S3</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Jenis Kelamin:</label>
-                      <select name="jenis_kelamin" class="form-control" required>
-                        <option value="">Pilih Jenis Kelamin</option>
-                        <option value="Pria">Pria</option>
-                        <option value="Wanita">Wanita</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Agama:</label>
-                      <select name="agama" class="form-control" required>
-                        <option value="">Pilih Agama</option>
-                        <option value="Islam">Islam</option>
-                        <option value="Kristen Protestan">Kristen Protestan</option>
-                        <option value="Kristen Katolik">Kristen Protestan</option>
-                        <option value="Buddha">Buddha</option>
-                        <option value="Konghucu">Konghucu</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Status Pegawai:</label>
-                      <select name="Status_Pegawai" class="form-control" required>
-                        <option value="">Pilih Status Pegawai</option>
-                        <option value="ASN Kemenkes">ASN Kemenkes</option>
-                        <option value="ASN Non Kemenkes">ASN Non Kemenkes</option>
-                        <option value="Non ASN">Non ASN</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Kabupaten Asal:</label>
-                      <input type="text" name="kabupaten_asal" class="form-control" placeholder="Kabupaten Asal">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Provinsi Asal:</label>
-                      <input type="text" name="provinsi_asal" class="form-control" placeholder="Provinsi Asal">
-                    </div>
-
-                    <div class="col-md-12">
-                      <label class="form-label">Alamat Kantor:</label>
-                      <input type="text" name="alamat_kantor" class="form-control" placeholder="Alamat Kantor">
-                    </div>
-
-                    <div class="col-md-12">
-                      <label class="form-label">Alamat Rumah:</label>
-                      <input type="text" name="alamat_rumah" class="form-control" placeholder="Alamat Rumah">
                     </div>
 
                     <div class="col-md-6">
@@ -367,64 +268,14 @@
                       <input type="text" name="no_wa" class="form-control" placeholder="No. WA contoh : 085600032xxx" required>
                     </div>
 
-                    <div class="col-md-6">
-                      <label class="form-label">Email:</label>
-                      <input type="email" name="email" class="form-control" placeholder="Email" required>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Nomor STR:</label>
-                      <input type="text" name="str" class="form-control" placeholder="STR (Abaikan jika tidak ada)">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Jenis Nakes:</label>
-                      <select name="jenis_nakes" class="form-control" required>
-                        <option value="">Pilih Jenis Nakes</option>
-                        <option value="Dokter">Dokter</option>
-                        <option value="Perawat">Perawat</option>
-                        <option value="Bidan">Bidan</option>
-                        <option value="Nutrisionis">Nutrisionis</option>
-                        <option value="Apoteker">Apoteker</option>
-                        <option value="Lain-lain">Lain-lain</option>
-                      </select>
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Kabupaten Kantor:</label>
-                      <input type="text" name="kabupaten_kantor" class="form-control" placeholder="Kabupaten Kantor">
-                    </div>
-
-                    <div class="col-md-6">
-                      <label class="form-label">Provinsi Kantor:</label>
-                      <input type="text" name="provinsi_kantor" class="form-control" placeholder="Provinsi Kantor">
-                    </div>
-
                     <div class="col-md-12">
-                      <label class="form-label">Upload Surat Tugas:</label>
-                      <input type="file" name="surat_tugas" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="foto_4x6" class="form-label">Foto 4 x 6</label>
-                      <input
-                        type="file"
-                        class="form-control"
-                        id="foto_4x6"
-                        name="foto_4x6"
-                        accept=".jpg, .jpeg, .png"
-                        required
-                      />
-                      <small class="text-muted">
-                        Background merah, menggunakan kemeja putih, menghadap lurus ke depan.  
-                        Untuk yang berhijab menggunakan kerudung warna hitam/gelap, dan dasi panjang warna hitam/gelap.  
-                        Maksimal ukuran 1 Mb (format: JPG/JPEG/PNG).
-                      </small>
+                      <label class="form-label">Upload Bukti Pembayaran:</label>
+                      <input type="file" name="bukti_pembayaran" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                     </div>
 
                     <div class="col-12 mt-3">
                       <button type="submit" class="btn btn-primary w-100">
-                        Daftar Pelatihan
+                        Submit
                       </button>
                     </div>
 
@@ -436,105 +287,136 @@
 
           </div><!-- End Appointment Form -->
 
-          <!-- script Daftar Pelatihan -->
+          <!-- script Upload Pembayaran -->
           <script>
             document.addEventListener("DOMContentLoaded", () => {
 
-              // ==========================================
-              // Format tanggal ISO → DD/MM/YYYY
-              // ==========================================
-              function formatTanggalIndo(dateString) {
-                const date = new Date(dateString);
-                const d = String(date.getDate()).padStart(2, "0");
-                const m = String(date.getMonth() + 1).padStart(2, "0");
-                const y = date.getFullYear();
-                return `${d}/${m}/${y}`;
-              }
+               // ===========================================
+              // Ambil ID pendaftaran dari URL untuk dikirim
+              // ===========================================
+              // const params = new URLSearchParams(window.location.search);
+              // const idPendaftaran = params.get("id");
+              // if (idPendaftaran) {
+              //   document.getElementById("id_pendaftaran").value = idPendaftaran;
+              // }
 
-              // ======================
-              // LOAD MENU PELATIHAN + FILTER TANGGAL
-              // ======================
+              // ============================================================
+              // LOAD DATA MENU PELATIHAN KE DROPDOWN
+              // ============================================================
               async function loadPelatihan() {
-                console.log("Mengambil data pelatihan...");
+                try {
+                  console.log("Mengambil data pelatihan...");
+                  const res = await fetch("http://localhost:5000/api/pelatihan");
 
-                const res = await fetch("http://localhost:5000/api/pelatihan");
-                if (!res.ok) { console.error("Response error:", res.status); return; }
-
-                const data = await res.json();
-                const select = document.getElementById("menupelatihan");
-                const today = new Date().toISOString().split("T")[0];
-
-                data.forEach(item => {
-                  const tanggalISO = item.tanggal_mulai || item.tanggal_pelatihan;
-                  if (!tanggalISO) return;
-
-                  const tanggalOnly = tanggalISO.split("T")[0];
-                  if (tanggalOnly >= today) {
-                    const opt = document.createElement("option");
-                    opt.value = item.id_pelatihan;
-
-                    const tanggalFormatted = formatTanggalIndo(tanggalISO);
-                    opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
-
-                    select.appendChild(opt);
+                  if (!res.ok) {
+                    console.error("Response error:", res.status);
+                    return;
                   }
-                });
+
+                  const data = await res.json();
+                  console.log("DATA PELATIHAN:", data);
+
+                  const select = document.getElementById("menupelatihan");
+
+                  if (!Array.isArray(data)) {
+                    console.error("Format API salah:", data);
+                    return;
+                  }
+
+                  data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item.id_pelatihan;
+                    option.textContent = item.nama_pelatihan;
+                    select.appendChild(option);
+                  });
+
+                } catch (error) {
+                  console.error("Gagal mengambil data pelatihan:", error);
+                }
               }
 
               loadPelatihan();
 
-              // ==========================
-              // HANDLE SUBMIT → BUKA MODAL
-              // ==========================
+
+              // ============================================================
+              // HANDLE SUBMIT → TAMPILKAN MODAL KONFIRMASI
+              // ============================================================
               const form = document.getElementById("formPendaftaran");
-              const modalKonfirmasi = new bootstrap.Modal(document.getElementById("modalKonfirmasi"));
+              const modalKonfirmasi = new bootstrap.Modal(document.getElementById("modalKonfirmasiPembayaran"));
+              const modalSuccess = new bootstrap.Modal(document.getElementById("modalPembayaranBerhasil"));
+              const modalGagal = new bootstrap.Modal(document.getElementById("modalPembayaranGagal"));
 
               form.addEventListener("submit", (e) => {
                 e.preventDefault();
 
-                // Validasi Foto 4x6
-                const file = document.getElementById("foto_4x6").files[0];
-                if (!file) return alert("Foto 4x6 wajib diupload.");
+                const bukti = document.querySelector("input[name='bukti_pembayaran']").files[0];
 
-                if (!["image/jpeg","image/jpg","image/png"].includes(file.type)) {
-                  return alert("Format foto harus JPG, JPEG, atau PNG.");
+                if (!bukti) {
+                  document.getElementById("modalPembayaranGagalMessage").textContent =
+                    "Bukti pembayaran wajib diupload.";
+
+                  modalKonfirmasi.hide(); // ⬅️ Tutup modal konfirmasi jika terbuka
+                  modalGagal.show();
+                  return;
                 }
 
-                if (file.size > 1 * 1024 * 1024) {
-                  return alert("Ukuran foto maksimal 1 MB.");
+                const allowed = ["image/jpeg","image/jpg","image/png","application/pdf"];
+                if (!allowed.includes(bukti.type)) {
+                  document.getElementById("modalPembayaranGagalMessage").textContent =
+                    "Format file harus JPG, PNG, atau PDF.";
+
+                  modalKonfirmasi.hide();
+                  modalGagal.show();
+                  return;
+                }
+
+                if (bukti.size > 3 * 1024 * 1024) {
+                  document.getElementById("modalPembayaranGagalMessage").textContent =
+                    "Ukuran file maksimal 3 MB.";
+
+                  modalKonfirmasi.hide();
+                  modalGagal.show();
+                  return;
                 }
 
                 modalKonfirmasi.show();
               });
 
-              // ==========================
-              // KONFIRMASI SUBMIT
-              // ==========================
-              document.getElementById("btnKonfirmasiSubmit").addEventListener("click", async () => {
+
+              // ============================================================
+              // KONFIRMASI UPLOAD → BARU KIRIM DATA KE BACKEND
+              // ============================================================
+              document.getElementById("btnKonfirmasiUpload").addEventListener("click", async () => {
                 const formData = new FormData(form);
 
                 try {
-                  const res = await fetch("http://localhost:5000/api/pendaftaran", {
+                  const response = await fetch("http://localhost:5000/api/pembayaran", {
                     method: "POST",
                     body: formData
                   });
 
-                  const data = await res.json();
+                  const data = await response.json();
 
-                  if (!res.ok) {
-                    document.getElementById("modalGagalMessage").innerText = data.message;
-                    new bootstrap.Modal(document.getElementById("modalGagal")).show();
+                  if (!response.ok) {
+                    document.getElementById("modalPembayaranGagalMessage").textContent =
+                      data.message || "Upload gagal, coba beberapa saat lagi.";
+
+                    modalKonfirmasi.hide(); // ⬅️ Pastikan modal konfirmasi tertutup
+                    modalGagal.show();
                     return;
                   }
 
-                  new bootstrap.Modal(document.getElementById("modalBerhasil")).show();
+                  modalSuccess.show();
                   form.reset();
                   modalKonfirmasi.hide();
 
                 } catch (err) {
-                  document.getElementById("modalGagalMessage").innerText =
-                    "Terjadi kesalahan jaringan, coba beberapa saat lagi.";
-                  new bootstrap.Modal(document.getElementById("modalGagal")).show();
+                  console.error(err);
+                  document.getElementById("modalPembayaranGagalMessage").textContent =
+                    "Terjadi kesalahan jaringan. Silakan coba kembali.";
+
+                  modalKonfirmasi.hide(); // ⬅️ Tutup modal konfirmasi
+                  modalGagal.show();
                 }
               });
 
@@ -542,14 +424,14 @@
             </script>
 
         </div>
-
-        <!-- Modal Konfirmasi -->
-        <div class="modal fade" id="modalKonfirmasi" tabindex="-1">
+        
+        <!-- Modal Konfirmasi Upload Pembayaran -->
+        <div class="modal fade" id="modalKonfirmasiPembayaran" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
               <div class="modal-header bg-warning">
-                <h5 class="modal-title">Konfirmasi Pendaftaran</h5>
+                <h5 class="modal-title">Konfirmasi Upload Pembayaran</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
 
@@ -564,8 +446,8 @@
                   Cek Kembali
                 </button>
 
-                <button id="btnKonfirmasiSubmit" class="btn btn-primary">
-                  Daftar Pelatihan
+                <button id="btnKonfirmasiUpload" class="btn btn-primary">
+                  Upload Bukti Pembayaran
                 </button>
               </div>
 
@@ -573,18 +455,25 @@
           </div>
         </div>
 
-        <!-- Modal Berhasil Daftar -->
-          <div class="modal fade" id="modalBerhasil" tabindex="-1">
+        <!-- Modal Berhasil Upload -->
+          <div class="modal fade" id="modalPembayaranBerhasil" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
 
                 <div class="modal-header bg-success text-white">
-                  <h5 class="modal-title">Pendaftaran Berhasil</h5>
+                  <h5 class="modal-title">Upload Berhasil</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                  <p>Berhasil mendaftar pelatihan, harap tunggu konfirmasi melalui WhatsApp dari tim kami.</p>
+                  <p>
+                    Bukti pembayaran berhasil diupload.  
+                    Status pembayaran Anda saat ini adalah <strong>PENDING</strong>.
+                    Tim kami akan melakukan verifikasi terlebih dahulu.
+                  </p>
+                  <p class="mt-2">
+                    Setelah status berubah menjadi <strong>VALID</strong>, Anda akan menerima pemberitahuan melalui WhatsApp.
+                  </p>
                 </div>
 
                 <div class="modal-footer">
@@ -595,22 +484,24 @@
             </div>
           </div>
 
-          <!-- Modal Gagal Daftar -->
-          <div class="modal fade" id="modalGagal" tabindex="-1">
+          <!-- Modal Gagal Upload Pembayaran -->
+          <div class="modal fade" id="modalPembayaranGagal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
 
                 <div class="modal-header bg-danger text-white">
-                  <h5 class="modal-title">Pendaftaran Gagal</h5>
+                  <h5 class="modal-title">Upload Gagal</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                  <p id="modalGagalMessage">Terjadi kesalahan, silahkan coba lagi.</p>
+                  <p id="modalPembayaranGagalMessage">
+                    Terjadi kesalahan saat mengupload bukti pembayaran. Silakan coba kembali beberapa saat lagi.
+                  </p>
                 </div>
 
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
+                  <button class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
                 </div>
 
               </div>
@@ -623,70 +514,6 @@
                 <!-- <p>
                   Sebelum mengisi Formulir Pendaftaran, pastikan Anda mengikuti alur pendaftaran pelatihan dengan benar.
                 </p> -->
-
-                <!-- Step 1 -->
-                <div class="col-lg-2 col-md-6">
-                  <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-icon">
-                      <i class="bi bi-calendar-check"></i>
-                    </div>
-                    <h5>Pilih Menu Pelatihan</h5>
-                    <p>Pilih menu pelatihan yang tersedia di kalender pelatihan ataupun jadwal menu pelatihan.</p>
-                  </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="col-lg-2 col-md-6">
-                  <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-icon">
-                      <i class="bi bi-person-fill"></i>
-                    </div>
-                    <h5>Isi Formulir</h5>
-                    <p>Lengkapi data diri dan unggah dokumen yang diperlukan.</p>
-                  </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="col-lg-2 col-md-6">
-                  <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-icon">
-                      <i class="bi bi-check-circle"></i>
-                    </div>
-                    <h5>Konfirmasi</h5>
-                    <p>Menunggu verifikasi data pendaftaran dari kami. Calon peserta akan dikirimkan notifikasi melalui WhatsApp jika dinyatakan memenuhi persyaratan pendaftaran dan diminta untuk upload bukti pembayaran pelatihan.</p>
-                  </div>
-                </div>
-
-                <!-- Step 4 -->
-                <div class="col-lg-2 col-md-6">
-                  <div class="step-item">
-                    <div class="step-number">4</div>
-                    <div class="step-icon">
-                      <i class="bi bi-wallet"></i>
-                    </div>
-                    <h5>Upload Bukti Pembayaran</h5>
-                    <p>Peserta melakukan upload bukti pembayaran yang kemudian jika terverifikasi benar, peserta akan mendapatkan notifikasi melalui WhatsApp terkait akun untuk login BangKomar.</p>
-                  </div>
-                </div>
-
-                <!-- Step 5 -->
-                <div class="col-lg-2 col-md-6">
-                  <div class="step-item">
-                    <div class="step-number">5</div>
-                    <div class="step-icon">
-                      <i class="bi bi-journals"></i>
-                    </div>
-                    <h5>Mengikuti Pelatihan</h5>
-                    <p>Ikuti pelatihan sesuai jadwal di lokasi yang telah ditentukan.</p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
 
     </section><!-- /Appointmnet Section -->
 

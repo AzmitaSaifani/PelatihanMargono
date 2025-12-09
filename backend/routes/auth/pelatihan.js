@@ -23,7 +23,7 @@ const upload = multer({ storage });
 
 // === CREATE: Tambah pelatihan ===
 router.post("/", upload.single("flyer_url"), (req, res) => {
-  const {
+  let {
     nama_pelatihan,
     deskripsi,
     narasumber,
@@ -40,6 +40,11 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     status,
     created_by,
   } = req.body;
+
+  // FIX TANGGAL KOSONG
+  tanggal_mulai = tanggal_mulai && tanggal_mulai !== "" ? tanggal_mulai : null;
+  tanggal_selesai =
+    tanggal_selesai && tanggal_selesai !== "" ? tanggal_selesai : null;
 
   if (!nama_pelatihan || !tanggal_mulai || !tanggal_selesai) {
     return res.status(400).json({
@@ -91,6 +96,28 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       message: "✅ Pelatihan berhasil ditambahkan!",
       id_pelatihan: result.insertId,
     });
+  });
+});
+
+// === GET: Detail pelatihan by ID ===
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `SELECT * FROM pelatihan_tb WHERE id_pelatihan = ?`;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("❌ Error ambil detail:", err);
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil detail pelatihan" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Pelatihan tidak ditemukan" });
+    }
+
+    res.status(200).json(results[0]);
   });
 });
 

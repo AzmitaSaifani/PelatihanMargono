@@ -6382,10 +6382,10 @@ hero-image img {
   font-size: 32px;
   font-weight: bold;
   cursor: pointer;
-  
-  color: #ffffff;                /* putih, paling aman */
+
+  color: #ffffff; /* putih, paling aman */
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.7); /* supaya tetap terlihat di background terang */
-  
+
   z-index: 999999;
   line-height: 1;
 }
@@ -6475,4 +6475,34 @@ hero-image img {
   font-size: 40px;
   color: white;
   cursor: pointer;
+}
+
+/* Wrapper untuk membatasi ukuran search */
+.search-wrapper {
+  width: 280px;
+  padding-left: 80%;
+}
+
+/* Input search modern */
+.search-input {
+  height: 38px;
+  border-radius: 8px;
+  padding-left: 80%;
+  transition: 0.2s ease;
+}
+
+/* Ikon search di dalam input */
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: #6c757d;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.search-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
 }
