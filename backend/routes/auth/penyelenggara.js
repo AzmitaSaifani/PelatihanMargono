@@ -53,7 +53,16 @@ router.post("/", upload.single("foto"), (req, res) => {
 
 // === READ: Lihat semua penyelenggara ===
 router.get("/", (req, res) => {
-  const sql = "SELECT * FROM penyelenggara_tb ORDER BY id_penyelenggara DESC";
+  const { admin } = req.query;
+
+  // Jika admin = 1 → ambil semua data
+  let sql = "SELECT * FROM penyelenggara_tb ORDER BY id_penyelenggara DESC";
+
+  // Jika bukan admin → hanya data aktif
+  if (!admin) {
+    sql = "SELECT * FROM penyelenggara_tb WHERE status = '1' ORDER BY id_penyelenggara DESC";
+  }
+
   connection.query(sql, (err, results) => {
     if (err) {
       console.error("❌ Gagal mengambil data penyelenggara:", err);

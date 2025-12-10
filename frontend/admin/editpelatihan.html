@@ -30,6 +30,110 @@
     </style>
   </head>
   <body>
+    <!-- ===================== NAVBAR ADMIN ===================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Admin DIKLAT</a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <!-- ==================== DROPDOWN PELATIHAN ==================== -->
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="dropdownPelatihan"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Pelatihan
+              </a>
+
+              <ul
+                class="dropdown-menu dropdown-menu-dark"
+                aria-labelledby="dropdownPelatihan"
+              >
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="peserta.html"
+                    >Data Pendaftar Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html"
+                    >Gallery Diklat</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <!-- ==================== DROPDOWN TIM & MITRA ==================== -->
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="dropdownTim"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Tim & Mitra Pelatihan
+              </a>
+
+              <ul
+                class="dropdown-menu dropdown-menu-dark"
+                aria-labelledby="dropdownTim"
+              >
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html">
+                    Profesional Fasilitor & Instruktur Tersertifikasi
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html">
+                    Tim Penyelenggara Pelatihan Tersertifikasi
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">
+                    Institusi Kerjasama
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <!-- ==================== LOGOUT ==================== -->
+            <li class="nav-item">
+              <a class="nav-link text-danger fw-bold" href="logout.html"
+                >Logout</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ===================== END NAVBAR ===================== -->
+
     <div class="container py-4">
       <h2 class="fw-bold mb-4">✏️ Edit Pelatihan</h2>
 
@@ -265,7 +369,6 @@
           document.getElementById("edit_tanggal_mulai").value = formatForInput(
             data.tanggal_mulai
           );
-
           document.getElementById("edit_tanggal_selesai").value =
             formatForInput(data.tanggal_selesai);
           document.getElementById("edit_waktu_mulai").value = data.waktu_mulai;

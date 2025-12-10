@@ -452,34 +452,43 @@
               }
 
               // ======================
-              // LOAD MENU PELATIHAN + FILTER TANGGAL
+              // LOAD MENU PELATIHAN + FILTER TANGGAL + STATUS PUBLISH
               // ======================
               async function loadPelatihan() {
-                console.log("Mengambil data pelatihan...");
+              console.log("Mengambil data pelatihan...");
 
-                const res = await fetch("http://localhost:5000/api/pelatihan");
-                if (!res.ok) { console.error("Response error:", res.status); return; }
-
-                const data = await res.json();
-                const select = document.getElementById("menupelatihan");
-                const today = new Date().toISOString().split("T")[0];
-
-                data.forEach(item => {
-                  const tanggalISO = item.tanggal_mulai || item.tanggal_pelatihan;
-                  if (!tanggalISO) return;
-
-                  const tanggalOnly = tanggalISO.split("T")[0];
-                  if (tanggalOnly >= today) {
-                    const opt = document.createElement("option");
-                    opt.value = item.id_pelatihan;
-
-                    const tanggalFormatted = formatTanggalIndo(tanggalISO);
-                    opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
-
-                    select.appendChild(opt);
-                  }
-                });
+              const res = await fetch("http://localhost:5000/api/pelatihan");
+              if (!res.ok) { 
+                console.error("Response error:", res.status);
+                return;
               }
+
+              const data = await res.json();
+              const select = document.getElementById("menupelatihan");
+              const today = new Date().toISOString().split("T")[0];
+
+              data.forEach(item => {
+
+                // HANYA tampilkan status publish
+                if (item.status !== "publish") return;
+
+                const tanggalISO = item.tanggal_mulai;
+                if (!tanggalISO) return;
+
+                const tanggalOnly = tanggalISO.split("T")[0];
+
+                // Hanya tampilkan pelatihan yang belum lewat
+                if (tanggalOnly >= today) {
+                  const opt = document.createElement("option");
+                  opt.value = item.id_pelatihan;
+
+                  const tanggalFormatted = formatTanggalIndo(tanggalISO);
+                  opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
+
+                  select.appendChild(opt);
+                }
+              });
+            }
 
               loadPelatihan();
 

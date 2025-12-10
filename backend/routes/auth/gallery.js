@@ -57,7 +57,15 @@ router.post("/", upload.single("foto"), (req, res) => {
 // ===============   READ ALL GALLERY   =================
 // ======================================================
 router.get("/", (req, res) => {
-  const sql = "SELECT * FROM gallery_tb WHERE status = '1' ORDER BY id DESC";
+  const { admin } = req.query;
+
+  // Jika admin = 1 → ambil semua data
+  let sql = "SELECT * FROM gallery_tb ORDER BY id DESC";
+
+  // Jika bukan admin → hanya data aktif
+  if (!admin) {
+    sql = "SELECT * FROM gallery_tb WHERE status = '1' ORDER BY id DESC";
+  }
 
   connection.query(sql, (err, results) => {
     if (err) {
@@ -70,6 +78,7 @@ router.get("/", (req, res) => {
     res.status(200).json(results);
   });
 });
+
 
 // ======================================================
 // ===============   READ DETAIL GALLERY   ==============
