@@ -47,6 +47,32 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
 });
 
+// ======================
+// GET Semua Pendaftaran (ADMIN)
+// ======================
+router.get("/", (req, res) => {
+  const sql = `
+    SELECT 
+      p.*, 
+      pel.nama_pelatihan
+    FROM pendaftaran_tb p
+    LEFT JOIN pelatihan_tb pel 
+      ON p.id_pelatihan = pel.id_pelatihan
+    ORDER BY p.id_pendaftaran DESC
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("❌ Error mengambil data pendaftaran:", err);
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil data pendaftaran" });
+    }
+
+    res.json(results);
+  });
+});
+
 // Route Pendaftaran
 router.post(
   "/",
@@ -196,65 +222,15 @@ router.post(
 // ======================
 // 🟨 UPDATE PENDAFTARAN
 // ======================
-router.put("/:id", upload.single("surat_tugas"), (req, res) => {
-  const { id } = req.params;
-  const {
-    nik,
-    nip,
-    gelar_depan,
-    nama_peserta,
-    gelar_belakang,
-    asal_instansi,
-    tempat_lahir,
-    tanggal_lahir,
-    pendidikan,
-    jenis_kelamin,
-    agama,
-    status_pegawai,
-    kabupaten_asal,
-    alamat_kantor,
-    alamat_rumah,
-    no_wa,
-    email,
-    tanggal_daftar,
-    str,
-    provinsi_asal,
-    jenis_nakes,
-    kabupaten_kantor,
-    provinsi_kantor,
-  } = req.body;
-
-  const surat_tugas = req.file ? req.file.filename : null;
-  const foto_4x6 = req.files["foto_4x6"]
-    ? req.files["foto_4x6"][0].filename
-    : null;
-
-  // Ambil data lama buat hapus file kalau ada file baru
-  const getOldFile = `SELECT surat_tugas FROM pendaftaran_tb WHERE id_pendaftaran = ?`;
-  connection.query(getOldFile, [id], (err, results) => {
-    if (err)
-      return res.status(500).json({ message: "❌ Gagal mengambil data lama." });
-    if (results.length === 0)
-      return res
-        .status(404)
-        .json({ message: "❌ Data pendaftaran tidak ditemukan." });
-
-    const oldFile = results[0].surat_tugas;
-    if (surat_tugas && oldFile) {
-      const oldPath = path.join("uploads/surat_tugas", oldFile);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-    }
-
-    const sql = `
-      UPDATE pendaftaran_tb SET
-        nik=?, nip=?, gelar_depan=?, nama_peserta=?, gelar_belakang=?, asal_instansi=?,
-        tempat_lahir=?, tanggal_lahir=?, pendidikan=?, jenis_kelamin=?, agama=?,
-        status_pegawai=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?, tangggal_daftar=?, str=?, provinsi_asal=?, jenis_nakes=?, kabupaten_kantor=?,
-        provinsi_kantor=?, surat_tugas=?, foto_4x6=?
-      WHERE id_pendaftaran=?
-    `;
-
-    const values = [
+router.put(
+  "/:id",
+  upload.fields([
+    { name: "surat_tugas", maxCount: 1 },
+    { name: "foto_4x6", maxCount: 1 },
+  ]),
+  (req, res) => {
+    const { id } = req.params;
+    const {
       nik,
       nip,
       gelar_depan,
@@ -278,25 +254,89 @@ router.put("/:id", upload.single("surat_tugas"), (req, res) => {
       jenis_nakes,
       kabupaten_kantor,
       provinsi_kantor,
-      surat_tugas || oldFile,
-      foto_4x6 || oldFile,
-      id,
-    ];
+      status,
+    } = req.body;
 
-    connection.query(sql, values, (err) => {
-      if (err) {
-        console.error("❌ Gagal memperbarui pendaftaran:", err);
+    const surat_tugas = req.files["surat_tugas"]
+      ? req.files["surat_tugas"][0].filename
+      : null;
+
+    const foto_4x6 = req.files["foto_4x6"]
+      ? req.files["foto_4x6"][0].filename
+      : null;
+
+    // Ambil data lama buat hapus file kalau ada file baru
+    const getOldFile = `SELECT surat_tugas, foto_4x6 FROM pendaftaran_tb WHERE id_pendaftaran = ?`;
+    connection.query(getOldFile, [id], (err, results) => {
+      if (err)
         return res
           .status(500)
-          .json({ message: "❌ Gagal memperbarui pendaftaran." });
+          .json({ message: "❌ Gagal mengambil data lama." });
+      if (results.length === 0)
+        return res
+          .status(404)
+          .json({ message: "❌ Data pendaftaran tidak ditemukan." });
+
+      const oldFile = results[0].surat_tugas;
+      if (surat_tugas && oldFile) {
+        const oldPath = path.join("uploads/surat_tugas", oldFile);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
 
-      res
-        .status(200)
-        .json({ message: "✅ Data pendaftaran berhasil diperbarui!" });
+      const sql = `
+      UPDATE pendaftaran_tb SET
+        nik=?, nip=?, gelar_depan=?, nama_peserta=?, gelar_belakang=?, asal_instansi=?,
+        tempat_lahir=?, tanggal_lahir=?, pendidikan=?, jenis_kelamin=?, agama=?,
+        status_pegawai=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?, tanggal_daftar=?, str=?, provinsi_asal=?, jenis_nakes=?, kabupaten_kantor=?,
+        provinsi_kantor=?, status=?, surat_tugas=?, foto_4x6=?
+      WHERE id_pendaftaran=?
+    `;
+
+      const values = [
+        nik,
+        nip,
+        gelar_depan,
+        nama_peserta,
+        gelar_belakang,
+        asal_instansi,
+        tempat_lahir,
+        tanggal_lahir,
+        pendidikan,
+        jenis_kelamin,
+        agama,
+        status_pegawai,
+        kabupaten_asal,
+        alamat_kantor,
+        alamat_rumah,
+        no_wa,
+        email,
+        tanggal_daftar,
+        str,
+        provinsi_asal,
+        jenis_nakes,
+        kabupaten_kantor,
+        provinsi_kantor,
+        status,
+        surat_tugas || oldFile,
+        foto_4x6 || oldFile,
+        id,
+      ];
+
+      connection.query(sql, values, (err) => {
+        if (err) {
+          console.error("❌ Gagal memperbarui pendaftaran:", err);
+          return res
+            .status(500)
+            .json({ message: "❌ Gagal memperbarui pendaftaran." });
+        }
+
+        res
+          .status(200)
+          .json({ message: "✅ Data pendaftaran berhasil diperbarui!" });
+      });
     });
-  });
-});
+  }
+);
 
 // ======================
 // 🟥 DELETE PENDAFTARAN
@@ -342,7 +382,7 @@ router.put("/:id/accept", (req, res) => {
 
   const sql = `
       UPDATE pendaftaran_tb 
-      SET status = 'WAITING_PAYMENT'
+      SET status = 'Menunggu Pembayaran'
       WHERE id_pendaftaran = ?
   `;
 
@@ -354,7 +394,7 @@ router.put("/:id/accept", (req, res) => {
 
     res.json({
       message: "✅ Pendaftaran diterima!",
-      status: "WAITING_PAYMENT",
+      status: "Menunggu Pembayaran",
     });
   });
 });
@@ -367,7 +407,7 @@ router.put("/:id/reject", (req, res) => {
 
   const sql = `
       UPDATE pendaftaran_tb 
-      SET status = 'REJECTED'
+      SET status = 'Ditolak'
       WHERE id_pendaftaran = ?
   `;
 
@@ -379,7 +419,7 @@ router.put("/:id/reject", (req, res) => {
 
     res.json({
       message: "❌ Pendaftaran ditolak!",
-      status: "REJECTED",
+      status: "Ditolak",
     });
   });
 });

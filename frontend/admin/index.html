@@ -2,13 +2,26 @@
 <html>
   <head>
     <title>Admin Dashboard - RSMS</title>
+
+    <!-- PROTEKSI LOGIN ADMIN -->
+    <script>
+      const admin = localStorage.getItem("admin");
+      if (!admin) {
+        window.location.href = "loginadmin.html";
+      }
+    </script>
+
     <link
       href="../assets/vendor/bootstrap/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="../assets/css/main.css" />
   </head>
 
   <body class="p-4">
+    <button class="btn btn-danger logout-btn" onclick="logoutAdmin()">
+      Logout
+    </button>
     <div class="text-center mt-5 mb-4">
       <h2 class="fw-bold">Dashboard Admin Diklat RSUD Margono</h2>
       <p class="text-muted">Selamat datang di panel administrasi.</p>
@@ -80,5 +93,17 @@
       </div>
     </div>
   </body>
+  <script>
+    // ===============================
+    //   LOGOUT FUNCTION
+    // ===============================
+    function logoutAdmin() {
+      if (confirm("Apakah Anda yakin ingin logout?")) {
+        localStorage.removeItem("admin");
+        window.location.href = "loginadmin.html";
+      }
+    }
+  </script>
+  <script src="admin_check.js"></script>
   <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 </html>

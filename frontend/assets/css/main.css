@@ -6537,3 +6537,12 @@ hero-image img {
 .list-group-item-action:last-child {
   border-bottom: none !important;
 }
+
+.logout-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 12px 20px;
+  border-radius: 8px;
+}

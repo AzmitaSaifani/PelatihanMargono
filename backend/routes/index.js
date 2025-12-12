@@ -9,6 +9,7 @@ import penyelenggaraRoute from "./auth/penyelenggara.js";
 import fasilitatorRoute from "./auth/fasilitator.js";
 import galleryRoute from "./auth/gallery.js";
 import kalenderRoute from "./auth/kalender.js";
+import loginAdminRoute from "./auth/loginadmin.js";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/penyelenggara", penyelenggaraRoute);
 router.use("/fasilitator", fasilitatorRoute);
 router.use("/gallery", galleryRoute);
 router.use("/kalender", kalenderRoute);
+router.use("/loginadmin", loginAdminRoute);
 
 export default router;
