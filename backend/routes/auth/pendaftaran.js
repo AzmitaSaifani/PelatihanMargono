@@ -375,7 +375,7 @@ router.delete("/:id", (req, res) => {
 });
 
 // ========================================================
-// 4️⃣ STATUS: ACCEPT (WAITING → WAITING_PAYMENT)
+//  STATUS: ACCEPT (WAITING → WAITING_PAYMENT)
 // ========================================================
 router.put("/:id/accept", (req, res) => {
   const { id } = req.params;
@@ -400,14 +400,14 @@ router.put("/:id/accept", (req, res) => {
 });
 
 // ========================================================
-// 5️⃣ STATUS: REJECT (WAITING → REJECTED)
+//  STATUS: REJECT (WAITING → REJECTED)
 // ========================================================
 router.put("/:id/reject", (req, res) => {
   const { id } = req.params;
 
   const sql = `
       UPDATE pendaftaran_tb 
-      SET status = 'Ditolak'
+      SET status = 'Verifikasi Berkas Invalid'
       WHERE id_pendaftaran = ?
   `;
 
@@ -418,8 +418,59 @@ router.put("/:id/reject", (req, res) => {
       return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
 
     res.json({
-      message: "❌ Pendaftaran ditolak!",
-      status: "Ditolak",
+      message: "❌ Verifikasi berkas invalid!!",
+      status: "Verifikasi Berkas Invalid",
+    });
+  });
+});
+
+// ========================================================
+// STATUS: PEMBAYARAN VALID → 'diterima'
+// ========================================================
+router.put("/:id/payment-valid", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+      UPDATE pendaftaran_tb 
+      SET status = 'Diterima'
+      WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json({ message: "❌ Error update status pembayaran" });
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
+
+    res.json({
+      message: "✅ Pembayaran valid — peserta diterima!",
+      status: "Diterima",
+    });
+  });
+});
+
+
+// ========================================================
+// STATUS: PEMBAYARAN INVALID → 'verifikasi pembayaran invalid'
+// ========================================================
+router.put("/:id/payment-invalid", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+      UPDATE pendaftaran_tb 
+      SET status = 'Verifikasi Pembayaran Invalid'
+      WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id], (err, result) => {
+    if (err) return res.status(500).json({ message: "❌ Error update status pembayaran" });
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
+
+    res.json({
+      message: "❌ Pembayaran invalid!",
+      status: "Verifikasi Pembayaran Invalid",
     });
   });
 });

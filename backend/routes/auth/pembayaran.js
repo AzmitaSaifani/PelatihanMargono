@@ -85,6 +85,7 @@ router.get("/", (req, res) => {
   const sql = `
     SELECT 
       bayar.id_pembayaran,
+      bayar.id_pendaftaran,
       bayar.bukti_transfer,
       bayar.status AS status_bayar,
       bayar.uploaded_at,
@@ -124,6 +125,26 @@ router.put("/:id/validate", (req, res) => {
       return res.status(500).json({ message: "Gagal memvalidasi pembayaran" });
 
     res.json({ message: "Pembayaran ditandai VALID!" });
+  });
+});
+
+/* SET PEMBAYARAN MENJADI PENDING */
+router.put("/:id/pending", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+      UPDATE pembayaran_tb 
+      SET status='PENDING'
+      WHERE id_pembayaran=?
+  `;
+
+  connection.query(sql, [id], (err) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ message: "Gagal mengubah status ke PENDING" });
+
+    res.json({ message: "Status pembayaran dikembalikan ke PENDING!" });
   });
 });
 

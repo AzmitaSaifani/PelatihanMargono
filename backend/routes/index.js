@@ -10,6 +10,7 @@ import fasilitatorRoute from "./auth/fasilitator.js";
 import galleryRoute from "./auth/gallery.js";
 import kalenderRoute from "./auth/kalender.js";
 import loginAdminRoute from "./auth/loginadmin.js";
+// import admin_check from "./auth/admin_check.js";
 
 const router = express.Router();
 
@@ -24,5 +25,7 @@ router.use("/fasilitator", fasilitatorRoute);
 router.use("/gallery", galleryRoute);
 router.use("/kalender", kalenderRoute);
 router.use("/loginadmin", loginAdminRoute);
+// router.use("/admin_check", admin_checkRoute);
+
 
 export default router;

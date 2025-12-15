@@ -118,7 +118,7 @@ router.put("/:id", upload.single("foto"), (req, res) => {
       WHERE id_institusi=?
     `;
 
-    const values = [nama, fotoBaru || oldFoto, link_terkait, status || "1", id];
+    const values = [nama, fotoBaru || oldFoto, link_terkait, status, id];
 
     connection.query(sql, values, (err) => {
       if (err) {
