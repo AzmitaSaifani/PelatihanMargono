@@ -23,6 +23,7 @@ router.post("/", (req, res) => {
         id: user.id_user,
         nama: user.nama_lengkap,
         email: user.email,
+        loginTime: Date.now()
       },
     });
   });

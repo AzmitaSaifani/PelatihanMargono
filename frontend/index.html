@@ -234,12 +234,11 @@
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
-            <li><a href="doctors.html">Kritik dan Saran</a></li>
+            <!-- <li><a href="doctors.html">Kritik dan Saran</a></li> -->
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
-        <a class="btn-getstarted" href="login.html">Login</a>
       </div>
     </header>
 
@@ -590,45 +589,51 @@
                 <!-- === FILTER KATEGORI === -->
                 <div class="services-tabs">
                     <!-- === FILTER KATEGORI (NAV-TABS) === -->
-                    <ul class="nav nav-tabs justify-content-center mb-4" role="tablist" data-aos="fade-up">
-                      
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link active" onclick="filterKategori('all')" type="button" role="tab">
-                          Semua
-                        </button>
-                      </li>
+                    <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
 
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="filterKategori('Nakes Internal')" type="button" role="tab">
-                          Nakes Internal
-                        </button>
-                      </li>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('all', this)">
+                        Semua
+                      </button>
+                    </li>
 
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="filterKategori('Nakes Eksternal')" type="button" role="tab">
-                          Nakes Eksternal
-                        </button>
-                      </li>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Nakes Internal', this)">
+                        Nakes Internal
+                      </button>
+                    </li>
 
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="filterKategori('Umum')" type="button" role="tab">
-                          Umum
-                        </button>
-                      </li>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Nakes Eksternal', this)">
+                        Nakes Eksternal
+                      </button>
+                    </li>
 
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="filterKategori('Non-Nakes Internal')" type="button" role="tab">
-                          Non-Nakes Internal
-                        </button>
-                      </li>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Umum', this)">
+                        Umum
+                      </button>
+                    </li>
 
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" onclick="filterKategori('Non-Nakes Eksternal')" type="button" role="tab">
-                          Non-Nakes Eksternal
-                        </button>
-                      </li>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Non-Nakes Internal', this)">
+                        Non-Nakes Internal
+                      </button>
+                    </li>
 
-                    </ul>
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Non-Nakes Eksternal', this)">
+                        Non-Nakes Eksternal
+                      </button>
+                    </li>
+
+                  </ul>
                 <!-- <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p> -->
               <!-- End Section Title -->
 
@@ -761,15 +766,29 @@
 
                       loadPelatihan();
 
-                      // ===================== FILTER KATEGORI =====================
-                      function filterKategori(kategori) {
-                        if (kategori === "all") {
-                          renderPelatihan(allPelatihan);
-                        } else {
-                          const hasil = allPelatihan.filter(p => p.kategori === kategori);
-                          renderPelatihan(hasil);
+                      // ===================== AKTIFKAN TAB =====================
+                        function setActiveTab(button) {
+                          document.querySelectorAll("#kategoriTabs .nav-link")
+                            .forEach(tab => tab.classList.remove("active"));
+
+                          if (button) {
+                            button.classList.add("active");
+                          }
                         }
-                      }
+
+                        // ===================== FILTER KATEGORI =====================
+                        function filterKategori(kategori, button) {
+                          // animasi tab aktif
+                          setActiveTab(button);
+
+                          // filter card
+                          if (kategori === "all") {
+                            renderPelatihan(allPelatihan);
+                          } else {
+                            const hasil = allPelatihan.filter(p => p.kategori === kategori);
+                            renderPelatihan(hasil);
+                          }
+                        }
 
                       // ===================== OPEN MODAL =====================
                       async function openModal(id) {

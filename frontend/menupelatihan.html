@@ -182,14 +182,14 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li class="dropdown">
               <a href="#"
                 ><span>Pelatihan</span>
                 <i class="bi bi-chevron-down toggle-dropdown"></i
               ></a>
               <ul>
-                <li><a href="menupelatihan.html">Menu Pelatihan</a></li>
+                <li><a href="menupelatihan.html" class="active">Menu Pelatihan</a></li>
                 <li><a href="kalender.html">Kalender Pelatihan</a></li>
                 <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
                 <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
@@ -227,12 +227,11 @@
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
-            <li><a href="doctors.html">Kritik dan Saran</a></li>
+            <!-- <li><a href="doctors.html">Kritik dan Saran</a></li> -->
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
-        <a class="btn-getstarted" href="login.html">Login</a>
       </div>
     </header>
 
@@ -255,40 +254,46 @@
             <div class="container section-title" data-aos="fade-up">
               <div class="services-tabs">
                   <!-- === FILTER KATEGORI (NAV-TABS) === -->
-                  <ul class="nav nav-tabs justify-content-center mb-4" role="tablist" data-aos="fade-up">
-                    
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link active" onclick="filterKategori('all')" type="button" role="tab">
+                  <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
+
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('all', this)">
                         Semua
                       </button>
                     </li>
 
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" onclick="filterKategori('Nakes Internal')" type="button" role="tab">
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Nakes Internal', this)">
                         Nakes Internal
                       </button>
                     </li>
 
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" onclick="filterKategori('Nakes Eksternal')" type="button" role="tab">
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Nakes Eksternal', this)">
                         Nakes Eksternal
                       </button>
                     </li>
 
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" onclick="filterKategori('Umum')" type="button" role="tab">
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Umum', this)">
                         Umum
                       </button>
                     </li>
 
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" onclick="filterKategori('Non-Nakes Internal')" type="button" role="tab">
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Non-Nakes Internal', this)">
                         Non-Nakes Internal
                       </button>
                     </li>
 
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" onclick="filterKategori('Non-Nakes Eksternal')" type="button" role="tab">
+                    <li class="nav-item">
+                      <button class="nav-link"
+                        onclick="filterKategori('Non-Nakes Eksternal', this)">
                         Non-Nakes Eksternal
                       </button>
                     </li>
@@ -339,184 +344,206 @@
                     <div class="row gy-4" id="menupelatihanContainer">
                       
                       <script>
-                      const API = "http://localhost:5000/api/pelatihan";
+                        const API = "http://localhost:5000/api/pelatihan";
 
-                      // Menyimpan semua pelatihan publish
-                      let allPelatihan = [];
+                        // Menyimpan semua pelatihan publish
+                        let allPelatihan = [];
 
-                      // ====== FORMAT TANGGAL & WAKTU ======
-                      function formatTanggal(tanggal) {
-                        return new Date(tanggal).toLocaleDateString("id-ID", {
-                          day: "2-digit",
-                          month: "long",
-                          year: "numeric",
-                        });
-                      }
-
-                      function formatWaktu(waktuDB) {
-                        return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
-                      }
-
-                        // ===================== LOAD LIST PELATIHAN (CARD) =====================
-                      async function loadPelatihan() {
-                        const res = await fetch(API);
-                        const data = await res.json();
-
-                        // Simpan data publish
-                        allPelatihan = data.filter(item => item.status === "publish");
-
-                        // Render default (semua)
-                        renderPelatihan(allPelatihan);
-                      }
-
-                      // ===================== RENDER CARD PELATIHAN =====================
-                      function renderPelatihan(list) {
-                        const container = document.getElementById("menupelatihanContainer");
-                        container.innerHTML = "";
-
-                        // Jika tidak ada pelatihan
-                        if (list.length === 0) {
-                          container.innerHTML = `
-                            <div class="col-12 text-center py-5">
-                              <h5 class="text-muted">Tidak ada pelatihan yang tersedia untuk kategori ini.</h5>
-                            </div>
-                          `;
-                          return;
+                        // ====== FORMAT TANGGAL & WAKTU ======
+                        function formatTanggal(tanggal) {
+                          return new Date(tanggal).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          });
                         }
 
-                        // Jika ada pelatihan → render card
-                        list.forEach(p => {
-                          container.innerHTML += `
-                            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                              <div class="department-card">
-                                
-                                <!-- Klik gambar untuk zoom -->
-                                <div class="department-image flyer-rectangle" onclick="zoomFlyer('${p.flyer_url}')">
-                                  <img src="http://localhost:5000/uploads/flyer/${p.flyer_url}" 
-                                  class="img-fluid" style="cursor: zoom-in;">
-                                </div>
+                        function formatWaktu(waktuDB) {
+                          return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
+                        }
 
-                                <div class="department-content">
-                                  <div class="department-icon">
-                                    <i class="bi bi-calendar4-event"></i>
-                                  </div>
+                          // ===================== LOAD LIST PELATIHAN (CARD) =====================
+                        async function loadPelatihan() {
+                          const res = await fetch(API);
+                          const data = await res.json();
 
-                                  <h3>${p.nama_pelatihan}</h3>
+                          // Simpan data publish
+                          allPelatihan = data.filter(item => item.status === "publish");
 
-                                  <button class="btn btn-primary" onclick="openModal(${p.id_pelatihan})">
-                                    Detail Menu Pelatihan
-                                  </button>
-                                </div>
-
-                              </div>
-                            </div>
-                          `;
-                        });
-                      }
-
-                      loadPelatihan();
-
-                      // ===================== FILTER KATEGORI =====================
-                      function filterKategori(kategori) {
-                        if (kategori === "all") {
+                          // Render default (semua)
                           renderPelatihan(allPelatihan);
-                        } else {
-                          const hasil = allPelatihan.filter(p => p.kategori === kategori);
-                          renderPelatihan(hasil);
                         }
-                      }
 
-                      // ===================== OPEN MODAL =====================
-                      async function openModal(id) {
-                        const res = await fetch(API);
-                        const data = await res.json();
+                        // ===================== RENDER CARD PELATIHAN =====================
+                        function renderPelatihan(list) {
+                          const container = document.getElementById("menupelatihanContainer");
+                          container.innerHTML = "";
 
-                        const p = data.find(x => x.id_pelatihan == id);
-
-                        const btnDetail = document.getElementById("btnDaftar");
-
-
-                        // Fill flyer
-                        document.getElementById("modalFlyer").src =
-                          `http://localhost:5000/uploads/flyer/${p.flyer_url}`;
-                          // flyerEl.alt = "Flyer Pelatihan";
-
-                        // Fill content
-                        document.getElementById("modalTitle").innerText = p.nama_pelatihan;
-                        document.getElementById("modalKategori").innerText = p.kategori;
-
-                        // ==== FORMAT TANGGAL & WAKTU (SAMA SEPERTI FULLCALENDAR) ====
-                        document.getElementById("modalMulai").innerText =
-                          formatTanggal(p.tanggal_mulai) + " | " + formatWaktu(p.waktu_mulai);
-
-                        document.getElementById("modalSelesai").innerText =
-                          formatTanggal(p.tanggal_selesai) + " | " + formatWaktu(p.waktu_selesai);
-
-                        document.getElementById("modalLokasi").innerText = p.lokasi;
-
-                        document.getElementById("modalPeserta").innerText =
-                          p.sisa_kuota + " / " + p.kuota;
-
-                          // =============================
-                          // LOGIKA: Tanggal Sudah Lewat
-                          // =============================
-                          const today = new Date().setHours(0,0,0,0);
-                          const eventDate = new Date(p.tanggal_mulai).setHours(0,0,0,0);
-
-                          let sisaKuota = Number(p.sisa_kuota) || 0;
-                          const totalKuota = Number(p.kuota) || 0;
-
-                          if (today > eventDate) {
-                            // Set kuota ke 0 di tampilan
-                            sisaKuota = 0;
-                            document.getElementById("modalPeserta").innerText = `0 / ${totalKuota}`;
-
-                            btnDetail.innerText = "Pendaftaran Ditutup";
-                            btnDetail.style.background = "#777";
-                            btnDetail.style.cursor = "not-allowed";
-                            btnDetail.onclick = null;
-
-                            document.getElementById("modalPelatihan").style.display = "flex";
+                          // Jika tidak ada pelatihan
+                          if (list.length === 0) {
+                            container.innerHTML = `
+                              <div class="col-12 text-center py-5">
+                                <h5 class="text-muted">Tidak ada pelatihan yang tersedia untuk kategori ini.</h5>
+                              </div>
+                            `;
                             return;
                           }
 
-                        // ===== Logika Tombol Daftar =====
+                          // Jika ada pelatihan → render card
+                          list.forEach(p => {
+                            container.innerHTML += `
+                              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                                <div class="department-card">
+                                  
+                                  <!-- Klik gambar untuk zoom -->
+                                  <div class="department-image flyer-rectangle" onclick="zoomFlyer('${p.flyer_url}')">
+                                    <img src="http://localhost:5000/uploads/flyer/${p.flyer_url}" 
+                                    class="img-fluid" style="cursor: zoom-in;">
+                                  </div>
 
-                        if (p.sisa_kuota <= 0) {
-                          btnDetail.innerText = "Kuota Penuh";
-                          btnDetail.style.background = "#777";
-                          btnDetail.style.cursor = "not-allowed";
-                          btnDetail.onclick = null;
-                        } else {
-                          btnDetail.innerText = "Daftar Pelatihan";
-                          btnDetail.style.background = "#28c7a8";
-                          btnDetail.style.cursor = "pointer";
+                                  <div class="department-content">
+                                    <div class="department-icon">
+                                      <i class="bi bi-calendar4-event"></i>
+                                    </div>
 
-                          btnDetail.onclick = function () {
-                            window.location.href = `daftarpelatihan.html?id=${p.id_pelatihan}`;
-                          };
+                                    <h3>${p.nama_pelatihan}</h3>
+
+                                    <button class="btn btn-primary" onclick="openModal(${p.id_pelatihan})">
+                                      Detail Menu Pelatihan
+                                    </button>
+                                  </div>
+
+                                </div>
+                              </div>
+                            `;
+                          });
                         }
 
-                        document.body.classList.add("no-scroll"); // ⬅ Kunci scroll halaman
+                        loadPelatihan();
 
-                        document.getElementById("modalPelatihan").style.display = "flex";
-                      }
+                       // ===================== AKTIFKAN TAB =====================
+                        function setActiveTab(button) {
+                          document.querySelectorAll("#kategoriTabs .nav-link")
+                            .forEach(tab => tab.classList.remove("active"));
 
-                      function tutupModal() {
-                        document.getElementById("modalPelatihan").style.display = "none";
-                        document.body.classList.remove("no-scroll"); // ⬅ Buka kembali scroll halaman
-                      }
+                          if (button) {
+                            button.classList.add("active");
+                          }
+                        }
 
-                      function zoomFlyer(flyerUrl) {
-                        document.getElementById("zoomFlyerImage").src =
-                          `http://localhost:5000/uploads/flyer/${flyerUrl}`;
+                        // ===================== FILTER KATEGORI =====================
+                        function filterKategori(kategori, button) {
+                          // animasi tab aktif
+                          setActiveTab(button);
 
-                        document.getElementById("zoomFlyerModal").style.display = "flex";
-                      }
+                          // filter card
+                          if (kategori === "all") {
+                            renderPelatihan(allPelatihan);
+                          } else {
+                            const hasil = allPelatihan.filter(p => p.kategori === kategori);
+                            renderPelatihan(hasil);
+                          }
+                        }
 
-                      function closeZoom() {
-                        document.getElementById("zoomFlyerModal").style.display = "none";
-                      }
+                        // ===================== OPEN MODAL =====================
+                        async function openModal(id) {
+                          const res = await fetch(API);
+                          const data = await res.json();
+
+                          const p = data.find(x => x.id_pelatihan == id);
+
+                          const btnDetail = document.getElementById("btnDaftar");
+
+
+                          // Fill flyer
+                          document.getElementById("modalFlyer").src =
+                            `http://localhost:5000/uploads/flyer/${p.flyer_url}`;
+                            // flyerEl.alt = "Flyer Pelatihan";
+
+                          // Fill content
+                          document.getElementById("modalTitle").innerText = p.nama_pelatihan;
+                          document.getElementById("modalKategori").innerText = p.kategori;
+
+                          // ==== FORMAT TANGGAL & WAKTU (SAMA SEPERTI FULLCALENDAR) ====
+                          document.getElementById("modalMulai").innerText =
+                            formatTanggal(p.tanggal_mulai) + " | " + formatWaktu(p.waktu_mulai);
+
+                          document.getElementById("modalSelesai").innerText =
+                            formatTanggal(p.tanggal_selesai) + " | " + formatWaktu(p.waktu_selesai);
+
+                          document.getElementById("modalLokasi").innerText = p.lokasi;
+
+                          document.getElementById("modalPeserta").innerText =
+                            p.sisa_kuota + " / " + p.kuota;
+
+                            // =============================
+                            // LOGIKA: Tanggal Sudah Lewat
+                            // =============================
+                            const today = new Date().setHours(0,0,0,0);
+                            const eventDate = new Date(p.tanggal_mulai).setHours(0,0,0,0);
+
+                            let sisaKuota = Number(p.sisa_kuota) || 0;
+                            const totalKuota = Number(p.kuota) || 0;
+
+                            if (today > eventDate) {
+                              // Set kuota ke 0 di tampilan
+                              sisaKuota = 0;
+                              document.getElementById("modalPeserta").innerText = `0 / ${totalKuota}`;
+
+                              btnDetail.innerText = "Pendaftaran Ditutup";
+                              btnDetail.style.background = "#777";
+                              btnDetail.style.cursor = "not-allowed";
+                              btnDetail.onclick = null;
+
+                              document.getElementById("modalPelatihan").style.display = "flex";
+                              return;
+                            }
+
+                          // ===== Logika Tombol Daftar =====
+
+                          if (p.sisa_kuota <= 0) {
+                            btnDetail.innerText = "Kuota Penuh";
+                            btnDetail.style.background = "#777";
+                            btnDetail.style.cursor = "not-allowed";
+                            btnDetail.onclick = null;
+                          } else {
+                            btnDetail.innerText = "Daftar Pelatihan";
+                            btnDetail.style.background = "#28c7a8";
+                            btnDetail.style.cursor = "pointer";
+
+                            btnDetail.onclick = function () {
+                              window.location.href = `daftarpelatihan.html?id=${p.id_pelatihan}`;
+                            };
+                          }
+
+                          document.body.classList.add("no-scroll"); // ⬅ Kunci scroll halaman
+
+                          document.getElementById("modalPelatihan").style.display = "flex";
+                        }
+
+                        function tutupModal() {
+                          document.getElementById("modalPelatihan").style.display = "none";
+                          document.body.classList.remove("no-scroll"); // ⬅ Buka kembali scroll halaman
+                        }
+
+                        function zoomFlyer(flyerUrl) {
+                          document.getElementById("zoomFlyerImage").src =
+                            `http://localhost:5000/uploads/flyer/${flyerUrl}`;
+
+                          document.getElementById("zoomFlyerModal").style.display = "flex";
+                        }
+
+                        function closeZoom() {
+                          document.getElementById("zoomFlyerModal").style.display = "none";
+                        }
+
+                        function setActiveTab(button) {
+                          document.querySelectorAll("#kategoriTabs .nav-link")
+                            .forEach(tab => tab.classList.remove("active"));
+
+                          button.classList.add("active");
+                        }
+
                     </script>
 
                       <!-- End Script JS Menu Pelatihan -->

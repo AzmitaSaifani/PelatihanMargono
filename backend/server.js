@@ -1,8 +1,12 @@
+import "dotenv/config";
+// dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import path from "path";
 import authRoutes from "./routes/index.js";
 import { fileURLToPath } from "url";
+
 
 const app = express();
 

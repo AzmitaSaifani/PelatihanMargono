@@ -1,3 +1,4 @@
+import { sendEmail } from "../../utils/email.js";
 import express from "express";
 import connection from "../../config/db.js";
 import multer from "multer";
@@ -20,7 +21,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-/* CREATE PEMBAYARAN */
+/* CREATE PEMBAYARAN + EMAIL PENDING */
 router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
   const { nama_peserta, no_wa, id_pelatihan } = req.body;
 
@@ -33,11 +34,11 @@ router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
   const bukti_transfer = req.file.filename;
 
   const sqlCari = `
-      SELECT id_pendaftaran
-      FROM pendaftaran_tb
-      WHERE nama_peserta=? AND no_wa=? AND id_pelatihan=?
-      ORDER BY id_pendaftaran DESC
-      LIMIT 1
+    SELECT id_pendaftaran, nama_peserta, email
+    FROM pendaftaran_tb
+    WHERE nama_peserta=? AND no_wa=? AND id_pelatihan=?
+    ORDER BY id_pendaftaran DESC
+    LIMIT 1
   `;
 
   connection.query(
@@ -54,24 +55,64 @@ router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
           .status(404)
           .json({ message: "Data pendaftaran tidak ditemukan" });
 
-      const id_pendaftaran = hasil[0].id_pendaftaran;
+      const { id_pendaftaran, nama_peserta, email } = hasil[0];
 
       const sqlInsert = `
-          INSERT INTO pembayaran_tb (id_pendaftaran, bukti_transfer, status, uploaded_at)
-          VALUES (?, ?, 'PENDING', NOW())
+        INSERT INTO pembayaran_tb (id_pendaftaran, bukti_transfer, status, uploaded_at)
+        VALUES (?, ?, 'PENDING', NOW())
       `;
 
       connection.query(
         sqlInsert,
         [id_pendaftaran, bukti_transfer],
-        (err2, result) => {
+        async (err2, result) => {
           if (err2)
             return res
               .status(500)
               .json({ message: "Gagal menyimpan pembayaran" });
 
+          // =====================
+          // KIRIM EMAIL PENDING
+          // =====================
+          let emailStatus = "Email gagal dikirim";
+
+          try {
+            const sent = await sendEmail({
+              to: email,
+              subject: "Konfirmasi Penerimaan Bukti Pembayaran",
+              html: `
+                <p>Yth. <b>${nama_peserta}</b>,</p>
+
+                <p>
+                  Terima kasih. Bukti pembayaran Anda telah kami terima
+                  dan saat ini sedang dalam proses <b>verifikasi oleh tim kami</b>.
+                </p>
+
+                <p>
+                  Status pembayaran Anda saat ini:
+                  <b>PENDING (Menunggu Verifikasi)</b>.
+                </p>
+
+                <p>
+                  Hasil verifikasi akan kami informasikan melalui email
+                  setelah proses pengecekan selesai.
+                </p>
+
+                <br>
+                <p>
+                  Hormat kami,<br>
+                  <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+                </p>
+              `,
+            });
+
+            if (sent) emailStatus = "Email konfirmasi terkirim";
+          } catch (errEmail) {
+            console.error("⚠️ Email PENDING gagal:", errEmail);
+          }
+
           res.status(201).json({
-            message: "Bukti pembayaran berhasil diupload!",
+            message: `Bukti pembayaran berhasil diupload. ${emailStatus}`,
             id_pembayaran: result.insertId,
           });
         }
@@ -91,6 +132,7 @@ router.get("/", (req, res) => {
       bayar.uploaded_at,
       daftar.nama_peserta,
       daftar.no_wa,
+      daftar.email,
       pel.nama_pelatihan
     FROM pembayaran_tb bayar
     LEFT JOIN pendaftaran_tb daftar 
@@ -110,21 +152,225 @@ router.get("/", (req, res) => {
   });
 });
 
-/* VALIDATE PEMBAYARAN */
+// ========================================================
+// VALIDATE PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA
+// ========================================================
 router.put("/:id/validate", (req, res) => {
   const { id } = req.params;
 
-  const sql = `
-      UPDATE pembayaran_tb 
-      SET status='VALID'
-      WHERE id_pembayaran=?
+  // 1. Ambil data pembayaran + peserta
+  const getDataSQL = `
+    SELECT 
+      bayar.id_pendaftaran,
+      daftar.nama_peserta,
+      daftar.email
+    FROM pembayaran_tb bayar
+    JOIN pendaftaran_tb daftar
+      ON bayar.id_pendaftaran = daftar.id_pendaftaran
+    WHERE bayar.id_pembayaran = ?
   `;
 
-  connection.query(sql, [id], (err) => {
-    if (err)
-      return res.status(500).json({ message: "Gagal memvalidasi pembayaran" });
+  connection.query(getDataSQL, [id], async (err, dataRes) => {
+    if (err) {
+      console.error("❌ Error ambil data:", err);
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil data pembayaran" });
+    }
 
-    res.json({ message: "Pembayaran ditandai VALID!" });
+    if (dataRes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Data pembayaran tidak ditemukan" });
+    }
+
+    const { id_pendaftaran, nama_peserta, email } = dataRes[0];
+
+    // 2. Update status pembayaran → VALID
+    const updateBayarSQL = `
+      UPDATE pembayaran_tb
+      SET status = 'VALID'
+      WHERE id_pembayaran = ?
+    `;
+
+    connection.query(updateBayarSQL, [id], async (err) => {
+      if (err) {
+        console.error("❌ Error update pembayaran:", err);
+        return res.status(500).json({ message: "Gagal update pembayaran" });
+      }
+
+      // 3. Update status pendaftaran → DITERIMA
+      const updateDaftarSQL = `
+        UPDATE pendaftaran_tb
+        SET status = 'Diterima'
+        WHERE id_pendaftaran = ?
+      `;
+
+      connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
+        if (err) {
+          console.error("❌ Error update pendaftaran:", err);
+          return res
+            .status(500)
+            .json({ message: "Gagal update status pendaftaran" });
+        }
+
+        // 4. Kirim email ke peserta
+        try {
+          await sendEmail({
+            to: email,
+            subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
+            html: `
+              <p>Yth. <b>${nama_peserta}</b>,</p>
+
+              <p>
+                Terima kasih. Kami informasikan bahwa
+                <b>pembayaran Anda telah kami terima dan dinyatakan valid</b>.
+              </p>
+
+              <p>
+                Dengan ini, status pendaftaran Anda dinyatakan:
+                <b>DITERIMA</b>.
+              </p>
+
+              <p>
+                Informasi lebih lanjut mengenai jadwal dan teknis pelatihan
+                akan disampaikan melalui email berikutnya.
+              </p>
+
+              <br>
+              <p>
+                Hormat kami,<br>
+                <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+              </p>
+            `,
+          });
+
+          console.log("📧 Email pembayaran valid terkirim ke:", email);
+        } catch (emailErr) {
+          console.error("⚠️ Email gagal dikirim:", emailErr.message);
+        }
+
+        res.json({
+          message:
+            "✅ Pembayaran valid. Status peserta DITERIMA & email terkirim",
+        });
+      });
+    });
+  });
+});
+
+// ========================================================
+// INVALID PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA
+// ========================================================
+router.put("/:id/invalid", (req, res) => {
+  const { id } = req.params;
+
+  // 1. Ambil data peserta
+  const getDataSQL = `
+    SELECT 
+      bayar.id_pendaftaran,
+      daftar.nama_peserta,
+      daftar.email
+    FROM pembayaran_tb bayar
+    JOIN pendaftaran_tb daftar
+      ON bayar.id_pendaftaran = daftar.id_pendaftaran
+    WHERE bayar.id_pembayaran = ?
+  `;
+
+  connection.query(getDataSQL, [id], async (err, dataRes) => {
+    if (err) {
+      console.error("❌ Error ambil data:", err);
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil data pembayaran" });
+    }
+
+    if (dataRes.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Data pembayaran tidak ditemukan" });
+    }
+
+    const { id_pendaftaran, nama_peserta, email } = dataRes[0];
+
+    // 2. Update status pembayaran → INVALID
+    const updateBayarSQL = `
+      UPDATE pembayaran_tb
+      SET status = 'INVALID'
+      WHERE id_pembayaran = ?
+    `;
+
+    connection.query(updateBayarSQL, [id], async (err) => {
+      if (err) {
+        console.error("❌ Error update pembayaran:", err);
+        return res
+          .status(500)
+          .json({ message: "Gagal update status pembayaran" });
+      }
+
+      // 3. Update status pendaftaran (opsional tapi disarankan)
+      const updateDaftarSQL = `
+        UPDATE pendaftaran_tb
+        SET status = 'Perlu Perbaikan'
+        WHERE id_pendaftaran = ?
+      `;
+
+      connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
+        if (err) {
+          console.error("❌ Error update pendaftaran:", err);
+          return res
+            .status(500)
+            .json({ message: "Gagal update status pendaftaran" });
+        }
+
+        // 4. Kirim email ke peserta
+        let emailStatus = "Email gagal dikirim";
+
+        try {
+          const sent = await sendEmail({
+            to: email,
+            subject: "Informasi Pembayaran Belum Valid",
+            html: `
+              <p>Yth. <b>${nama_peserta}</b>,</p>
+
+              <p>
+                Terima kasih atas partisipasi Anda dalam program pelatihan kami.
+                Setelah dilakukan verifikasi, kami informasikan bahwa
+                <b>bukti pembayaran yang Anda kirimkan belum dapat kami validasi</b>.
+              </p>
+
+              <p>
+                Hal ini dapat disebabkan oleh:
+                <ul>
+                  <li>Bukti transfer tidak jelas</li>
+                  <li>Nominal tidak sesuai</li>
+                  <li>Data pembayaran tidak lengkap</li>
+                </ul>
+              </p>
+
+              <p>
+                Silakan melakukan unggah ulang bukti pembayaran yang valid
+                melalui sistem pendaftaran.
+              </p>
+
+              <br>
+              <p>
+                Hormat kami,<br>
+                <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+              </p>
+            `,
+          });
+
+          if (sent) emailStatus = "Email notifikasi terkirim";
+        } catch (emailErr) {
+          console.error("⚠️ Email gagal dikirim:", emailErr);
+        }
+
+        res.json({
+          message: `⚠️ Pembayaran ditandai INVALID. ${emailStatus}`,
+        });
+      });
+    });
   });
 });
 
@@ -145,23 +391,6 @@ router.put("/:id/pending", (req, res) => {
         .json({ message: "Gagal mengubah status ke PENDING" });
 
     res.json({ message: "Status pembayaran dikembalikan ke PENDING!" });
-  });
-});
-
-/* INVALID PEMBAYARAN */
-router.put("/:id/invalid", (req, res) => {
-  const { id } = req.params;
-
-  const sql = `
-      UPDATE pembayaran_tb 
-      SET status='INVALID'
-      WHERE id_pembayaran=?
-  `;
-
-  connection.query(sql, [id], (err) => {
-    if (err) return res.status(500).json({ message: "Gagal mengubah status" });
-
-    res.json({ message: "Pembayaran ditandai INVALID!" });
   });
 });
 

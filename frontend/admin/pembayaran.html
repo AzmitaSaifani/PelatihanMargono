@@ -64,7 +64,7 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="pembayaran.html"
+                  <a class="dropdown-item" href="pembayaran.html" 
                     >Verifikasi Pembayaran</a
                   >
                 </li>
@@ -128,6 +128,13 @@
           />
         </div>
 
+        <div class="col-md-4">
+          <select id="filterPelatihan" class="form-select">
+            <option value="">Semua Pelatihan (Setelah Hari Ini)</option>
+          </select>
+        </div>
+      </div>
+
         <div class="card-body">
           <table class="table table-bordered">
             <thead class="table-light">
@@ -136,6 +143,7 @@
                 <th>Nama Peserta</th>
                 <th>Pelatihan</th>
                 <th>No WA</th>
+                <th>Email</th>
                 <th>Bukti Transfer</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -167,6 +175,8 @@
                 <td>${item.nama_peserta}</td>
                 <td>${item.nama_pelatihan}</td>
                 <td>${item.no_wa}</td>
+                <td>${item.email}</td>
+
 
                 <td>
                   <a href="http://localhost:5000/uploads/bukti_transfer/${
@@ -189,13 +199,25 @@
                 </td>
 
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="window.location.href='editpembayaran.html?id=${
-                      item.id_pembayaran
-                    }'">Edit</button>
-                  
-                  <button class="btn btn-danger btn-sm" onclick="hapuspembayaran${
-                    item.id_pembayaran
-                  })">Hapus</button>
+                    
+                  <button
+                    class="btn btn-success btn-sm"
+                    onclick="validasiPembayaran(${item.id_pembayaran})">
+                    Valid
+                  </button>
+
+                  <button
+                    class="btn btn-danger btn-sm"
+                    onclick="invalidPembayaran(${item.id_pembayaran})">
+                    Invalid
+                  </button>
+
+                 <button
+                    class="btn btn-danger btn-sm"
+                    onclick="hapus(${item.id_pembayaran})">
+                    Hapus
+                  </button>
+
                 </td>
               </tr>
             `;
@@ -203,6 +225,37 @@
         }
 
         loadPembayaran();
+
+        // =========================
+        // PEMBAYARAN VALID
+        // =========================
+        window.validasiPembayaran = async (id) => {
+          if (!confirm("Validasi pembayaran dan nyatakan peserta diterima?"))
+            return;
+
+          const res = await fetch(`${API}/${id}/validate`, {
+            method: "PUT",
+          });
+
+          const data = await res.json();
+          alert(data.message);
+          loadPembayaran();
+        };
+
+        // =========================
+        // PEMBAYARAN INVALID
+        // =========================
+        window.invalidPembayaran = async (id) => {
+          if (!confirm("Tandai pembayaran sebagai INVALID?")) return;
+
+          const res = await fetch(`${API}/${id}/invalid`, {
+            method: "PUT",
+          });
+
+          const data = await res.json();
+          alert(data.message);
+          loadPembayaran();
+        };
 
         // DELETE
         window.hapus = async (id) => {

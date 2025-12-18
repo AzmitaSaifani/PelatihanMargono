@@ -1,4 +1,7 @@
 (() => {
+
+  const MAX_SESSION = 2 * 60 * 60 * 1000; // 2 jam (dalam ms)
+
   let adminData = localStorage.getItem("admin");
 
   // Jika belum login, redirect
@@ -11,6 +14,17 @@
     adminData = JSON.parse(adminData);
   } catch (e) {
     // Jika data corrupt, hapus dan redirect
+    localStorage.removeItem("admin");
+    window.location.href = "loginadmin.html";
+    return;
+  }
+
+  // Cek expired session (2 jam)
+  const now = Date.now();
+  const sessionAge = now - adminData.loginTime;
+
+  if (sessionAge > MAX_SESSION) {
+    alert("Sesi login Anda telah berakhir. Silakan login kembali.");
     localStorage.removeItem("admin");
     window.location.href = "loginadmin.html";
     return;

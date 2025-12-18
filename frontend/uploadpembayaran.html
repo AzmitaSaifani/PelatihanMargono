@@ -169,7 +169,7 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
             <li class="dropdown">
               <a href="#"
                 ><span>Pelatihan</span>
@@ -214,12 +214,11 @@
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
-            <li><a href="doctors.html">Kritik dan Saran</a></li>
+            <!-- <li><a href="doctors.html">Kritik dan Saran</a></li> -->
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
-        <a class="btn-getstarted" href="login.html">Login</a>
       </div>
     </header>
 
@@ -268,6 +267,11 @@
                       <input type="text" name="no_wa" class="form-control" placeholder="No. WA contoh : 085600032xxx" required>
                     </div>
 
+                    <div class="col-md-6">
+                      <label class="form-label">Email:</label>
+                      <input type="text" name="email" class="form-control" placeholder="Email" required>
+                    </div>
+
                     <div class="col-md-12">
                       <label class="form-label">Upload Bukti Pembayaran:</label>
                       <input type="file" name="bukti_pembayaran" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
@@ -291,49 +295,55 @@
           <script>
             document.addEventListener("DOMContentLoaded", () => {
 
-               // ===========================================
-              // Ambil ID pendaftaran dari URL untuk dikirim
-              // ===========================================
-              // const params = new URLSearchParams(window.location.search);
-              // const idPendaftaran = params.get("id");
-              // if (idPendaftaran) {
-              //   document.getElementById("id_pendaftaran").value = idPendaftaran;
-              // }
-
-              // ============================================================
-              // LOAD DATA MENU PELATIHAN KE DROPDOWN
-              // ============================================================
-              async function loadPelatihan() {
-                try {
-                  console.log("Mengambil data pelatihan...");
-                  const res = await fetch("http://localhost:5000/api/pelatihan");
-
-                  if (!res.ok) {
-                    console.error("Response error:", res.status);
-                    return;
-                  }
-
-                  const data = await res.json();
-                  console.log("DATA PELATIHAN:", data);
-
-                  const select = document.getElementById("menupelatihan");
-
-                  if (!Array.isArray(data)) {
-                    console.error("Format API salah:", data);
-                    return;
-                  }
-
-                  data.forEach(item => {
-                    const option = document.createElement("option");
-                    option.value = item.id_pelatihan;
-                    option.textContent = item.nama_pelatihan;
-                    select.appendChild(option);
-                  });
-
-                } catch (error) {
-                  console.error("Gagal mengambil data pelatihan:", error);
-                }
+               // ==========================================
+              // Format tanggal ISO → DD/MM/YYYY
+              // ==========================================
+              function formatTanggalIndo(dateString) {
+                const date = new Date(dateString);
+                const d = String(date.getDate()).padStart(2, "0");
+                const m = String(date.getMonth() + 1).padStart(2, "0");
+                const y = date.getFullYear();
+                return `${d}/${m}/${y}`;
               }
+
+              // ======================
+              // LOAD MENU PELATIHAN + FILTER TANGGAL + STATUS PUBLISH
+              // ======================
+              async function loadPelatihan() {
+              console.log("Mengambil data pelatihan...");
+
+              const res = await fetch("http://localhost:5000/api/pelatihan");
+              if (!res.ok) { 
+                console.error("Response error:", res.status);
+                return;
+              }
+
+              const data = await res.json();
+              const select = document.getElementById("menupelatihan");
+              const today = new Date().toISOString().split("T")[0];
+
+              data.forEach(item => {
+
+                // HANYA tampilkan status publish
+                if (item.status !== "publish") return;
+
+                const tanggalISO = item.tanggal_mulai;
+                if (!tanggalISO) return;
+
+                const tanggalOnly = tanggalISO.split("T")[0];
+
+                // Hanya tampilkan pelatihan yang belum lewat
+                if (tanggalOnly >= today) {
+                  const opt = document.createElement("option");
+                  opt.value = item.id_pelatihan;
+
+                  const tanggalFormatted = formatTanggalIndo(tanggalISO);
+                  opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
+
+                  select.appendChild(opt);
+                }
+              });
+            }
 
               loadPelatihan();
 
