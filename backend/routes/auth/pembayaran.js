@@ -22,65 +22,76 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* CREATE PEMBAYARAN + EMAIL PENDING */
-router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
-  const { nama_peserta, no_wa, id_pelatihan } = req.body;
+router.post("/", upload.single("bukti_transfer"), (req, res) => {
+  const { id_pendaftaran } = req.body;
+
+  if (!id_pendaftaran) {
+    return res.status(400).json({
+      message: "ID pendaftaran wajib dikirim",
+    });
+  }
 
   if (!req.file) {
-    return res
-      .status(400)
-      .json({ message: "Bukti pembayaran wajib diupload!" });
+    return res.status(400).json({
+      message: "Bukti pembayaran wajib diupload!",
+    });
   }
 
   const bukti_transfer = req.file.filename;
 
   const sqlCari = `
-    SELECT id_pendaftaran, nama_peserta, email
+    SELECT nama_peserta, email, status
     FROM pendaftaran_tb
-    WHERE nama_peserta=? AND no_wa=? AND id_pelatihan=?
-    ORDER BY id_pendaftaran DESC
-    LIMIT 1
+    WHERE id_pendaftaran = ?
   `;
 
-  connection.query(
-    sqlCari,
-    [nama_peserta, no_wa, id_pelatihan],
-    (err, hasil) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ message: "Gagal mencari data pendaftaran" });
+  connection.query(sqlCari, [id_pendaftaran], async (err, hasil) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Gagal mencari data pendaftaran",
+      });
+    }
 
-      if (hasil.length === 0)
-        return res
-          .status(404)
-          .json({ message: "Data pendaftaran tidak ditemukan" });
+    if (hasil.length === 0) {
+      return res.status(404).json({
+        message: "Data pendaftaran tidak ditemukan",
+      });
+    }
 
-      const { id_pendaftaran, nama_peserta, email } = hasil[0];
+    if (hasil[0].status !== "Menunggu Pembayaran") {
+      return res.status(403).json({
+        message: "Upload pembayaran belum diizinkan",
+      });
+    }
 
-      const sqlInsert = `
-        INSERT INTO pembayaran_tb (id_pendaftaran, bukti_transfer, status, uploaded_at)
-        VALUES (?, ?, 'PENDING', NOW())
-      `;
+    const { nama_peserta, email } = hasil[0];
 
-      connection.query(
-        sqlInsert,
-        [id_pendaftaran, bukti_transfer],
-        async (err2, result) => {
-          if (err2)
-            return res
-              .status(500)
-              .json({ message: "Gagal menyimpan pembayaran" });
+    const sqlInsert = `
+      INSERT INTO pembayaran_tb
+      (id_pendaftaran, bukti_transfer, status, uploaded_at)
+      VALUES (?, ?, 'PENDING', NOW())
+    `;
 
-          // =====================
-          // KIRIM EMAIL PENDING
-          // =====================
-          let emailStatus = "Email gagal dikirim";
+    connection.query(
+      sqlInsert,
+      [id_pendaftaran, bukti_transfer],
+      async (err2, result) => {
+        if (err2) {
+          return res.status(500).json({
+            message: "Gagal menyimpan pembayaran",
+          });
+        }
 
-          try {
-            const sent = await sendEmail({
-              to: email,
-              subject: "Konfirmasi Penerimaan Bukti Pembayaran",
-              html: `
+        // =====================
+        // KIRIM EMAIL PENDING
+        // =====================
+        let emailStatus = "Email gagal dikirim";
+
+        try {
+          const sent = await sendEmail({
+            to: email,
+            subject: "Konfirmasi Penerimaan Bukti Pembayaran",
+            html: `
                 <p>Yth. <b>${nama_peserta}</b>,</p>
 
                 <p>
@@ -90,7 +101,7 @@ router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
 
                 <p>
                   Status pembayaran Anda saat ini:
-                  <b>PENDING (Menunggu Verifikasi)</b>.
+                  <b>PENDING (Menunggu Verifikasi Pembayaran)</b>.
                 </p>
 
                 <p>
@@ -104,21 +115,20 @@ router.post("/", upload.single("bukti_pembayaran"), (req, res) => {
                   <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
                 </p>
               `,
-            });
-
-            if (sent) emailStatus = "Email konfirmasi terkirim";
-          } catch (errEmail) {
-            console.error("⚠️ Email PENDING gagal:", errEmail);
-          }
-
-          res.status(201).json({
-            message: `Bukti pembayaran berhasil diupload. ${emailStatus}`,
-            id_pembayaran: result.insertId,
           });
+
+          if (sent) emailStatus = "Email konfirmasi terkirim";
+        } catch (errEmail) {
+          console.error("⚠️ Email PENDING gagal:", errEmail);
         }
-      );
-    }
-  );
+
+        res.status(201).json({
+          message: `Bukti pembayaran berhasil diupload. ${emailStatus}`,
+          id_pembayaran: result.insertId,
+        });
+      }
+    );
+  });
 });
 
 /* GET ALL */
@@ -151,6 +161,7 @@ router.get("/", (req, res) => {
     res.json(results);
   });
 });
+
 
 // ========================================================
 // VALIDATE PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA

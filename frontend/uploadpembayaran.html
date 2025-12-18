@@ -245,41 +245,80 @@
           <!-- Form Daftar Pelatihan -->
             <div class="col-lg-12">
               <div class="appointment-form-wrapper" data-aos="fade-up" data-aos-delay="200">
-                <form id="formPendaftaran" class="appointment-form">
+                <form id="formPendaftaran" class="appointment-form" enctype="multipart/form-data">
                   <div class="row gy-3">
 
+                    <!-- ID Pendaftaran (WAJIB, dari URL) -->
                     <input type="hidden" name="id_pendaftaran" id="id_pendaftaran">
 
+                    <!-- Pilih Pelatihan -->
                     <div class="col-md-12">
-                      <label class="form-label">Menu Pelatihan:</label>
-                      <select id="menupelatihan" name="id_pelatihan" class="form-control" required>
+                      <label class="form-label">Menu Pelatihan</label>
+                      <select
+                        id="menupelatihan"
+                        name="id_pelatihan"
+                        class="form-control"
+                        required
+                      >
                         <option value="">-- Pilih Pelatihan --</option>
                       </select>
                     </div>
-                    
+
+                    <!-- Nama Peserta -->
                     <div class="col-md-6">
-                      <label class="form-label">Nama Lengkap:</label>
-                      <input type="text" name="nama_peserta" class="form-control" placeholder="Nama Lengkap" required>
+                      <label class="form-label">Nama Lengkap</label>
+                      <input
+                        type="text"
+                        name="nama_peserta"
+                        class="form-control"
+                        placeholder="Nama Lengkap"
+                        required
+                      >
                     </div>
 
+                    <!-- No WhatsApp -->
                     <div class="col-md-6">
-                      <label class="form-label">No. WhatsApp:</label>
-                      <input type="text" name="no_wa" class="form-control" placeholder="No. WA contoh : 085600032xxx" required>
+                      <label class="form-label">No. WhatsApp</label>
+                      <input
+                        type="text"
+                        name="no_wa"
+                        class="form-control"
+                        placeholder="08xxxxxxxxxx"
+                        required
+                      >
                     </div>
 
+                    <!-- Email -->
                     <div class="col-md-6">
-                      <label class="form-label">Email:</label>
-                      <input type="text" name="email" class="form-control" placeholder="Email" required>
+                      <label class="form-label">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        placeholder="email@example.com"
+                        required
+                      >
                     </div>
 
+                    <!-- Upload Bukti Pembayaran -->
                     <div class="col-md-12">
-                      <label class="form-label">Upload Bukti Pembayaran:</label>
-                      <input type="file" name="bukti_pembayaran" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                      <label class="form-label">Upload Bukti Pembayaran</label>
+                      <input
+                        type="file"
+                        name="bukti_pembayaran"
+                        class="form-control"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        required
+                      >
+                      <small class="text-muted">
+                        Format JPG / PNG / PDF. Maksimal 3 MB.
+                      </small>
                     </div>
 
+                    <!-- Submit -->
                     <div class="col-12 mt-3">
                       <button type="submit" class="btn btn-primary w-100">
-                        Submit
+                        Upload Bukti Pembayaran
                       </button>
                     </div>
 
@@ -294,6 +333,36 @@
           <!-- script Upload Pembayaran -->
           <script>
             document.addEventListener("DOMContentLoaded", () => {
+
+              // =====================================================
+              // 🔐 CEK AKSES HALAMAN (TANPA AWAIT)
+              // =====================================================
+              const params = new URLSearchParams(window.location.search);
+              const idPendaftaran = params.get("id_pendaftaran");
+
+              if (!idPendaftaran) {
+                alert("Akses tidak valid.");
+                window.location.href = "index.html";
+                return;
+              }
+
+              fetch(`http://localhost:5000/api/pendaftaran/${idPendaftaran}/cek-upload`)
+                .then(function (res) {
+                  if (!res.ok) {
+                    return res.json().then(function (data) {
+                      throw new Error(data.message || "Akses ditolak");
+                    });
+                  }
+                  return res.json();
+                })
+                .then(function () {
+                  // isi hidden input jika lolos validasi
+                  document.getElementById("id_pendaftaran").value = idPendaftaran;
+                })
+                .catch(function () {
+                  alert("Halaman tidak dapat diakses.");
+                  window.location.href = "index.html";
+                });
 
                // ==========================================
               // Format tanggal ISO → DD/MM/YYYY

@@ -11,7 +11,7 @@ import galleryRoute from "./auth/gallery.js";
 import kalenderRoute from "./auth/kalender.js";
 import loginAdminRoute from "./auth/loginadmin.js";
 // import admin_check from "./auth/admin_check.js";
-import testEmailRoute from "./auth/test-email.js";
+// import testEmailRoute from "./auth/test-email.js";
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.use("/gallery", galleryRoute);
 router.use("/kalender", kalenderRoute);
 router.use("/loginadmin", loginAdminRoute);
 // router.use("/admin_check", admin_checkRoute);
-router.use("/", testEmailRoute);
+// router.use("/", testEmailRoute);
 
 
 export default router;

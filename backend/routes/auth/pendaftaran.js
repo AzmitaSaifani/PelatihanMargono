@@ -5,6 +5,7 @@ import connection from "../../config/db.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import ExcelJS from "exceljs";
 
 const router = express.Router();
 
@@ -51,28 +52,62 @@ const upload = multer({
 // ======================
 // GET Semua Pendaftaran (ADMIN)
 // ======================
+router.get("/:id/cek-upload", (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT id_pendaftaran, status
+    FROM pendaftaran_tb
+    WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id], (err, rows) => {
+    if (err) {
+      return res.status(500).json({
+        message: "Gagal cek data pendaftaran",
+      });
+    }
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Pendaftaran tidak ditemukan",
+      });
+    }
+
+    if (rows[0].status !== "Menunggu Pembayaran") {
+      return res.status(403).json({
+        message: "Upload pembayaran belum diizinkan",
+      });
+    }
+
+    // ✅ BOLEH AKSES HALAMAN
+    res.json({ ok: true });
+  });
+});
+
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
-      p.*, 
+      daftar.*,
       pel.nama_pelatihan
-    FROM pendaftaran_tb p
-    LEFT JOIN pelatihan_tb pel 
-      ON p.id_pelatihan = pel.id_pelatihan
-    ORDER BY p.id_pendaftaran DESC
+    FROM pendaftaran_tb daftar
+    LEFT JOIN pelatihan_tb pel
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    ORDER BY daftar.id_pendaftaran DESC
   `;
 
   connection.query(sql, (err, results) => {
     if (err) {
-      console.error("❌ Error mengambil data pendaftaran:", err);
-      return res
-        .status(500)
-        .json({ message: "Gagal mengambil data pendaftaran" });
+      console.error(err);
+      return res.status(500).json({
+        message: "Gagal mengambil data pendaftaran",
+      });
     }
 
     res.json(results);
   });
 });
+
 
 // Route Pendaftaran
 router.post(
@@ -102,7 +137,6 @@ router.post(
       alamat_rumah,
       no_wa,
       email,
-      tanggal_daftar,
       str,
       provinsi_asal,
       jenis_nakes,
@@ -160,11 +194,10 @@ router.post(
           INSERT INTO pendaftaran_tb (
             id_pendaftaran, id_pelatihan, nik, nip, gelar_depan, nama_peserta, gelar_belakang,
             asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
-            status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email,
-            tanggal_daftar, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
+            status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
             provinsi_kantor, surat_tugas, foto_4x6, status
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
@@ -187,7 +220,6 @@ router.post(
           alamat_rumah,
           no_wa,
           email,
-          tanggal_daftar,
           str,
           provinsi_asal,
           jenis_nakes,
@@ -778,6 +810,100 @@ router.put("/:id/payment-invalid", (req, res) => {
         status: "Verifikasi Pembayaran Invalid",
       });
     });
+  });
+});
+
+router.get("/export/excel", async (req, res) => {
+  const {
+    id_pelatihan,
+    tahun,
+    tanggal_mulai,
+    tanggal_selesai,
+    nama_peserta,
+  } = req.query;
+
+  let where = [];
+  let params = [];
+
+  if (id_pelatihan) {
+    where.push("daftar.id_pelatihan = ?");
+    params.push(id_pelatihan);
+  }
+
+  if (tahun) {
+    where.push("YEAR(daftar.created_at) = ?");
+    params.push(tahun);
+  }
+
+  if (tanggal_mulai && tanggal_selesai) {
+    where.push("DATE(daftar.created_at) BETWEEN ? AND ?");
+    params.push(tanggal_mulai, tanggal_selesai);
+  }
+
+  if (nama_peserta) {
+    where.push("daftar.nama_peserta LIKE ?");
+    params.push(`%${nama_peserta}%`);
+  }
+
+  const whereSQL = where.length ? "WHERE " + where.join(" AND ") : "";
+
+  const sql = `
+    SELECT 
+      daftar.id_pendaftaran,
+      daftar.nama_peserta,
+      daftar.nik,
+      daftar.no_wa,
+      daftar.email,
+      daftar.jenis_nakes,
+      daftar.status,
+      pel.nama_pelatihan,
+      daftar.created_at
+    FROM pendaftaran_tb daftar
+    LEFT JOIN pelatihan_tb pel 
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    ${whereSQL}
+    ORDER BY daftar.created_at DESC
+  `;
+
+  connection.query(sql, params, async (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Gagal export data" });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Data Pendaftaran");
+
+    sheet.columns = [
+      { header: "No", key: "no", width: 5 },
+      { header: "Nama Peserta", key: "nama_peserta", width: 25 },
+      { header: "NIK", key: "nik", width: 18 },
+      { header: "No WA", key: "no_wa", width: 18 },
+      { header: "Email", key: "email", width: 30 },
+      { header: "jenis_nakes", key: "jenis_nakes", width: 20 },
+      { header: "Pelatihan", key: "nama_pelatihan", width: 30 },
+      { header: "Status", key: "status", width: 20 },
+      { header: "Tanggal Daftar", key: "created_at", width: 20 },
+    ];
+
+    rows.forEach((row, i) => {
+      sheet.addRow({
+        no: i + 1,
+        ...row,
+      });
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=pendaftaran_${Date.now()}.xlsx`
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
   });
 });
 
