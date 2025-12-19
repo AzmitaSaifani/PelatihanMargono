@@ -58,9 +58,12 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
       });
     }
 
-    if (hasil[0].status !== "Menunggu Pembayaran") {
+    const allowedStatus = ["Berkas Valid", "Berkas Invalid"];
+
+    if (!allowedStatus.includes(hasil[0].status)) {
       return res.status(403).json({
-        message: "Upload pembayaran belum diizinkan",
+        message:
+          "Upload pembayaran hanya dapat dilakukan setelah berkas dinyatakan valid atau perlu perbaikan",
       });
     }
 
@@ -143,6 +146,7 @@ router.get("/", (req, res) => {
       daftar.nama_peserta,
       daftar.no_wa,
       daftar.email,
+      pel.id_pelatihan,
       pel.nama_pelatihan
     FROM pembayaran_tb bayar
     LEFT JOIN pendaftaran_tb daftar 
@@ -161,7 +165,6 @@ router.get("/", (req, res) => {
     res.json(results);
   });
 });
-
 
 // ========================================================
 // VALIDATE PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA
@@ -424,6 +427,125 @@ router.delete("/:id", (req, res) => {
       );
     }
   );
+});
+
+// ======================
+// EXPORT EXCEL PEMBAYARAN
+// ======================
+import ExcelJS from "exceljs";
+
+router.get("/export/excel", async (req, res) => {
+  try {
+    const { id_pelatihan, status_bayar, tanggal_mulai, tanggal_selesai } =
+      req.query;
+
+    let where = [];
+    let params = [];
+
+    if (id_pelatihan) {
+      where.push("pel.id_pelatihan = ?");
+      params.push(id_pelatihan);
+    }
+
+    if (status_bayar) {
+      where.push("bayar.status = ?");
+      params.push(status_bayar);
+    }
+
+    if (tanggal_mulai && tanggal_selesai) {
+      where.push("DATE(bayar.uploaded_at) BETWEEN ? AND ?");
+      params.push(tanggal_mulai, tanggal_selesai);
+    }
+
+    const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    const sql = `
+      SELECT
+        daftar.nama_peserta,
+        pel.nama_pelatihan,
+        daftar.no_wa,
+        daftar.email,
+        bayar.status AS status_bayar,
+        bayar.uploaded_at
+      FROM pembayaran_tb bayar
+      JOIN pendaftaran_tb daftar
+        ON bayar.id_pendaftaran = daftar.id_pendaftaran
+      JOIN pelatihan_tb pel
+        ON daftar.id_pelatihan = pel.id_pelatihan
+      ${whereSQL}
+      ORDER BY bayar.uploaded_at DESC
+    `;
+
+    const [rows] = await connection.promise().query(sql, params);
+
+    // ======================
+    // BUAT EXCEL
+    // ======================
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Data Pembayaran");
+
+    sheet.mergeCells("A1:F1");
+    sheet.mergeCells("A2:F2");
+
+    sheet.getCell("A1").value = "DATA PEMBAYARAN PESERTA";
+    sheet.getCell("A2").value = "DIKLAT RSUD Prof. Dr. Margono Soekarjo";
+
+    ["A1", "A2"].forEach((c) => {
+      sheet.getCell(c).font = { bold: true };
+      sheet.getCell(c).alignment = { horizontal: "center" };
+    });
+
+    sheet.addRow([]);
+
+    sheet.getRow(4).values = [
+      "No",
+      "Nama Peserta",
+      "Pelatihan",
+      "No WhatsApp",
+      "Email",
+      "Status Pembayaran",
+      "Tanggal Upload",
+    ];
+
+    sheet.getRow(4).font = { bold: true };
+
+    sheet.columns = [
+      { width: 5 },
+      { width: 25 },
+      { width: 30 },
+      { width: 18 },
+      { width: 30 },
+      { width: 20 },
+      { width: 20 },
+    ];
+
+    rows.forEach((row, i) => {
+      sheet.addRow([
+        i + 1,
+        row.nama_peserta,
+        row.nama_pelatihan,
+        row.no_wa,
+        row.email,
+        row.status_bayar,
+        row.uploaded_at,
+      ]);
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Data_Pembayaran_${Date.now()}.xlsx`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error("❌ Export Excel Pembayaran Error:", err);
+    res.status(500).json({ message: "Gagal export Excel pembayaran" });
+  }
 });
 
 export default router;

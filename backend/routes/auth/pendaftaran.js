@@ -108,7 +108,6 @@ router.get("/", (req, res) => {
   });
 });
 
-
 // Route Pendaftaran
 router.post(
   "/",
@@ -813,98 +812,217 @@ router.put("/:id/payment-invalid", (req, res) => {
   });
 });
 
+// ======================
+// EXPORT EXCEL
+// ======================
+
 router.get("/export/excel", async (req, res) => {
-  const {
-    id_pelatihan,
-    tahun,
-    tanggal_mulai,
-    tanggal_selesai,
-    nama_peserta,
-  } = req.query;
+  try {
+    const {
+      id_pelatihan,
+      tahun,
+      tanggal_mulai,
+      tanggal_selesai,
+      nama_peserta,
+    } = req.query;
 
-  let where = [];
-  let params = [];
+    let where = [];
+    let params = [];
 
-  if (id_pelatihan) {
-    where.push("daftar.id_pelatihan = ?");
-    params.push(id_pelatihan);
-  }
+    if (id_pelatihan) {
+      where.push("daftar.id_pelatihan = ?");
+      params.push(id_pelatihan);
+    }
 
-  if (tahun) {
-    where.push("YEAR(daftar.created_at) = ?");
-    params.push(tahun);
-  }
+    if (tahun) {
+      where.push("YEAR(daftar.created_at) = ?");
+      params.push(tahun);
+    }
 
-  if (tanggal_mulai && tanggal_selesai) {
-    where.push("DATE(daftar.created_at) BETWEEN ? AND ?");
-    params.push(tanggal_mulai, tanggal_selesai);
-  }
+    if (tanggal_mulai && tanggal_selesai) {
+      where.push("DATE(daftar.created_at) BETWEEN ? AND ?");
+      params.push(tanggal_mulai, tanggal_selesai);
+    }
 
-  if (nama_peserta) {
-    where.push("daftar.nama_peserta LIKE ?");
-    params.push(`%${nama_peserta}%`);
-  }
+    if (nama_peserta) {
+      where.push("daftar.nama_peserta LIKE ?");
+      params.push(`%${nama_peserta}%`);
+    }
 
-  const whereSQL = where.length ? "WHERE " + where.join(" AND ") : "";
+    const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
-  const sql = `
-    SELECT 
-      daftar.id_pendaftaran,
-      daftar.nama_peserta,
-      daftar.nik,
-      daftar.no_wa,
-      daftar.email,
-      daftar.jenis_nakes,
-      daftar.status,
-      pel.nama_pelatihan,
-      daftar.created_at
-    FROM pendaftaran_tb daftar
-    LEFT JOIN pelatihan_tb pel 
-      ON daftar.id_pelatihan = pel.id_pelatihan
-    ${whereSQL}
-    ORDER BY daftar.created_at DESC
-  `;
+    // ======================
+    // QUERY DATA
+    // ======================
+    const sql = `
+      SELECT 
+        daftar.nama_peserta,
+        daftar.nik,
+        daftar.nip,
+        daftar.jenis_kelamin,
+        daftar.pendidikan,
+        daftar.jenis_nakes,
+        daftar.no_wa,
+        daftar.email,
+        daftar.asal_instansi,
+        daftar.kabupaten_asal,
+        daftar.provinsi_asal,
+        daftar.status,
+        daftar.created_at,
+        pel.nama_pelatihan
+      FROM pendaftaran_tb daftar
+      LEFT JOIN pelatihan_tb pel 
+        ON daftar.id_pelatihan = pel.id_pelatihan
+      ${whereSQL}
+      ORDER BY daftar.created_at DESC
+    `;
 
-  connection.query(sql, params, async (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Gagal export data" });
+    const [rows] = await connection.promise().query(sql, params);
+
+    // ======================
+    // NAMA PELATIHAN
+    // ======================
+    let namaPelatihan = "Semua Pelatihan";
+
+    if (id_pelatihan) {
+      const [pel] = await connection
+        .promise()
+        .query(
+          "SELECT nama_pelatihan FROM pelatihan_tb WHERE id_pelatihan = ?",
+          [id_pelatihan]
+        );
+      if (pel.length) namaPelatihan = pel[0].nama_pelatihan;
     }
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Data Pendaftaran");
 
-    sheet.columns = [
-      { header: "No", key: "no", width: 5 },
-      { header: "Nama Peserta", key: "nama_peserta", width: 25 },
-      { header: "NIK", key: "nik", width: 18 },
-      { header: "No WA", key: "no_wa", width: 18 },
-      { header: "Email", key: "email", width: 30 },
-      { header: "jenis_nakes", key: "jenis_nakes", width: 20 },
-      { header: "Pelatihan", key: "nama_pelatihan", width: 30 },
-      { header: "Status", key: "status", width: 20 },
-      { header: "Tanggal Daftar", key: "created_at", width: 20 },
+    // ==================================================
+    // JUDUL
+    // ==================================================
+    sheet.mergeCells("A1:O1");
+    sheet.mergeCells("A2:O2");
+    sheet.mergeCells("A3:O3");
+
+    sheet.getCell("A1").value = "DATA PENDAFTARAN PESERTA";
+    sheet.getCell("A2").value = `Pelatihan : ${namaPelatihan}`;
+    sheet.getCell("A3").value = "DIKLAT RSUD Prof. Dr. Margono Soekarjo";
+
+    ["A1", "A2", "A3"].forEach((cell) => {
+      sheet.getCell(cell).font = { bold: true, size: 12 };
+      sheet.getCell(cell).alignment = { horizontal: "center" };
+    });
+
+    // Spasi
+    sheet.addRow([]);
+    sheet.addRow([]);
+
+    // ==================================================
+    // HEADER TABEL (BARIS 6)
+    // ==================================================
+    const headerRow = sheet.getRow(6);
+    headerRow.values = [
+      "No",
+      "Nama Peserta",
+      "NIK",
+      "NIP",
+      "Jenis Kelamin",
+      "Pendidikan",
+      "Jenis Nakes",
+      "No WhatsApp",
+      "Email",
+      "Instansi",
+      "Kabupaten",
+      "Provinsi",
+      "Pelatihan",
+      "Status",
+      "Tanggal Daftar",
     ];
 
-    rows.forEach((row, i) => {
-      sheet.addRow({
-        no: i + 1,
-        ...row,
+    headerRow.font = { bold: true };
+    headerRow.alignment = { horizontal: "center", vertical: "middle" };
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    // ==================================================
+    // LEBAR KOLOM
+    // ==================================================
+    sheet.columns = [
+      { width: 5 },
+      { width: 25 },
+      { width: 18 },
+      { width: 18 },
+      { width: 15 },
+      { width: 18 },
+      { width: 20 },
+      { width: 18 },
+      { width: 30 },
+      { width: 30 },
+      { width: 20 },
+      { width: 20 },
+      { width: 30 },
+      { width: 20 },
+      { width: 20 },
+    ];
+
+    // ==================================================
+    // DATA (MULAI BARIS 7)
+    // ==================================================
+    rows.forEach((row, index) => {
+      const dataRow = sheet.addRow([
+        index + 1,
+        row.nama_peserta,
+        row.nik,
+        row.nip,
+        row.jenis_kelamin,
+        row.pendidikan,
+        row.jenis_nakes,
+        row.no_wa,
+        row.email,
+        row.asal_instansi,
+        row.kabupaten_asal,
+        row.provinsi_asal,
+        row.nama_pelatihan,
+        row.status,
+        row.created_at,
+      ]);
+
+      dataRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = { vertical: "middle" };
       });
     });
 
+    rows.forEach((row, i) => {
+      sheet.addRow({ no: i + 1, ...row });
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Data_Pendaftaran_${Date.now()}.xlsx`
+    );
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=pendaftaran_${Date.now()}.xlsx`
-    );
 
     await workbook.xlsx.write(res);
     res.end();
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Gagal export Excel" });
+  }
 });
 
 export default router;

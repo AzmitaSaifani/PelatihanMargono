@@ -118,8 +118,49 @@
 
       <div class="card">
         <div class="card-header bg-dark text-white">Data Pembayaran Masuk</div>
+        <!-- <br /> -->
 
-        <div class="col-md-4 mt-3 ms-3">
+        <!-- ===================== -->
+        <!-- FILTER PEMBAYARAN -->
+        <!-- ===================== -->
+        <div class="row g-2 mb-3">
+          <!-- FILTER PELATIHAN -->
+          <div class="col-md-3 mt-3 ms-3">
+            <select id="filterPelatihan" class="form-select">
+              <option value="">Semua Pelatihan</option>
+              <!-- diisi otomatis dari API pelatihan -->
+            </select>
+          </div>
+
+          <!-- FILTER STATUS PEMBAYARAN -->
+          <div class="col-md-2 mt-3">
+            <select id="filterStatus" class="form-select">
+              <option value="">Semua Status</option>
+              <option value="PENDING">PENDING</option>
+              <option value="VALID">VALID</option>
+              <option value="INVALID">INVALID</option>
+            </select>
+          </div>
+
+          <!-- SEARCH -->
+          <div class="col-md-3 mt-3">
+            <input
+              type="text"
+              id="searchPembayaran"
+              class="form-control"
+              placeholder="Cari nama / email / WA"
+            />
+          </div>
+
+          <!-- BUTTON EXPORT -->
+          <div class="col-md-3 mt-3">
+            <button class="btn btn-success" onclick="exportExcel()">
+              Export Excel Pembayaran
+            </button>
+          </div>
+        </div>
+
+        <div class="col-md-2 mt-2 ms-3">
           <input
             type="text"
             id="searchPembayaran"
@@ -160,27 +201,70 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/pembayaran";
+        let allData = [];
+
         const tableBody = document.getElementById("tablePembayaran");
+        const pelatihan = document.getElementById("filterPelatihan")?.value;
+        const status = document.getElementById("filterStatus")?.value;
 
-        async function loadPembayaran() {
-          const res = await fetch(API);
+        // =====================================================
+        // LOAD DROPDOWN FILTER PELATIHAN
+        // =====================================================
+        async function loadFilterPelatihan() {
+          try {
+            const res = await fetch("http://localhost:5000/api/pelatihan");
+            if (!res.ok) throw new Error("Gagal mengambil data pelatihan");
 
-          if (!res.ok) {
-          throw new Error("Gagal mengambil data pembayaran");
+            const data = await res.json();
+            const select = document.getElementById("filterPelatihan");
+
+            // reset isi dropdown
+            select.innerHTML = `<option value="">Semua Pelatihan</option>`;
+
+            data.forEach((item) => {
+              const opt = document.createElement("option");
+              opt.value = item.id_pelatihan;
+              opt.textContent = item.nama_pelatihan;
+              select.appendChild(opt);
+            });
+          } catch (err) {
+            console.error("❌ Gagal load pelatihan:", err);
+          }
         }
 
-          const data = await res.json();
+        // =====================================================
+        // LOAD DATA PEMBAYARAN
+        // =====================================================
+        async function loadPembayaran() {
+          const res = await fetch(API);
+          allData = await res.json();
+          renderTable(allData);
+        }
+
+        // =====================================================
+        // RENDER TABLE (ARRAY)
+        // =====================================================
+        function renderTable(data) {
           tableBody.innerHTML = "";
 
-          // 🔽 FILTER: HANYA STATUS PENDING
-          const pendingOnly = data.filter(
-            (item) =>
-              item.status_bayar === "PENDING" ||
-              item.status_bayar === "INVALID"
-          );
+          if (data.length === 0) {
+            tableBody.innerHTML = `
+                  <tr>
+                    <td colspan="13" class="text-center text-muted">
+                      Data tidak ditemukan
+                    </td>
+                  </tr>`;
+            return;
+          }
+          data.forEach((item, index) => {
+            const badgeClass =
+              item.status_bayar === "PENDING"
+                ? "warning"
+                : item.status_bayar === "VALID"
+                ? "success"
+                : "danger";
 
-          if (pendingOnly.length === 0) {
-            tableBody.innerHTML =`
+            tableBody.innerHTML += `
               <tr>
                 <td>${index + 1}</td>
                 <td>${item.nama_peserta}</td>
@@ -232,10 +316,48 @@
                 </td>
               </tr>
             `;
-          };
+          });
         }
 
-        loadPembayaran();
+        // =====================================================
+        // FILTER LOGIC (AUTO REFRESH)
+        // =====================================================
+        function applyFilter() {
+          let filtered = [...allData];
+
+          if (filterPelatihan.value) {
+            filtered = filtered.filter(
+              (d) => d.id_pelatihan == filterPelatihan.value
+            );
+          }
+
+          if (filterStatus.value) {
+            filtered = filtered.filter(
+              (d) => d.status_bayar === filterStatus.value
+            );
+          }
+
+          renderTable(filtered);
+        }
+
+        filterPelatihan.addEventListener("change", applyFilter);
+        filterStatus.addEventListener("change", applyFilter);
+
+        // =====================================================
+        // EXPORT EXCEL PEMBAYARAN (FILTERED)
+        // =====================================================
+        window.exportExcel = () => {
+          const params = new URLSearchParams();
+
+          if (filterPelatihan.value)
+            params.append("id_pelatihan", filterPelatihan.value);
+
+          if (filterStatus.value)
+            params.append("status_bayar", filterStatus.value);
+
+          const url = `${API}/export/excel?${params.toString()}`;
+          window.open(url, "_blank");
+        };
 
         // =========================
         // PEMBAYARAN VALID
@@ -288,6 +410,9 @@
                 : "none";
             });
           });
+
+        loadFilterPelatihan();
+        loadPembayaran();
       });
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>

@@ -62,7 +62,7 @@
                 aria-labelledby="dropdownPelatihan"
               >
                 <li>
-                  <a class="dropdown-item" href="pelatihan.html" 
+                  <a class="dropdown-item" href="pelatihan.html"
                     >Manajemen Pelatihan</a
                   >
                 </li>
@@ -285,8 +285,49 @@
       <!-- ==================== TABEL PELATIHAN ==================== -->
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Pelatihan</div>
+
+        <!-- FILTER & EXPORT PELATIHAN -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-2 mt-3 ms-3">
+            <select id="filterStatusPelatihan" class="form-select">
+              <option value="">Semua Status</option>
+              <option value="draft">Draft</option>
+              <option value="publish">Publish</option>
+              <option value="selesai">Selesai</option>
+              <option value="batal">Batal</option>
+            </select>
+          </div>
+
+          <div class="col-md-3 mt-3">
+            <select id="filterKategoriPelatihan" class="form-select">
+              <option value="">Semua Kategori</option>
+              <option value="Umum">Umum</option>
+              <option value="Nakes Internal">Nakes Internal</option>
+              <option value="Nakes Eksternal">Nakes Eksternal</option>
+              <option value="Non-Nakes Internal">Non-Nakes Internal</option>
+              <option value="Non-Nakes Eksternal">Non-Nakes Eksternal</option>
+            </select>
+          </div>
+
+          <div class="col-md-2 mt-3">
+            <select id="filterTahunPelatihan" class="form-select">
+              <option value="">Semua Tahun</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mt-3">
+            <button class="btn btn-success" onclick="exportExcelPelatihan()">
+              Export Excel Pelatihan
+            </button>
+          </div>
+        </div>
+        <!-- FILTER & EXPORT PELATIHAN -->
+
         <!-- SEARCH BAR -->
-        <div class="col-md-4 mt-3">
+        <div class="col-md-4 mt-2 ms-3 text-end">
           <i class="bi bi-search search-icon"></i>
 
           <input
@@ -331,8 +372,15 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/pelatihan";
+        let allData = [];
+
         const tableBody = document.getElementById("tablePelatihan");
         const formTambah = document.getElementById("formTambahPelatihan");
+        const filterStatus = document.getElementById("filterStatusPelatihan");
+        const filterKategori = document.getElementById(
+          "filterKategoriPelatihan"
+        );
+        const filterTahun = document.getElementById("filterTahunPelatihan");
 
         // =========================
         // FORMAT TANGGAL & WAKTU
@@ -357,64 +405,79 @@
         }
 
         // =========================
-        // LOAD DATA TABEL
+        // LOAD DATA
         // =========================
         async function loadPelatihan() {
           const res = await fetch(API);
-          const data = await res.json();
-
-          tableBody.innerHTML = "";
-
-          data.forEach((item, index) => {
-            const row = `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${item.nama_pelatihan}</td>
-          <td>${item.deskripsi ?? "-"}</td>
-          <td> <img src="http://localhost:5000/uploads/flyer/${
-            item.flyer_url
-          }" class="thumb-foto"
-          style="width:70px;height:70px;object-fit:cover";>
-          </td>
-          <td>${item.lokasi ?? "-"}</td>
-          <td>${item.alamat_lengkap ?? "-"}</td>
-          <td>${item.narasumber ?? "-"}</td>
-          <td>${formatTanggal(item.tanggal_mulai)}</td>
-          <td>${formatTanggal(item.tanggal_selesai)}</td>
-          <td>${formatWaktu(item.waktu_mulai)}</td>
-          <td>${formatWaktu(item.waktu_selesai)}</td>
-          <td>${item.kuota ?? "-"}</td>
-          <td>${item.kategori ?? "-"}</td>
-          <td>${item.tipe_pelatihan ?? "-"}</td>
-          <td>${item.durasi ?? "-"}</td>
-          <td>
-            <span class="badge bg-${
-              item.status === "publish"
-                ? "success"
-                : item.status === "draft"
-                ? "secondary"
-                : item.status === "selesai"
-                ? "primary"
-                : "danger"
-            }">${item.status}</span>
-          </td>
-
-          <td>
-            <button class="btn btn-warning btn-sm" onclick="window.location.href='editpelatihan.html?id=${
-              item.id_pelatihan
-            }'">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="hapusPelatihan(${
-              item.id_pelatihan
-            })">Hapus</button>
-          </td>
-        </tr>
-      `;
-
-            tableBody.innerHTML += row;
-          });
+          allData = await res.json();
+          renderTable(allData);
         }
 
-        loadPelatihan();
+        // =========================
+        // RENDER TABLE ✅ (INI YANG TADI HILANG)
+        // =========================
+        function renderTable(data) {
+          tableBody.innerHTML = "";
+
+          if (data.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                  <td colspan="17" class="text-center text-muted">
+                    Data tidak ditemukan
+                  </td>
+                </tr>`;
+            return;
+          }
+
+          // =========================
+          // LOAD DATA TABEL
+          // =========================
+          data.forEach((item, index) => {
+            tableBody.innerHTML += `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${item.nama_pelatihan}</td>
+                <td>${item.deskripsi ?? "-"}</td>
+                <td> <img src="http://localhost:5000/uploads/flyer/${
+                  item.flyer_url
+                }" class="thumb-foto"
+                style="width:70px;height:70px;object-fit:cover";>
+                </td>
+                <td>${item.lokasi ?? "-"}</td>
+                <td>${item.alamat_lengkap ?? "-"}</td>
+                <td>${item.narasumber ?? "-"}</td>
+                <td>${formatTanggal(item.tanggal_mulai)}</td>
+                <td>${formatTanggal(item.tanggal_selesai)}</td>
+                <td>${formatWaktu(item.waktu_mulai)}</td>
+                <td>${formatWaktu(item.waktu_selesai)}</td>
+                <td>${item.kuota ?? "-"}</td>
+                <td>${item.kategori ?? "-"}</td>
+                <td>${item.tipe_pelatihan ?? "-"}</td>
+                <td>${item.durasi ?? "-"}</td>
+                <td>
+                  <span class="badge bg-${
+                    item.status === "publish"
+                      ? "success"
+                      : item.status === "draft"
+                      ? "secondary"
+                      : item.status === "selesai"
+                      ? "primary"
+                      : "danger"
+                  }">${item.status}</span>
+                </td>
+
+                <td>
+                  <button class="btn btn-warning btn-sm" onclick="window.location.href='editpelatihan.html?id=${
+                    item.id_pelatihan
+                  }'">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="hapusPelatihan(${
+                    item.id_pelatihan
+                  })">Hapus</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
 
         // =========================
         // CREATE: TAMBAH DATA
@@ -443,6 +506,52 @@
             }
           });
         }
+
+        // ==========================================
+        // FILTER LOGIC (AUTO REFRESH)
+        // ==========================================
+        function applyFilterPelatihan() {
+          let filtered = [...allData];
+
+          if (filterStatus?.value) {
+            filtered = filtered.filter((d) => d.status === filterStatus.value);
+          }
+
+          if (filterKategori?.value) {
+            filtered = filtered.filter(
+              (d) => d.kategori === filterKategori.value
+            );
+          }
+
+          if (filterTahun?.value) {
+            filtered = filtered.filter((d) => {
+              const tahun = new Date(d.tanggal_mulai).getFullYear();
+              return tahun == filterTahun.value;
+            });
+          }
+
+          renderTable(filtered);
+        }
+
+        // EVENT LISTENER AUTO REFRESH
+        filterStatus?.addEventListener("change", applyFilterPelatihan);
+        filterKategori?.addEventListener("change", applyFilterPelatihan);
+        filterTahun?.addEventListener("input", applyFilterPelatihan);
+
+        // ==========================================
+        // EXPORT EXCEL (FILTERED) ✅
+        // ==========================================
+        window.exportExcelPelatihan = () => {
+          const params = new URLSearchParams();
+
+          if (filterStatus?.value) params.append("status", filterStatus.value);
+          if (filterKategori?.value)
+            params.append("kategori", filterKategori.value);
+          if (filterTahun?.value) params.append("tahun", filterTahun.value);
+
+          const url = `${API}/export/excel?${params.toString()}`;
+          window.open(url, "_blank");
+        };
 
         // =========================
         // DELETE DATA
@@ -474,6 +583,8 @@
             });
           });
         }
+
+        loadPelatihan();
       });
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>

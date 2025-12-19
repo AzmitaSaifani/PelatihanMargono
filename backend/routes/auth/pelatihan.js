@@ -284,4 +284,196 @@ router.delete("/:id", (req, res) => {
   });
 });
 
+// ======================
+// EXPORT EXCEL PELATIHAN
+// ======================
+import ExcelJS from "exceljs";
+
+router.get("/export/excel", async (req, res) => {
+  try {
+    const { status, kategori, tahun } = req.query;
+
+    let where = [];
+    let params = [];
+
+    if (status) {
+      where.push("p.status = ?");
+      params.push(status);
+    }
+
+    if (kategori) {
+      where.push("p.kategori = ?");
+      params.push(kategori);
+    }
+
+    if (tahun) {
+      where.push("YEAR(p.tanggal_mulai) = ?");
+      params.push(tahun);
+    }
+
+    const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+    // ======================
+    // QUERY DATA PELATIHAN
+    // ======================
+    const sql = `
+      SELECT 
+        p.nama_pelatihan,
+        p.deskripsi,
+        p.narasumber,
+        p.lokasi,
+        p.alamat_lengkap,
+        p.tanggal_mulai,
+        p.tanggal_selesai,
+        p.waktu_mulai,
+        p.waktu_selesai,
+        p.kuota,
+        p.kategori,
+        p.tipe_pelatihan,
+        p.durasi,
+        p.status,
+        p.created_at
+      FROM pelatihan_tb p
+      ${whereSQL}
+      ORDER BY p.tanggal_mulai ASC
+    `;
+
+    const [rows] = await connection.promise().query(sql, params);
+
+    // ======================
+    // BUAT EXCEL
+    // ======================
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Data Pelatihan");
+
+    // ==================================================
+    // JUDUL
+    // ==================================================
+    sheet.mergeCells("A1:P1");
+    sheet.mergeCells("A2:P2");
+    sheet.mergeCells("A3:P3");
+
+    sheet.getCell("A1").value = "DATA PELATIHAN";
+    sheet.getCell("A2").value = "DIKLAT RSUD Prof. Dr. Margono Soekarjo";
+    sheet.getCell("A3").value = `Total Pelatihan : ${rows.length}`;
+
+    ["A1", "A2", "A3"].forEach((cell) => {
+      sheet.getCell(cell).font = { bold: true, size: 12 };
+      sheet.getCell(cell).alignment = { horizontal: "center" };
+    });
+
+    // Spasi
+    sheet.addRow([]);
+    sheet.addRow([]);
+
+    // ==================================================
+    // HEADER TABEL (BARIS 6)
+    // ==================================================
+    const headerRow = sheet.getRow(6);
+    headerRow.values = [
+      "No",
+      "Nama Pelatihan",
+      "Deskripsi",
+      "Narasumber",
+      "Lokasi",
+      "Alamat Lengkap",
+      "Tanggal Mulai",
+      "Tanggal Selesai",
+      "Waktu Mulai",
+      "Waktu Selesai",
+      "Kuota",
+      "Kategori",
+      "Tipe Pelatihan",
+      "Durasi",
+      "Status",
+      "Dibuat Tanggal",
+    ];
+
+    headerRow.font = { bold: true };
+    headerRow.alignment = { horizontal: "center", vertical: "middle" };
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+    });
+
+    // ==================================================
+    // LEBAR KOLOM
+    // ==================================================
+    sheet.columns = [
+      { width: 5 },
+      { width: 30 },
+      { width: 35 },
+      { width: 25 },
+      { width: 20 },
+      { width: 35 },
+      { width: 15 },
+      { width: 15 },
+      { width: 12 },
+      { width: 12 },
+      { width: 10 },
+      { width: 20 },
+      { width: 20 },
+      { width: 15 },
+      { width: 15 },
+      { width: 20 },
+    ];
+
+    // ==================================================
+    // DATA (MULAI BARIS 7)
+    // ==================================================
+    rows.forEach((row, index) => {
+      const dataRow = sheet.addRow([
+        index + 1,
+        row.nama_pelatihan,
+        row.deskripsi,
+        row.narasumber,
+        row.lokasi,
+        row.alamat_lengkap,
+        row.tanggal_mulai,
+        row.tanggal_selesai,
+        row.waktu_mulai,
+        row.waktu_selesai,
+        row.kuota,
+        row.kategori,
+        row.tipe_pelatihan,
+        row.durasi,
+        row.status,
+        row.created_at,
+      ]);
+
+      dataRow.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = { vertical: "middle" };
+      });
+    });
+
+    // ======================
+    // RESPONSE
+    // ======================
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Data_Pelatihan_${Date.now()}.xlsx`
+    );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error("❌ Export Excel Pelatihan error:", err);
+    res.status(500).json({ message: "Gagal export Excel pelatihan" });
+  }
+});
+
 export default router;
