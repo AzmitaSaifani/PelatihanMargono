@@ -34,6 +34,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    harga,
     kategori,
     tipe_pelatihan,
     durasi,
@@ -53,12 +54,18 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     });
   }
 
+  if (harga < 0) {
+    return res.status(400).json({
+      message: "❌ Harga tidak boleh negatif",
+    });
+  }
+
   const flyer_url = req.file ? req.file.filename : null;
 
   const sql = `
     INSERT INTO pelatihan_tb (
       nama_pelatihan, deskripsi, narasumber, lokasi, alamat_lengkap,
-      tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota,
+      tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, harga,
       kategori, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
@@ -75,6 +82,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    harga || 0,
     kategori || "internal",
     tipe_pelatihan,
     durasi,
@@ -136,6 +144,7 @@ router.get("/", (req, res) => {
     p.waktu_mulai,
     p.waktu_selesai,
     p.kuota,
+    p.harga,
     p.kategori,
     p.tipe_pelatihan,
     p.durasi,
@@ -192,6 +201,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    harga,
     kategori,
     tipe_pelatihan,
     durasi,
@@ -217,7 +227,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     const sql = `
       UPDATE pelatihan_tb
       SET nama_pelatihan=?, deskripsi=?, narasumber=?, lokasi=?, alamat_lengkap=?,
-          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?,
+          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, harga=?,
           kategori=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
     `;
@@ -233,6 +243,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
       waktu_mulai,
       waktu_selesai,
       kuota,
+      harga || 0,
       kategori,
       tipe_pelatihan,
       durasi,
@@ -328,6 +339,7 @@ router.get("/export/excel", async (req, res) => {
         p.waktu_mulai,
         p.waktu_selesai,
         p.kuota,
+        p.harga,
         p.kategori,
         p.tipe_pelatihan,
         p.durasi,
@@ -382,6 +394,7 @@ router.get("/export/excel", async (req, res) => {
       "Waktu Mulai",
       "Waktu Selesai",
       "Kuota",
+      "Harga",
       "Kategori",
       "Tipe Pelatihan",
       "Durasi",
@@ -438,6 +451,7 @@ router.get("/export/excel", async (req, res) => {
         row.waktu_mulai,
         row.waktu_selesai,
         row.kuota,
+        row.harga,
         row.kategori,
         row.tipe_pelatihan,
         row.durasi,

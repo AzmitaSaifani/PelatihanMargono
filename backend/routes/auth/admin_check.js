@@ -1,25 +1,24 @@
 (() => {
-
   const MAX_SESSION = 2 * 60 * 60 * 1000; // 2 jam (dalam ms)
 
-  let adminData = localStorage.getItem("admin");
+  const adminRaw = localStorage.getItem("admin");
 
-  // Jika belum login, redirect
-  if (!adminData) {
+  // Jika belum login
+  if (!adminRaw) {
     window.location.href = "loginadmin.html";
     return;
   }
 
+  let adminData;
   try {
-    adminData = JSON.parse(adminData);
-  } catch (e) {
-    // Jika data corrupt, hapus dan redirect
+    adminData = JSON.parse(adminRaw);
+  } catch (err) {
     localStorage.removeItem("admin");
     window.location.href = "loginadmin.html";
     return;
   }
 
-  // Cek expired session (2 jam)
+  // SESSION EXPIRED
   const now = Date.now();
   const sessionAge = now - adminData.loginTime;
 
@@ -35,4 +34,20 @@
     localStorage.removeItem("admin");
     window.location.href = "loginadmin.html";
   }
+
+  // SETELAH LOGIN BERHASIL
+  localStorage.setItem(
+    "admin",
+    JSON.stringify({
+      id: data.id_admin,
+      username: data.username,
+      level: data.level,
+      loginTime: Date.now(),
+      lastActive: Date.now(),
+    })
+  );
+
+  // UPDATE AKTIVITAS TERAKHIR 🔥
+  admin.lastActive = now;
+  localStorage.setItem("admin", JSON.stringify(admin));
 })();

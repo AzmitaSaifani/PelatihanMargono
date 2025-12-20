@@ -488,8 +488,8 @@ router.put("/:id/accept", (req, res) => {
             </p>
 
             <p>
-              Untuk melanjutkan proses pendaftaran, silakan melakukan pembayaran
-              sesuai ketentuan pelatihan.
+              Untuk melanjutkan proses pendaftaran, silakan melakukan pembayaran dengan melakukan transfer ke nomor rekening <b>3380009008
+              Bank BNI a.n RSUD PROF DR MARGONO SOEKARJO</b> sejumlah <b>${harga}</b>
             </p>
 
             <p>
@@ -497,7 +497,7 @@ router.put("/:id/accept", (req, res) => {
               <ol>
                 <li>Lakukan pembayaran sesuai informasi yang akan kami sampaikan</li>
                 <li>Simpan bukti pembayaran</li>
-                <li>Upload bukti pembayaran melalui sistem</li>
+                <li> <b>Upload bukti pembayaran melalui link http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?id_pendaftaran=${idPendaftaran}</b> </li>
               </ol>
             </p>
 
