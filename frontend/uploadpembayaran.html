@@ -305,7 +305,7 @@
                       <label class="form-label">Upload Bukti Pembayaran</label>
                       <input
                         type="file"
-                        name="bukti_pembayaran"
+                        name="bukti_transfer"
                         class="form-control"
                         accept=".pdf,.jpg,.jpeg,.png"
                         required
@@ -428,7 +428,7 @@
               form.addEventListener("submit", (e) => {
                 e.preventDefault();
 
-                const bukti = document.querySelector("input[name='bukti_pembayaran']").files[0];
+                const bukti = document.querySelector("input[name='bukti_transfer']").files[0];
 
                 if (!bukti) {
                   document.getElementById("modalPembayaranGagalMessage").textContent =

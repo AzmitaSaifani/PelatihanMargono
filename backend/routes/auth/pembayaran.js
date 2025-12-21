@@ -58,7 +58,7 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
       });
     }
 
-    const allowedStatus = ["Berkas Valid", "Berkas Invalid"];
+    const allowedStatus = ["Menunggu Pembayaran"];
 
     if (!allowedStatus.includes(hasil[0].status)) {
       return res.status(403).json({
@@ -138,22 +138,24 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
-      bayar.id_pembayaran,
-      bayar.id_pendaftaran,
-      bayar.bukti_transfer,
-      bayar.status AS status_bayar,
-      bayar.uploaded_at,
-      daftar.nama_peserta,
-      daftar.no_wa,
-      daftar.email,
-      pel.id_pelatihan,
-      pel.nama_pelatihan
-    FROM pembayaran_tb bayar
-    LEFT JOIN pendaftaran_tb daftar 
-        ON bayar.id_pendaftaran = daftar.id_pendaftaran
-    LEFT JOIN pelatihan_tb pel 
-        ON daftar.id_pelatihan = pel.id_pelatihan
-    ORDER BY bayar.id_pembayaran DESC
+    bayar.id_pembayaran,
+    bayar.id_pendaftaran,
+    bayar.bukti_transfer,
+    bayar.status AS status_bayar,
+    bayar.uploaded_at,
+    daftar.nama_peserta,
+    daftar.no_wa,
+    daftar.email,
+    daftar.harga_pelatihan,
+    pel.id_pelatihan,
+    pel.nama_pelatihan
+  FROM pembayaran_tb bayar
+  LEFT JOIN pendaftaran_tb daftar 
+    ON bayar.id_pendaftaran = daftar.id_pendaftaran
+  LEFT JOIN pelatihan_tb pel 
+    ON daftar.id_pelatihan = pel.id_pelatihan
+  ORDER BY bayar.id_pembayaran DESC
+
   `;
 
   connection.query(sql, (err, results) => {
@@ -501,6 +503,7 @@ router.get("/export/excel", async (req, res) => {
       "No",
       "Nama Peserta",
       "Pelatihan",
+      "Harga",
       "No WhatsApp",
       "Email",
       "Status Pembayaran",
@@ -524,12 +527,15 @@ router.get("/export/excel", async (req, res) => {
         i + 1,
         row.nama_peserta,
         row.nama_pelatihan,
+        Number(row.harga || 0),
         row.no_wa,
         row.email,
         row.status_bayar,
         row.uploaded_at,
       ]);
     });
+    // format kolom harga jadi Rupiah
+    sheet.getColumn(4).numFmt = '"Rp" #,##0';
 
     res.setHeader(
       "Content-Disposition",

@@ -162,87 +162,119 @@ router.post(
     const surat_tugas = req.files?.surat_tugas?.[0]?.filename ?? null;
     const foto_4x6 = req.files?.foto_4x6?.[0]?.filename ?? null;
 
-    // ======================
-    // CEK KUOTA
-    // ======================
-    const cekKuotaSQL = `
-      SELECT kuota - (
-        SELECT COUNT(*) FROM pendaftaran_tb WHERE id_pelatihan = ?
-      ) AS sisa
+    // =====================================================
+    // 1️⃣ AMBIL HARGA PELATIHAN
+    // =====================================================
+    const getHargaSQL = `
+      SELECT harga
       FROM pelatihan_tb
       WHERE id_pelatihan = ?
     `;
 
-    connection.query(
-      cekKuotaSQL,
-      [id_pelatihan, id_pelatihan],
-      async (err, kuotaRes) => {
-        if (err) {
-          console.error("❌ Error cek kuota:", err);
-          return res.status(500).json({ message: "Gagal cek kuota" });
-        }
+    connection.query(getHargaSQL, [id_pelatihan], (err, hargaRes) => {
+      if (err) {
+        console.error("❌ Error ambil harga:", err);
+        return res
+          .status(500)
+          .json({ message: "Gagal mengambil harga pelatihan" });
+      }
 
-        if (kuotaRes[0].sisa <= 0) {
-          return res.status(400).json({ message: "❌ Kuota sudah penuh!" });
-        }
+      if (hargaRes.length === 0) {
+        return res.status(404).json({
+          message: "Pelatihan tidak ditemukan",
+        });
+      }
 
-        // ======================
-        // INSERT PENDAFTARAN
-        // ======================
-        const insertSQL = `
+      const harga_pelatihan = hargaRes[0].harga;
+
+      // =====================================================
+      // 2️⃣ CEK KUOTA
+      // =====================================================
+      const cekKuotaSQL = `
+        SELECT kuota - (
+          SELECT COUNT(*) 
+          FROM pendaftaran_tb 
+          WHERE id_pelatihan = ?
+        ) AS sisa
+        FROM pelatihan_tb
+        WHERE id_pelatihan = ?
+      `;
+
+      connection.query(
+        cekKuotaSQL,
+        [id_pelatihan, id_pelatihan],
+        (err, kuotaRes) => {
+          if (err) {
+            console.error("❌ Error cek kuota:", err);
+            return res.status(500).json({
+              message: "Gagal cek kuota",
+            });
+          }
+
+          if (kuotaRes[0].sisa <= 0) {
+            return res.status(400).json({
+              message: "❌ Kuota sudah penuh!",
+            });
+          }
+
+          // ======================
+          // INSERT PENDAFTARAN
+          // ======================
+          const insertSQL = `
           INSERT INTO pendaftaran_tb (
-            id_pendaftaran, id_pelatihan, nik, nip, gelar_depan, nama_peserta, gelar_belakang,
+            id_pendaftaran, id_pelatihan, harga_pelatihan,  nik, nip, gelar_depan, nama_peserta, gelar_belakang,
             asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
             status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
             provinsi_kantor, surat_tugas, foto_4x6, status
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const values = [
-          id_pendaftaran,
-          id_pelatihan,
-          nik,
-          nip,
-          gelar_depan,
-          nama_peserta,
-          gelar_belakang,
-          asal_instansi,
-          tempat_lahir,
-          tanggal_lahir,
-          pendidikan,
-          jenis_kelamin,
-          agama,
-          status_pegawai,
-          kabupaten_asal,
-          alamat_kantor,
-          alamat_rumah,
-          no_wa,
-          email,
-          str,
-          provinsi_asal,
-          jenis_nakes,
-          kabupaten_kantor,
-          provinsi_kantor,
-          surat_tugas,
-          foto_4x6,
-          "Menunggu Verifikasi Berkas",
-        ];
+          const values = [
+            id_pendaftaran,
+            id_pelatihan,
+            harga_pelatihan,
+            nik,
+            nip,
+            gelar_depan,
+            nama_peserta,
+            gelar_belakang,
+            asal_instansi,
+            tempat_lahir,
+            tanggal_lahir,
+            pendidikan,
+            jenis_kelamin,
+            agama,
+            status_pegawai,
+            kabupaten_asal,
+            alamat_kantor,
+            alamat_rumah,
+            no_wa,
+            email,
+            str,
+            provinsi_asal,
+            jenis_nakes,
+            kabupaten_kantor,
+            provinsi_kantor,
+            surat_tugas,
+            foto_4x6,
+            "Menunggu Verifikasi Berkas",
+          ];
 
-        connection.query(insertSQL, values, async (err, result) => {
-          if (err) {
-            console.error("❌ Error insert pendaftaran:", err);
-            return res.status(500).json({ message: "Gagal mendaftar" });
-          }
+          connection.query(insertSQL, values, async (err, result) => {
+            if (err) {
+              console.error("❌ Error insert pendaftaran:", err);
+              return res.status(500).json({ message: "Gagal mendaftar" });
+            }
 
-          // ======================
-          // KIRIM EMAIL (AMAN)
-          // ======================
-          try {
-            await sendEmail({
-              to: email,
-              subject: "Status Pendaftaran – Menunggu Verifikasi Berkas",
-              html: `
+            // ======================
+            // KIRIM EMAIL (AMAN)
+            // ======================
+            try {
+              await sendEmail({
+                to: email,
+                subject: "Status Pendaftaran – Menunggu Verifikasi Berkas",
+                html: `
                 <p>Yth. <b>${nama_peserta}</b>,</p>
                 <p>Terima kasih telah mendaftar pelatihan di
                     <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
@@ -266,22 +298,22 @@ router.post(
                 <p>Hormat kami,<br>
                 <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
               `,
-            });
-          } catch (emailErr) {
-            console.error("⚠️ Email gagal dikirim:", emailErr.message);
-            // EMAIL GAGAL ≠ PENDAFTARAN GAGAL
-          }
+              });
+            } catch (emailErr) {
+              console.error("⚠️ Email gagal dikirim:", emailErr.message);
+              // EMAIL GAGAL ≠ PENDAFTARAN GAGAL
+            }
 
-          res.status(201).json({
-            message: "✅ Pendaftaran berhasil",
-            id_pendaftaran: result.insertId,
+            res.status(201).json({
+              message: "✅ Pendaftaran berhasil",
+              id_pendaftaran: result.insertId,
+            });
           });
-        });
-      }
-    );
+        }
+      );
+    });
   }
 );
-
 // ======================
 // 🟨 UPDATE PENDAFTARAN
 // ======================
@@ -445,9 +477,15 @@ router.put("/:id/accept", (req, res) => {
 
   // 1. Ambil data peserta
   const getPesertaSQL = `
-    SELECT nama_peserta, email
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
+    SELECT 
+      d.nama_peserta,
+      d.email,
+      d.harga_pelatihan,
+      p.nama_pelatihan
+    FROM pendaftaran_tb d
+    JOIN pelatihan_tb p
+      ON d.id_pelatihan = p.id_pelatihan
+    WHERE d.id_pendaftaran = ?
   `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
@@ -460,7 +498,8 @@ router.put("/:id/accept", (req, res) => {
       return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
     }
 
-    const { nama_peserta, email } = pesertaRes[0];
+    const { nama_peserta, email, harga_pelatihan, nama_pelatihan } =
+      pesertaRes[0];
 
     // 2. Update status
     const updateStatusSQL = `
@@ -485,19 +524,35 @@ router.put("/:id/accept", (req, res) => {
 
             <p>
               Kami informasikan bahwa <b>berkas pendaftaran Anda telah dinyatakan valid</b>.
+              Nama Pelatihan: ${nama_pelatihan}
             </p>
 
             <p>
-              Untuk melanjutkan proses pendaftaran, silakan melakukan pembayaran dengan melakukan transfer ke nomor rekening <b>3380009008
-              Bank BNI a.n RSUD PROF DR MARGONO SOEKARJO</b> sejumlah <b>${harga}</b>
+              Untuk melanjutkan proses pendaftaran, silakan melakukan pembayaran dengan melakukan transfer ke nomor rekening berikut:
             </p>
+
+              <p>
+                <b>Bank BNI</b><br>
+                <b>No. Rekening: 3380009008</b><br>
+                <b>a.n RSUD Prof. Dr. Margono Soekarjo</b>
+              </p>
+
+              <p>
+                <b>Biaya Pelatihan:</b>
+                <b>Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}</b>
+              </p>
 
             <p>
               <b>Langkah selanjutnya:</b>
               <ol>
-                <li>Lakukan pembayaran sesuai informasi yang akan kami sampaikan</li>
+                <li>Lakukan pembayaran sesuai nominal di atas</li>
                 <li>Simpan bukti pembayaran</li>
-                <li> <b>Upload bukti pembayaran melalui link http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?id_pendaftaran=${idPendaftaran}</b> </li>
+                <li>
+                  Upload bukti pembayaran melalui link berikut:<br>
+                  <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?id_pendaftaran=${id}">
+                    Upload Bukti Pembayaran
+                  </a>
+                </li>
               </ol>
             </p>
 
@@ -681,7 +736,7 @@ router.put("/:id/payment-valid", (req, res) => {
             <p>
               Informasi lanjutan terkait pelaksanaan pelatihan
               (jadwal, teknis, dan ketentuan lainnya)
-              akan kami sampaikan melalui email.
+              akan kami sampaikan melalui grup WhatsApp pelatihan, 
             </p>
 
             <p>
@@ -720,9 +775,15 @@ router.put("/:id/payment-invalid", (req, res) => {
 
   // 1. Ambil data peserta
   const getPesertaSQL = `
-    SELECT nama_peserta, email
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
+    SELECT 
+      d.nama_peserta,
+      d.email,
+      d.harga_pelatihan,
+      p.nama_pelatihan
+    FROM pendaftaran_tb d
+    JOIN pelatihan_tb p
+      ON d.id_pelatihan = p.id_pelatihan
+    WHERE d.id_pendaftaran = ?
   `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
@@ -735,7 +796,8 @@ router.put("/:id/payment-invalid", (req, res) => {
       return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
     }
 
-    const { nama_peserta, email } = pesertaRes[0];
+    const { nama_peserta, email, harga_pelatihan, nama_pelatihan } =
+      pesertaRes[0];
 
     // 2. Update status pembayaran invalid
     const updateStatusSQL = `
@@ -768,6 +830,12 @@ router.put("/:id/payment-invalid", (req, res) => {
             <p>
               Setelah dilakukan verifikasi, kami informasikan bahwa
               <b>bukti pembayaran Anda belum dapat kami validasi</b>.
+            </p>
+
+            <p>
+              <b>Detail Pelatihan:</b><br>
+              Nama Pelatihan: <b>${nama_pelatihan}</b><br>
+              Biaya Pelatihan: <b>Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}</b>
             </p>
 
             <p>

@@ -68,7 +68,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, harga,
       kategori, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
@@ -451,7 +451,7 @@ router.get("/export/excel", async (req, res) => {
         row.waktu_mulai,
         row.waktu_selesai,
         row.kuota,
-        row.harga,
+        row.harga > 0 ? row.harga : 0,
         row.kategori,
         row.tipe_pelatihan,
         row.durasi,

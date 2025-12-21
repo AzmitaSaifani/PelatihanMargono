@@ -45,10 +45,12 @@ router.post("/", (req, res) => {
     res.json({
       message: "Login Admin Berhasil!",
       admin: {
-        id: user.id_user,
-        nama: user.nama_lengkap,
+        id_user: user.id_user,
         email: user.email,
-        level: user.level_user,
+        nama_lengkap: user.nama_lengkap,
+        level: user.level_user, // 1 = admin
+        loginTime: Date.now(),
+        lastActive: Date.now(),
       },
     });
   });

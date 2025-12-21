@@ -20,9 +20,8 @@
 
   // SESSION EXPIRED
   const now = Date.now();
-  const sessionAge = now - adminData.loginTime;
 
-  if (sessionAge > MAX_SESSION) {
+  if (now - adminData.lastActive > MAX_SESSION) {
     alert("Sesi login Anda telah berakhir. Silakan login kembali.");
     localStorage.removeItem("admin");
     window.location.href = "loginadmin.html";
@@ -35,19 +34,7 @@
     window.location.href = "loginadmin.html";
   }
 
-  // SETELAH LOGIN BERHASIL
-  localStorage.setItem(
-    "admin",
-    JSON.stringify({
-      id: data.id_admin,
-      username: data.username,
-      level: data.level,
-      loginTime: Date.now(),
-      lastActive: Date.now(),
-    })
-  );
-
   // UPDATE AKTIVITAS TERAKHIR 🔥
-  admin.lastActive = now;
-  localStorage.setItem("admin", JSON.stringify(admin));
+  adminData.lastActive = now;
+  localStorage.setItem("admin", JSON.stringify(adminData));
 })();
