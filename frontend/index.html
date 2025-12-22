@@ -435,6 +435,7 @@
                         waktu_mulai: item.waktu_mulai,
                         waktu_selesai: item.waktu_selesai,
                         kategori: item.kategori,
+                        harga:item.harga,
                       }
                     }));
 
@@ -474,6 +475,11 @@
 
                   document.getElementById("modalPeserta").innerText =
                     info.event.extendedProps.kuota + " / " + info.event.extendedProps.totalKuota;
+
+                  document.getElementById("modalHarga").innerText =
+                    info.harga && Number(info.harga) > 0
+                      ? formatRupiah(info.harga)
+                      : "Gratis";
 
                   document.getElementById("modalLokasi").innerText =
                     info.event.extendedProps.lokasi;
@@ -552,6 +558,8 @@
                 <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                 <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
                 <p><b>Kuota:</b> <span id="modalPeserta"></span></p>
+                <p><b>Biaya Pelatihan:</b> <span id="modalHarga"></span></p>
+
 
                 <button 
                   class="btn btn-outline" 
@@ -660,6 +668,7 @@
                         <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                         <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
                         <p><b>Kuota:</b> <span id="modalPeserta"></span></p>
+                        <p><b>Biaya Pelatihan:</b> <span id="modalHarga"></span></p>
 
                         <button 
                           class="btn btn-outline" 
@@ -703,6 +712,12 @@
                         });
                       }
 
+                      // ====== FORMAT RUPIAH  ======
+                      function formatRupiah(angka) {
+                        const nilai = Number(angka) || 0;
+                        return "Rp " + nilai.toLocaleString("id-ID");
+                      }
+
                       function formatWaktu(waktuDB) {
                         return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
                       }
@@ -711,12 +726,33 @@
                       async function loadPelatihan() {
                         const res = await fetch(API);
                         const data = await res.json();
+                        
+                        // Urutkan dari yg masih bisa daftar
+                        allPelatihan = data
+                        .filter(item => item.status === "publish")
+                        .sort((a, b) => {
+                          const today = new Date().setHours(0,0,0,0);
 
-                        // Simpan data publish
-                        allPelatihan = data.filter(item => item.status === "publish");
+                          const aDate = new Date(a.tanggal_mulai).setHours(0,0,0,0);
+                          const bDate = new Date(b.tanggal_mulai).setHours(0,0,0,0);
 
-                        // Render default (semua)
-                        renderPelatihan(allPelatihan);
+                          // Tentukan status daftar
+                          const aAvailable = a.sisa_kuota > 0 && aDate >= today;
+                          const bAvailable = b.sisa_kuota > 0 && bDate >= today;
+
+                          // 1️⃣ Yang masih bisa daftar di atas
+                          if (aAvailable && !bAvailable) return -1;
+                          if (!aAvailable && bAvailable) return 1;
+
+                          // 2️⃣ Sama-sama bisa daftar → urutkan tanggal terdekat
+                          if (aAvailable && bAvailable) return aDate - bDate;
+
+                          // 3️⃣ Sama-sama tidak bisa daftar → tanggal terbaru di atas
+                          return bDate - aDate;
+                        });
+
+                      renderPelatihan(allPelatihan);
+
                       }
 
                       // ===================== RENDER CARD PELATIHAN =====================
@@ -820,6 +856,11 @@
 
                         document.getElementById("modalPeserta").innerText =
                           p.sisa_kuota + " / " + p.kuota;
+
+                        document.getElementById("modalHarga").innerText =
+                          p.harga && p.harga > 0
+                            ? formatRupiah(p.harga)
+                            : "Gratis";
 
                            // =============================
                           // LOGIKA: Tanggal Sudah Lewat

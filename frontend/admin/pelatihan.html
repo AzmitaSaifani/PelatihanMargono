@@ -497,6 +497,31 @@
           formTambah.addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            const tanggalMulai = new Date(
+              formTambah.querySelector("[name='tanggal_mulai']").value
+            );
+            const tanggalSelesai = new Date(
+              formTambah.querySelector("[name='tanggal_selesai']").value
+            );
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            tanggalMulai.setHours(0, 0, 0, 0);
+            tanggalSelesai.setHours(0, 0, 0, 0);
+
+            if (tanggalMulai < today) {
+              alert("❌ Tanggal mulai tidak boleh sebelum hari ini");
+              return;
+            }
+
+            if (tanggalSelesai < tanggalMulai) {
+              alert(
+                "❌ Tanggal selesai tidak boleh lebih awal dari tanggal mulai"
+              );
+              return;
+            }
+
             const formData = new FormData(formTambah);
 
             // jika ingin set created_by admin tertentu → misal 1

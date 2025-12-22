@@ -246,6 +246,19 @@
           </div>
 
           <div class="mb-3">
+            <label class="form-label">Harga Pelatihan (Rp)</label>
+            <input
+              type="number"
+              name="harga"
+              class="form-control"
+              id="edit_harga"
+              min="0"
+              step="1"
+              placeholder="Contoh: 250000"
+            />
+          </div>
+
+          <div class="mb-3">
             <label class="form-label fw-bold">Kategori Peserta</label>
             <select id="edit_kategori" name="kategori" class="form-control">
               <option value="Umum">Umum</option>
@@ -263,6 +276,7 @@
               id="edit_tipe_pelatihan"
               name="tipe_pelatihan"
               class="form-control"
+              placeholder="Online / Offline / Hybrid"
             />
           </div>
 
@@ -273,6 +287,7 @@
               id="edit_durasi"
               name="durasi"
               class="form-control"
+              placeholder="Contoh: 3 Hari"
             />
           </div>
 
@@ -376,6 +391,7 @@
           document.getElementById("edit_waktu_selesai").value =
             data.waktu_selesai;
           document.getElementById("edit_kuota").value = data.kuota ?? "";
+          document.getElementById("edit_harga").value = Number(data.harga) ?? 0;
           document.getElementById("edit_kategori").value = data.kategori;
           document.getElementById("edit_tipe_pelatihan").value =
             data.tipe_pelatihan || "";

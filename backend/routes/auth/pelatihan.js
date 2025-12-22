@@ -54,6 +54,32 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     });
   }
 
+  // ===============================
+  // VALIDASI TANGGAL (ADMIN)
+  // ===============================
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const mulai = new Date(tanggal_mulai);
+  mulai.setHours(0, 0, 0, 0);
+
+  const selesai = new Date(tanggal_selesai);
+  selesai.setHours(0, 0, 0, 0);
+
+  // ❌ tanggal mulai tidak boleh sebelum hari ini
+  if (mulai < today) {
+    return res.status(400).json({
+      message: "❌ Tanggal mulai pelatihan tidak boleh sebelum hari ini.",
+    });
+  }
+
+  // ❌ tanggal selesai tidak boleh sebelum tanggal mulai
+  if (selesai < mulai) {
+    return res.status(400).json({
+      message: "❌ Tanggal selesai tidak boleh lebih awal dari tanggal mulai.",
+    });
+  }
+
   if (harga < 0) {
     return res.status(400).json({
       message: "❌ Harga tidak boleh negatif",
