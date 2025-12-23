@@ -76,7 +76,7 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="gallery.html" 
+                  <a class="dropdown-item" href="gallery.html"
                     >Gallery Diklat</a
                   >
                 </li>
@@ -173,7 +173,7 @@
               </div>
 
               <div class="col-md-12 text-end">
-                <button class="btn btn-primary mt-3">+ Tambah Foto</button>
+                <button class="btn btn-primary mt-3">+ Tambah Gallery</button>
               </div>
             </div>
           </form>
@@ -214,7 +214,7 @@
     <!-- ==================== SCRIPT CRUD ==================== -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const API = "http://localhost:5000/api/gallery?admin=1";
+        const API = "http://localhost:5000/api/gallery";
         const tableBody = document.getElementById("tableGallery");
         const formGallery = document.getElementById("formGallery");
 
@@ -232,7 +232,7 @@
 
         // LOAD DATA
         async function loadGallery() {
-          const res = await fetch(API);
+          const res = await fetch(`${API}?admin=1`);
           const data = await res.json();
 
           tableBody.innerHTML = "";
@@ -242,7 +242,9 @@
               <tr>
                 <td>${index + 1}</td>
                 <td>
-                  <img src="http://localhost:5000/uploads/gallery/${item.foto}">
+                  <img src="http://localhost:5000/uploads/gallery/${
+                    item.foto
+                  }" class="thumb-foto" style="width:70px;height:70px;object-fit:cover";>
                 </td>
                 <td>${item.keterangan ?? "-"}</td>
                 <td>
@@ -293,7 +295,7 @@
         window.hapusGallery = async (id) => {
           if (!confirm("Hapus foto ini?")) return;
 
-          const res = await fetch(`${API}/${id}`, {
+          const res = await fetch(`${API}/${id}?admin=1`, {
             method: "DELETE",
           });
 

@@ -83,12 +83,12 @@
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
                   <a class="dropdown-item" href="fasilitator.html"
-                    >Fasilitator</a
+                    >Profesional Fasilitor & Instruktur Tersertifikasi</a
                   >
                 </li>
                 <li>
                   <a class="dropdown-item" href="penyelenggara.html" 
-                    >Penyelenggara</a
+                    >Tim Penyelenggara Pelatihan Tersertifikasi</a
                   >
                 </li>
                 <li>
@@ -201,7 +201,7 @@
     <!-- JS CRUD -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const API = "http://localhost:5000/api/penyelenggara?admin=1";
+        const API = "http://localhost:5000/api/penyelenggara";
         const tableBody = document.getElementById("tablePenyelenggara");
         const form = document.getElementById("formPenyelenggara");
 
@@ -230,9 +230,9 @@
                 <td>${index + 1}</td>
 
                 <td>
-                  <img src="http://localhost:5000/uploads/flyer/${
+                  <img src="http://localhost:5000/uploads/penyelenggara/${
                     item.foto
-                  }" class="thumb-foto">
+                  }" class="thumb-foto" style="width:70px;height:70px;object-fit:cover";>
                 </td>
 
                 <td>${item.nama}</td>
