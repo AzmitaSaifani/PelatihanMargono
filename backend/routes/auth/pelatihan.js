@@ -6,6 +6,8 @@ import fs from "fs";
 
 const router = express.Router();
 
+const ALLOWED_KATEGORI = ["Nakes", "Non Nakes"];
+
 // === Konfigurasi upload untuk flyer ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,7 +27,7 @@ const upload = multer({ storage });
 router.post("/", upload.single("flyer_url"), (req, res) => {
   let {
     nama_pelatihan,
-    deskripsi,
+    jumlah_jpl,
     narasumber,
     lokasi,
     alamat_lengkap,
@@ -36,6 +38,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     kuota,
     harga,
     kategori,
+    kriteria_peserta,
     tipe_pelatihan,
     durasi,
     status,
@@ -51,6 +54,13 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     return res.status(400).json({
       message:
         "❌ Nama pelatihan, tanggal mulai, dan tanggal selesai wajib diisi.",
+    });
+  }
+
+  // ---------- VALIDASI KATEGORI ----------
+  if (!ALLOWED_KATEGORI.includes(kategori)) {
+    return res.status(400).json({
+      message: "❌ Kategori pelatihan harus: Nakes atau Non Nakes",
     });
   }
 
@@ -90,16 +100,16 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
 
   const sql = `
     INSERT INTO pelatihan_tb (
-      nama_pelatihan, deskripsi, narasumber, lokasi, alamat_lengkap,
+      nama_pelatihan, jumlah_jpl, narasumber, lokasi, alamat_lengkap,
       tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, harga,
-      kategori, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
+      kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
     nama_pelatihan,
-    deskripsi,
+    jumlah_jpl,
     narasumber,
     lokasi,
     alamat_lengkap,
@@ -109,7 +119,8 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     waktu_selesai,
     kuota,
     harga || 0,
-    kategori || "internal",
+    kategori,
+    kriteria_peserta,
     tipe_pelatihan,
     durasi,
     flyer_url,
@@ -161,7 +172,7 @@ router.get("/", (req, res) => {
   SELECT 
     p.id_pelatihan,
     p.nama_pelatihan,
-    p.deskripsi,
+    p.jumlah_jpl,
     p.narasumber,
     p.lokasi,
     p.alamat_lengkap,
@@ -172,6 +183,7 @@ router.get("/", (req, res) => {
     p.kuota,
     p.harga,
     p.kategori,
+    p.kriteria_peserta,
     p.tipe_pelatihan,
     p.durasi,
     p.flyer_url,
@@ -218,7 +230,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
   const { id } = req.params;
   const {
     nama_pelatihan,
-    deskripsi,
+    jumlah_jpl,
     narasumber,
     lokasi,
     alamat_lengkap,
@@ -229,11 +241,18 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     kuota,
     harga,
     kategori,
+    kriteria_peserta,
     tipe_pelatihan,
     durasi,
     status,
     updated_by,
   } = req.body;
+
+  if (kategori && !ALLOWED_KATEGORI.includes(kategori)) {
+    return res.status(400).json({
+      message: "❌ Kategori pelatihan harus: Nakes atau Non Nakes",
+    });
+  }
 
   const flyer_url = req.file ? req.file.filename : null;
 
@@ -252,15 +271,15 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
 
     const sql = `
       UPDATE pelatihan_tb
-      SET nama_pelatihan=?, deskripsi=?, narasumber=?, lokasi=?, alamat_lengkap=?,
+      SET nama_pelatihan=?, jumlah_jpl=?, narasumber=?, lokasi=?, alamat_lengkap=?,
           tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, harga=?,
-          kategori=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
+          kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
     `;
 
     const values = [
       nama_pelatihan,
-      deskripsi,
+      jumlah_jpl,
       narasumber,
       lokasi,
       alamat_lengkap,
@@ -271,6 +290,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
       kuota,
       harga || 0,
       kategori,
+      kriteria_peserta,
       tipe_pelatihan,
       durasi,
       flyer_url || oldFlyer,
@@ -356,7 +376,7 @@ router.get("/export/excel", async (req, res) => {
     const sql = `
       SELECT 
         p.nama_pelatihan,
-        p.deskripsi,
+        p.jumlah_jpl,
         p.narasumber,
         p.lokasi,
         p.alamat_lengkap,
@@ -367,6 +387,7 @@ router.get("/export/excel", async (req, res) => {
         p.kuota,
         p.harga,
         p.kategori,
+        p.kriteria_peserta,
         p.tipe_pelatihan,
         p.durasi,
         p.status,
@@ -411,7 +432,7 @@ router.get("/export/excel", async (req, res) => {
     headerRow.values = [
       "No",
       "Nama Pelatihan",
-      "Deskripsi",
+      "Jumlah JPL",
       "Narasumber",
       "Lokasi",
       "Alamat Lengkap",
@@ -422,6 +443,7 @@ router.get("/export/excel", async (req, res) => {
       "Kuota",
       "Harga",
       "Kategori",
+      "Kriteria Peserta",
       "Tipe Pelatihan",
       "Durasi",
       "Status",
@@ -468,7 +490,7 @@ router.get("/export/excel", async (req, res) => {
       const dataRow = sheet.addRow([
         index + 1,
         row.nama_pelatihan,
-        row.deskripsi,
+        row.jumlah_jpl,
         row.narasumber,
         row.lokasi,
         row.alamat_lengkap,
@@ -479,6 +501,7 @@ router.get("/export/excel", async (req, res) => {
         row.kuota,
         row.harga > 0 ? row.harga : 0,
         row.kategori,
+        row.kriteria_peserta,
         row.tipe_pelatihan,
         row.durasi,
         row.status,

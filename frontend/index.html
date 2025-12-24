@@ -305,13 +305,13 @@
 
                 <!-- BAGIAN ATAS (2 INFO) -->
                 <div class="row g-4 mt-4">
-                  <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
+                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="400">
                     <div class="feature-item">
-                      <h4>RSUD Prof. Dr. Margono Soekarjo Purwokerto menjadi RS Kelas A Pendidikan sejak tahun 2023</h4>
+                      <h4>RSUD Prof. Dr. Margono Soekarjo Purwokerto merupakan RS rujukan pelayanan kesehatan kelas A, RS pendidikan dan institusi penyelenggara pelatihan bidang kesehatan terakreditasi A sejak tahun 2023</h4>
                     </div>
                   </div>
 
-                  <div class="col-md-6" data-aos="fade-up" data-aos-delay="500">
+                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="500">
                     <div class="feature-item">
                       <h4>
                         SK Kemenkes RI Nomor HK.02.02/F/2866/2023 <br>
@@ -355,8 +355,9 @@
                         <li>Kategori Akreditasi A (berlaku 5 tahun)</li>
                       </ul>
 
-                      <p class="lead">Pendayagunaan SDM RSMS:</p>
+                      <p class="lead">Tim Kerja:</p>
                       <ul>
+                        <li>Pimpinan Diklat</li>
                         <li>Tim Penyusun Mutu Pelatihan & Penjaminan Mutu Pelatihan</li>
                         <li>TPM Tim Audit Mutu Internal</li>
                         <li>Fasilitator Pelatihan (Narasumber & Instruktur)</li>
@@ -388,10 +389,25 @@
             📅 KALENDER JADWAL PELATIHAN
           </h2>
 
+          <!-- ===== EXPORT EXCEL KALENDER ===== -->
+            <div class="d-flex justify-content-end mb-2">
+              <a
+                href="/uploads/jadwal_pelatihan/Draft_Kalender_Pelatihan_RSMS_2026.xlsx"
+                class="btn btn-primary"
+                style="padding:10px 18px; border-radius:8px;"
+                target="_blank"
+                download
+              >
+                Download Jadwal Pelatihan
+              </a>
+            </div>
+          <!-- ===== END EXPORT ===== -->
+
           <div id="calendar"></div>
 
           <!-- FullCalendar JS -->
           <script>
+            
             document.addEventListener("DOMContentLoaded", function () {
               const calendarEl = document.getElementById("calendar");
 
@@ -427,6 +443,7 @@
                       textColor: "#ffffff",
 
                       extendedProps: {
+                        jumlah_jpl:item.jumlah_jpl,
                         kuota: item.sisa_kuota,
                         totalKuota: item.kuota,
                         lokasi: item.lokasi,
@@ -435,6 +452,7 @@
                         waktu_mulai: item.waktu_mulai,
                         waktu_selesai: item.waktu_selesai,
                         kategori: item.kategori,
+                        kriteria_peserta:item.kriteria_peserta,
                         harga:item.harga,
                       }
                     }));
@@ -462,6 +480,7 @@
                   }
 
                   document.getElementById("modalTitle").innerText = info.event.title;
+                  document.getElementById("modalJumlah_jpl").innerText = info.event.jumlah_jpl;
 
                   document.getElementById("modalMulai").innerText =
                     formatTanggal(info.event.extendedProps.tanggal_mulai) +
@@ -486,6 +505,9 @@
 
                   document.getElementById("modalKategori").innerText =
                     info.event.extendedProps.kategori || "-";
+
+                  document.getElementById("modalKriteria_peserta").innerText =
+                    info.event.extendedProps.kriteria_peserta;
 
                   // ambil elemen tombol
                   const btnDetail = document.getElementById("btnDetail");
@@ -553,7 +575,9 @@
               ">
 
                 <h3 id="modalTitle" style="font-weight: bold;"></h3>
-                <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                <p><b>Jumlah JPL:</b> <span id="modalJumlah_jpl"></span></p>
+                <p><b>Kategori Peserta:</b> <span id="modalKategori"></span></p>
+                <p><b>Kriteria Peserta:</b> <span id="modalKriteria_peserta"></span></p>
                 <p><b>Mulai:</b> <span id="modalMulai"></span></p>
                 <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                 <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
@@ -608,41 +632,19 @@
 
                     <li class="nav-item">
                       <button class="nav-link"
-                        onclick="filterKategori('Nakes Internal', this)">
-                        Nakes Internal
+                        onclick="filterKategori('Nakes', this)">
+                        Nakes
                       </button>
                     </li>
 
                     <li class="nav-item">
                       <button class="nav-link"
-                        onclick="filterKategori('Nakes Eksternal', this)">
-                        Nakes Eksternal
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Umum', this)">
-                        Umum
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Non-Nakes Internal', this)">
-                        Non-Nakes Internal
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Non-Nakes Eksternal', this)">
-                        Non-Nakes Eksternal
+                        onclick="filterKategori('Non Nakes', this)">
+                        Non-Nakes
                       </button>
                     </li>
 
                   </ul>
-                <!-- <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p> -->
               <!-- End Section Title -->
 
               <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -663,7 +665,9 @@
                         <h3 id="modalTitle" style="font-weight: bold;"></h3> <br>
                         <img id="modalFlyer" 
                         style="width:100%; height:auto; margin-bottom:15px; border-radius:8px; object-fit:contain;">
-                        <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                        <p><b>Jumlah JPL:</b> <span id="modalJumlah_jpl"></span></p>
+                        <p><b>Kategori Peserta:</b> <span id="modalKategori"></span></p>
+                        <p><b>Kriteria Peserta:</b> <span id="modalKriteria_peserta"></span></p>
                         <p><b>Mulai:</b> <span id="modalMulai"></span></p>
                         <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                         <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
@@ -789,7 +793,7 @@
 
                                   <h3>${p.nama_pelatihan}</h3>
 
-                                  <button class="btn btn-primary" onclick="openModal(${p.id_pelatihan})">
+                                  <button class="btn btn-primary btn-accent" onclick="openModal(${p.id_pelatihan})">
                                     Detail Menu Pelatihan
                                   </button>
                                 </div>
@@ -843,7 +847,10 @@
 
                         // Fill content
                         document.getElementById("modalTitle").innerText = p.nama_pelatihan;
+                        document.getElementById("modalJumlah_jpl").innerText = p.jumlah_jpl;
                         document.getElementById("modalKategori").innerText = p.kategori;
+                        document.getElementById("modalKriteria_peserta").innerText = p.kriteria_peserta;
+
 
                         // ==== FORMAT TANGGAL & WAKTU (SAMA SEPERTI FULLCALENDAR) ====
                         document.getElementById("modalMulai").innerText =
@@ -948,46 +955,12 @@
                       Ut enim ad minim veniam, quis nostrud exercitation ullamco
                       laboris nisi ut aliquip ex ea commodo.
                     </p> -->
-                    <a href="https://rsmargono.jatengprov.go.id/ppid/dip/3_2023_27/persyaratan_perizinan_izin_yang_diterbitkan_dan_atau_dikeluarkan_berikut_dokumen_pendukungnya_dan_laporan_penaatan_izin_yang_diberikan" class="feature-link">
+                    <a href="alurpendaftaran.html" class="feature-link">
                       <span>Pelajari Selengkapnya</span>
                       <i class="bi bi-arrow-right"></i>
                     </a>
                   </div>
                 </div>
-
-                <!-- <div class="col-lg-4 col-md-6 mb-4">
-                  <div class="feature-card">
-                    <div class="icon-wrapper">
-                      <i class="bi bi-calendar-check"></i>
-                    </div>
-                    <h5>Easy Online Booking</h5>
-                    <p>
-                      Duis aute irure dolor in reprehenderit in voluptate velit esse
-                      cillum dolore eu fugiat nulla pariatur.
-                    </p>
-                    <a href="#" class="feature-link">
-                      <span>Book Now</span>
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </div>
-                </div> -->
-
-                <!-- <div class="col-lg-4 col-md-6 mb-4">
-                  <div class="feature-card">
-                    <div class="icon-wrapper">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <h5>Expert Medical Team</h5>
-                    <p>
-                      Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                      qui officia deserunt mollit anim.
-                    </p>
-                    <a href="#" class="feature-link">
-                      <span>Meet Our Doctors</span>
-                      <i class="bi bi-arrow-right"></i>
-                    </a>
-                  </div>
-                </div> -->
               </div>
           </div>
         </div>

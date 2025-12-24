@@ -149,8 +149,8 @@
               </div>
 
               <div class="col-md-12">
-                <label class="form-label">Deskripsi</label>
-                <textarea name="deskripsi" class="form-control"></textarea>
+                <label class="form-label">Jumlah JPL</label>
+                <textarea name="jumlah_jpl" class="form-control"></textarea>
               </div>
 
               <div class="col-md-6">
@@ -217,14 +217,19 @@
               <div class="col-md-4">
                 <label class="form-label">Kategori Peserta</label>
                 <select name="kategori" class="form-control">
-                  <option value="Umum">Umum</option>
-                  <option value="Nakes Internal">Nakes Internal</option>
-                  <option value="Nakes Eksternal">Nakes Eksternal</option>
-                  <option value="Non-Nakes Internal">Non-Nakes Internal</option>
-                  <option value="Non-Nakes Ekternal">
-                    Non-Nakes Eksternal
-                  </option>
+                  <option value="Nakes">Nakes</option>
+                  <option value="Non Nakes">Non-Nakes</option>
                 </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Kriteria Peserta</label>
+                <input
+                  type="text"
+                  name="kriteria_peserta"
+                  class="form-control"
+                  placeholder="Contoh: Khusus nakes untuk Bidan, Dokter, dan Perawat"
+                />
               </div>
 
               <div class="col-md-4">
@@ -304,11 +309,8 @@
           <div class="col-md-3 mt-3">
             <select id="filterKategoriPelatihan" class="form-select">
               <option value="">Semua Kategori</option>
-              <option value="Umum">Umum</option>
-              <option value="Nakes Internal">Nakes Internal</option>
-              <option value="Nakes Eksternal">Nakes Eksternal</option>
-              <option value="Non-Nakes Internal">Non-Nakes Internal</option>
-              <option value="Non-Nakes Eksternal">Non-Nakes Eksternal</option>
+              <option value="Nakes">Nakes</option>
+              <option value="Non-Nakes">Non-Nakes</option>
             </select>
           </div>
 
@@ -347,7 +349,7 @@
               <tr>
                 <th>No</th>
                 <th>Nama</th>
-                <th>Deskripsi</th>
+                <th>Jumlah JPL</th>
                 <th>Flyer</th>
                 <th>Lokasi</th>
                 <th>Alamat Lengkap</th>
@@ -359,6 +361,7 @@
                 <th>Kuota Peserta</th>
                 <th>Harga</th>
                 <th>Kategori Peserta</th>
+                <th>Kriteria Peserta</th>
                 <th>Tipe Pelatihan</th>
                 <th>Durasi Pelatihan</th>
                 <th>Status</th>
@@ -441,7 +444,7 @@
               <tr>
                 <td>${index + 1}</td>
                 <td>${item.nama_pelatihan}</td>
-                <td>${item.deskripsi ?? "-"}</td>
+                <td>${item.jumlah_jpl ?? "-"}</td>
                 <td> <img src="http://localhost:5000/uploads/flyer/${
                   item.flyer_url
                 }" class="thumb-foto"
@@ -463,6 +466,7 @@
                   }
                 </td>
                 <td>${item.kategori ?? "-"}</td>
+                <td>${item.kriteria_peserta ?? "-"}</td>
                 <td>${item.tipe_pelatihan ?? "-"}</td>
                 <td>${item.durasi ?? "-"}</td>
                 <td>

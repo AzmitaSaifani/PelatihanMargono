@@ -265,36 +265,15 @@
 
                     <li class="nav-item">
                       <button class="nav-link"
-                        onclick="filterKategori('Nakes Internal', this)">
-                        Nakes Internal
+                        onclick="filterKategori('Nakes', this)">
+                        Nakes
                       </button>
                     </li>
 
                     <li class="nav-item">
                       <button class="nav-link"
-                        onclick="filterKategori('Nakes Eksternal', this)">
-                        Nakes Eksternal
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Umum', this)">
-                        Umum
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Non-Nakes Internal', this)">
-                        Non-Nakes Internal
-                      </button>
-                    </li>
-
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Non-Nakes Eksternal', this)">
-                        Non-Nakes Eksternal
+                        onclick="filterKategori('Non Nakes', this)">
+                        Non-Nakes
                       </button>
                     </li>
 
@@ -311,7 +290,9 @@
                           <h3 id="modalTitle" style="font-weight: bold; text-align:center;"></h3><br>
                           <img id="modalFlyer" 
                           style="width:100%; height:auto; margin-bottom:15px; border-radius:8px; object-fit:contain;">
-                          <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                          <p><b>Jumlah JPL:</b> <span id="modalJumlah_jpl"></span></p>
+                          <p><b>Kategori Peserta:</b> <span id="modalKategori"></span></p>
+                          <p><b>Kriteria Peserta:</b> <span id="modalKriteria_peserta"></span></p>
                           <p><b>Mulai:</b> <span id="modalMulai"></span></p>
                           <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                           <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
@@ -437,7 +418,7 @@
 
                                     <h3>${p.nama_pelatihan}</h3>
 
-                                    <button class="btn btn-primary" onclick="openModal(${p.id_pelatihan})">
+                                    <button class="btn btn-primary btn-accent" onclick="openModal(${p.id_pelatihan})">
                                       Detail Menu Pelatihan
                                     </button>
                                   </div>
@@ -491,7 +472,10 @@
 
                           // Fill content
                           document.getElementById("modalTitle").innerText = p.nama_pelatihan;
+                          document.getElementById("modalJumlah_jpl").innerText = p.jumlah_jpl;
+
                           document.getElementById("modalKategori").innerText = p.kategori;
+                          document.getElementById("modalKriteria_peserta").innerText = p.kriteria_peserta;
 
                           // ==== FORMAT TANGGAL & WAKTU (SAMA SEPERTI FULLCALENDAR) ====
                           document.getElementById("modalMulai").innerText =
