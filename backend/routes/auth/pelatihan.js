@@ -28,7 +28,6 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
   let {
     nama_pelatihan,
     jumlah_jpl,
-    narasumber,
     lokasi,
     alamat_lengkap,
     tanggal_mulai,
@@ -100,17 +99,16 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
 
   const sql = `
     INSERT INTO pelatihan_tb (
-      nama_pelatihan, jumlah_jpl, narasumber, lokasi, alamat_lengkap,
+      nama_pelatihan, jumlah_jpl, lokasi, alamat_lengkap,
       tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, harga,
       kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
     nama_pelatihan,
     jumlah_jpl,
-    narasumber,
     lokasi,
     alamat_lengkap,
     tanggal_mulai,
@@ -173,7 +171,6 @@ router.get("/", (req, res) => {
     p.id_pelatihan,
     p.nama_pelatihan,
     p.jumlah_jpl,
-    p.narasumber,
     p.lokasi,
     p.alamat_lengkap,
     p.tanggal_mulai,
@@ -231,7 +228,6 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
   const {
     nama_pelatihan,
     jumlah_jpl,
-    narasumber,
     lokasi,
     alamat_lengkap,
     tanggal_mulai,
@@ -271,7 +267,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
 
     const sql = `
       UPDATE pelatihan_tb
-      SET nama_pelatihan=?, jumlah_jpl=?, narasumber=?, lokasi=?, alamat_lengkap=?,
+      SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
           tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, harga=?,
           kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
@@ -280,7 +276,6 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     const values = [
       nama_pelatihan,
       jumlah_jpl,
-      narasumber,
       lokasi,
       alamat_lengkap,
       tanggal_mulai,
@@ -377,7 +372,6 @@ router.get("/export/excel", async (req, res) => {
       SELECT 
         p.nama_pelatihan,
         p.jumlah_jpl,
-        p.narasumber,
         p.lokasi,
         p.alamat_lengkap,
         p.tanggal_mulai,
@@ -433,7 +427,6 @@ router.get("/export/excel", async (req, res) => {
       "No",
       "Nama Pelatihan",
       "Jumlah JPL",
-      "Narasumber",
       "Lokasi",
       "Alamat Lengkap",
       "Tanggal Mulai",
@@ -491,7 +484,6 @@ router.get("/export/excel", async (req, res) => {
         index + 1,
         row.nama_pelatihan,
         row.jumlah_jpl,
-        row.narasumber,
         row.lokasi,
         row.alamat_lengkap,
         row.tanggal_mulai,

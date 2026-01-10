@@ -214,7 +214,14 @@
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
-            <!-- <li><a href="doctors.html">Kritik dan Saran</a></li> -->
+            <li class="ms-lg-3">
+              <a
+                href="daftarpelatihan.html"
+                class="btn btn-accent nav-cta"
+              >
+                Daftar Pelatihan
+              </a>
+            </li>
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
@@ -274,6 +281,9 @@
                         placeholder="Nama Lengkap"
                         required
                       >
+                      <small class="text-danger">
+                        *Pastikan Nama Lengkap yang anda inputkan di sini sama dengan Nama Lengkap yang anda daftarkan di formulir pendaftaran.
+                      </small>
                     </div>
 
                     <!-- No WhatsApp -->
@@ -286,6 +296,9 @@
                         placeholder="08xxxxxxxxxx"
                         required
                       >
+                      <small class="text-danger">
+                        *Pastikan Nomor yang anda inputkan di sini sama dengan Nomor yang anda daftarkan di formulir pendaftaran.
+                      </small>
                     </div>
 
                     <!-- Email -->
@@ -298,6 +311,9 @@
                         placeholder="email@example.com"
                         required
                       >
+                      <small class="text-danger">
+                        *Pastikan Email yang anda inputkan di sini sama dengan Email yang anda daftarkan di formulir pendaftaran.
+                      </small>
                     </div>
 
                     <!-- Upload Bukti Pembayaran -->
@@ -310,14 +326,14 @@
                         accept=".pdf,.jpg,.jpeg,.png"
                         required
                       >
-                      <small class="text-muted">
-                        Format JPG / PNG / PDF. Maksimal 3 MB.
+                      <small class="text-danger">
+                        *Format JPG / PNG / PDF. Maksimal 3 MB.
                       </small>
                     </div>
 
                     <!-- Submit -->
                     <div class="col-12 mt-3">
-                      <button type="submit" class="btn btn-primary w-100">
+                      <button type="submit" class="btn btn-accent w-100">
                         Upload Bukti Pembayaran
                       </button>
                     </div>
@@ -338,9 +354,9 @@
               // 🔐 CEK AKSES HALAMAN (TANPA AWAIT)
               // =====================================================
               const params = new URLSearchParams(window.location.search);
-              const idPendaftaran = params.get("id_pendaftaran");
+              const token = params.get("token");
 
-              if (!idPendaftaran) {
+              if (!token) {
                 alert("Akses tidak valid.");
                 window.location.href = "index.html";
                 return;

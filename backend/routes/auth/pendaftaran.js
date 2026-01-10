@@ -1,5 +1,6 @@
 // backend/routes/auth/pendaftaran.js
 import { sendEmail } from "../../utils/email.js";
+import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
 import multer from "multer";
@@ -475,7 +476,6 @@ router.delete("/:id", (req, res) => {
 router.put("/:id/accept", (req, res) => {
   const { id } = req.params;
 
-  // 1. Ambil data peserta
   const getPesertaSQL = `
     SELECT 
       d.nama_peserta,
@@ -490,7 +490,7 @@ router.put("/:id/accept", (req, res) => {
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
     if (err) {
-      console.error("❌ Error ambil data peserta:", err);
+      console.error(err);
       return res.status(500).json({ message: "Gagal mengambil data peserta" });
     }
 
@@ -501,7 +501,9 @@ router.put("/:id/accept", (req, res) => {
     const { nama_peserta, email, harga_pelatihan, nama_pelatihan } =
       pesertaRes[0];
 
-    // 2. Update status
+    // 🔐 BUAT TOKEN
+    const token = encryptId(id);
+
     const updateStatusSQL = `
       UPDATE pendaftaran_tb 
       SET status = 'Menunggu Pembayaran'
@@ -510,11 +512,11 @@ router.put("/:id/accept", (req, res) => {
 
     connection.query(updateStatusSQL, [id], async (err) => {
       if (err) {
-        console.error("❌ Error update status:", err);
+        console.error(err);
         return res.status(500).json({ message: "Gagal update status" });
       }
 
-      // 3. Kirim email instruksi pembayaran
+      // 📧 EMAIL
       try {
         await sendEmail({
           to: email,
@@ -523,47 +525,32 @@ router.put("/:id/accept", (req, res) => {
             <p>Yth. <b>${nama_peserta}</b>,</p>
 
             <p>
-              Kami informasikan bahwa <b>berkas pendaftaran Anda telah dinyatakan valid</b>.
-              Nama Pelatihan: ${nama_pelatihan}
+              Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b>.
             </p>
 
             <p>
-              Untuk melanjutkan proses pendaftaran, silakan melakukan pembayaran dengan melakukan transfer ke nomor rekening berikut:
+              <b>Detail Pelatihan</b><br>
+              Nama Pelatihan: ${nama_pelatihan}<br>
+              Biaya: <b>Rp ${Number(harga_pelatihan).toLocaleString(
+                "id-ID"
+              )}</b>
             </p>
 
-              <p>
-                <b>Bank BNI</b><br>
-                <b>No. Rekening: 3380009008</b><br>
-                <b>a.n RSUD Prof. Dr. Margono Soekarjo</b>
-              </p>
-
-              <p>
-                <b>Biaya Pelatihan:</b>
-                <b>Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}</b>
-              </p>
-
-            <p>
-              <b>Langkah selanjutnya:</b>
-              <ol>
-                <li>Lakukan pembayaran sesuai nominal di atas</li>
-                <li>Simpan bukti pembayaran</li>
-                <li>
-                  Upload bukti pembayaran melalui link berikut:<br>
-                  <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?id_pendaftaran=${id}">
-                    Upload Bukti Pembayaran
-                  </a>
-                </li>
-              </ol>
-            </p>
+            <p><b>Langkah Selanjutnya:</b></p>
+            <ol>
+              <li>Lakukan pembayaran sesuai nominal</li>
+              <li>Simpan bukti transfer</li>
+              <li>
+                Upload bukti pembayaran melalui link berikut:<br>
+                <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}">
+                  Upload Bukti Pembayaran
+                </a>
+              </li>
+            </ol>
 
             <p>
-              Status pendaftaran Anda saat ini adalah:
+              Status pendaftaran Anda saat ini:
               <b>Menunggu Pembayaran</b>
-            </p>
-
-            <p>
-              Mohon memastikan email Anda aktif dan rutin memeriksa folder
-              <i>Inbox</i> maupun <i>Spam</i>.
             </p>
 
             <br>
@@ -573,13 +560,10 @@ router.put("/:id/accept", (req, res) => {
             </p>
           `,
         });
-
-        console.log("📧 Email menunggu pembayaran terkirim ke:", email);
       } catch (emailErr) {
-        console.error("⚠️ Email gagal dikirim:", emailErr.message);
+        console.error("Email gagal dikirim:", emailErr.message);
       }
 
-      // 4. Response frontend
       res.json({
         message:
           "✅ Berkas valid. Status diubah ke Menunggu Pembayaran & email terkirim",
@@ -835,7 +819,9 @@ router.put("/:id/payment-invalid", (req, res) => {
             <p>
               <b>Detail Pelatihan:</b><br>
               Nama Pelatihan: <b>${nama_pelatihan}</b><br>
-              Biaya Pelatihan: <b>Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}</b>
+              Biaya Pelatihan: <b>Rp ${Number(harga_pelatihan).toLocaleString(
+                "id-ID"
+              )}</b>
             </p>
 
             <p>

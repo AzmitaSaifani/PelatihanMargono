@@ -6,6 +6,8 @@ import fs from "fs";
 
 const router = express.Router();
 
+const ALLOWED_KATEGORI = ["sarpras", "diskusi", "pelatihan"];
+
 // === Konfigurasi upload foto gallery ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -32,9 +34,15 @@ router.post("/", upload.single("foto"), (req, res) => {
     return res.status(400).json({ message: "❌ Foto wajib diupload." });
   }
 
+  if (!ALLOWED_KATEGORI.includes(kategori)) {
+    return res.status(400).json({
+      message: "❌ Kategori harus: sarpras, diskusi, atau pelatihan",
+    });
+  }
+
   const sql = `
-    INSERT INTO gallery_tb (keterangan, foto, status)
-    VALUES (?, ?, ?)
+    INSERT INTO gallery_tb (keterangan, foto, kategori, status)
+    VALUES (?, ?, ?, ?)
   `;
   const values = [keterangan || null, foto, status || "1"];
 
@@ -57,28 +65,35 @@ router.post("/", upload.single("foto"), (req, res) => {
 // ===============   READ ALL GALLERY   =================
 // ======================================================
 router.get("/", (req, res) => {
-  const { admin } = req.query;
+  const { admin, kategori } = req.query;
 
-  // Jika admin = 1 → ambil semua data
-  let sql = "SELECT * FROM gallery_tb ORDER BY id DESC";
+  let where = [];
+  let params = [];
 
-  // Jika bukan admin → hanya data aktif
   if (!admin) {
-    sql = "SELECT * FROM gallery_tb WHERE status = '1' ORDER BY id DESC";
+    where.push("status = '1'");
   }
 
-  connection.query(sql, (err, results) => {
+  if (kategori) {
+    where.push("kategori = ?");
+    params.push(kategori);
+  }
+
+  const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const sql = `SELECT * FROM gallery_tb ${whereSQL} ORDER BY id DESC`;
+
+  connection.query(sql, params, (err, results) => {
     if (err) {
-      console.error("❌ Gagal mengambil data gallery:", err);
+      console.error("❌ Gagal mengambil gallery:", err);
       return res.status(500).json({
-        message: "❌ Gagal mengambil data gallery",
+        message: "❌ Gagal mengambil gallery",
         error: err.message,
       });
     }
+
     res.status(200).json(results);
   });
 });
-
 
 // ======================================================
 // ===============   READ DETAIL GALLERY   ==============
@@ -100,8 +115,14 @@ router.get("/:id", (req, res) => {
 // ======================================================
 router.put("/:id", upload.single("foto"), (req, res) => {
   const { id } = req.params;
-  const { keterangan, status } = req.body;
+  const { keterangan, status, kategori } = req.body;
   const fotoBaru = req.file ? req.file.filename : null;
+
+  if (kategori && !ALLOWED_KATEGORI.includes(kategori)) {
+    return res.status(400).json({
+      message: "❌ Kategori harus: sarpras, diskusi, atau pelatihan",
+    });
+  }
 
   const getOld = "SELECT foto FROM gallery_tb WHERE id = ?";
   connection.query(getOld, [id], (err, results) => {
@@ -119,11 +140,17 @@ router.put("/:id", upload.single("foto"), (req, res) => {
 
     const sql = `
       UPDATE gallery_tb
-      SET keterangan=?, foto=?, status=?
+      SET keterangan=?, foto=?, kategori=?, status=?
       WHERE id=?
     `;
 
-    const values = [keterangan || null, fotoBaru || oldFoto, status || "A", id];
+    const values = [
+      keterangan || null,
+      fotoBaru || oldFoto,
+      kategori,
+      status || "A",
+      id,
+    ];
 
     connection.query(sql, values, (err) => {
       if (err) {

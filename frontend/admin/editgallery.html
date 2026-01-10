@@ -139,6 +139,20 @@
           </div>
 
           <div class="mb-3">
+            <label class="form-label fw-bold">Kategori</label>
+            <select
+              id="edit_kategori"
+              name="kategori"
+              class="form-control"
+              required
+            >
+              <option value="sarpras">Sarpras</option>
+              <option value="diskusi">Diskusi</option>
+              <option value="pelatihan">Pelatihan</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
             <label class="form-label fw-bold">Status</label>
             <select id="edit_status" name="status" class="form-control">
               <option value="1">Aktif</option>
@@ -207,6 +221,7 @@
           document.getElementById("edit_id").value = data.id;
           document.getElementById("edit_keterangan").value =
             data.keterangan || "";
+          document.getElementById("edit_kategori").value = data.kategori;
           document.getElementById("edit_status").value = data.status;
 
           document.getElementById(

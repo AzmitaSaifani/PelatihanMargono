@@ -214,7 +214,16 @@
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
-            <!-- <li><a href="doctors.html">Kritik dan Saran</a></li> -->
+
+            <li class="ms-lg-3">
+              <a
+                href="daftarpelatihan.html"
+                class="btn btn-accent nav-cta"
+              >
+                Daftar Pelatihan
+              </a>
+            </li>
+
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
@@ -262,20 +271,49 @@
                     </div>
 
                     <div class="col-md-6">
-                      <label class="form-label">NIP:</label>
-                      <input type="text" name="nip" class="form-control" placeholder="(NIP bagi ASN atau NRP) Tanpa Spasi" required>
-                    </div>
+                    <label class="form-label">NIP:</label>
+                    <input
+                      type="text"
+                      name="nip"
+                      class="form-control"
+                      placeholder="(NIP bagi ASN atau NRP) Tanpa Spasi"
+                      required
+                    />
+
+                    <small class="text-danger">
+                      *Pastikan NIP yang Anda daftarkan belum pernah digunakan untuk mendaftar pada pelatihan yang sama.
+                    </small>
+                  </div>
 
                     <div class="col-md-6">
-                      <label class="form-label">Nama Lengkap:</label>
-                      <input type="text" name="nama_peserta" class="form-control" placeholder="Nama Lengkap" required>
-                    </div>
+                    <label class="form-label">Nama Lengkap:</label>
+                    <input
+                      type="text"
+                      name="nama_peserta"
+                      class="form-control"
+                      placeholder="Nama Lengkap"
+                      required
+                    />
+
+                    <small class="text-danger">
+                      *Nama peserta tidak boleh terdaftar lebih dari satu kali pada pelatihan yang sama.
+                    </small>
+                  </div>
 
                     <div class="col-md-6">
                       <label class="form-label">Nomor Induk Kependudukan:</label>
-                      <input type="text" name="nik" class="form-control" placeholder="Nomor Induk Kependudukan/KTP (16 Digit)" required>
-                    </div>
+                      <input
+                        type="text"
+                        name="nik"
+                        class="form-control"
+                        placeholder="Nomor Induk Kependudukan / KTP (16 Digit)"
+                        required
+                      />
 
+                      <small class="text-danger">
+                        *NIK dapat digunakan untuk mendaftar hanya satu kali pada setiap pelatihan yang sama.
+                      </small>
+                    </div>
                     <div class="col-md-6">
                       <label class="form-label">Gelar Belakang Akademik:</label>
                       <input type="text" name="gelar_belakang" class="form-control" placeholder="Gelar Belakang Akademik (Abaikan jika tidak ada)">
@@ -333,7 +371,7 @@
 
                     <div class="col-md-6">
                       <label class="form-label">Status Pegawai:</label>
-                      <select name="Status_Pegawai" class="form-control" required>
+                      <select name="status_Pegawai" class="form-control" required>
                         <option value="">Pilih Status Pegawai</option>
                         <option value="ASN Kemenkes">ASN Kemenkes</option>
                         <option value="ASN Non Kemenkes">ASN Non Kemenkes</option>
@@ -369,6 +407,9 @@
                     <div class="col-md-6">
                       <label class="form-label">Email:</label>
                       <input type="email" name="email" class="form-control" placeholder="Email" required>
+                      <small class="text-danger">
+                        *Pastikan Email Anda menggunakan @gmail.com
+                      </small>
                     </div>
 
                     <div class="col-md-6">
@@ -414,7 +455,7 @@
                         accept=".jpg, .jpeg, .png"
                         required
                       />
-                      <small class="text-muted">
+                      <small class="text-danger">
                         Background merah, menggunakan kemeja putih, menghadap lurus ke depan.  
                         Untuk yang berhijab menggunakan kerudung warna hitam/gelap, dan dasi panjang warna hitam/gelap.  
                         Maksimal ukuran 1 Mb (format: JPG/JPEG/PNG).
@@ -422,7 +463,7 @@
                     </div>
 
                     <div class="col-12 mt-3">
-                      <button type="submit" class="btn btn-primary w-100">
+                      <button type="submit" class="btn btn-accent w-100">
                         Daftar Pelatihan
                       </button>
                     </div>
@@ -482,7 +523,7 @@
                   opt.value = item.id_pelatihan;
 
                   const tanggalFormatted = formatTanggalIndo(tanggalISO);
-                  opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
+                  opt.textContent = `${item.nama_pelatihan} - (${tanggalFormatted})`;
 
                   select.appendChild(opt);
                 }
@@ -497,9 +538,29 @@
               const form = document.getElementById("formPendaftaran");
               const modalKonfirmasi = new bootstrap.Modal(document.getElementById("modalKonfirmasi"));
 
-              form.addEventListener("submit", (e) => {
+              form.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
+                const nik = form.querySelector('[name="nik"]').value;
+                const nip = form.querySelector('[name="nip"]').value;
+                const id_pelatihan = form.querySelector('[name="id_pelatihan"]').value;
+
+                if (!id_pelatihan) {
+                  alert("Silakan pilih pelatihan.");
+                  return;
+                }
+
+                // ======================
+                // CEK DUPLIKAT
+                // ======================
+                const cek = await fetch(`http://localhost:5000/api/pendaftaran/check-duplikat?id_pelatihan=${id_pelatihan}&nik=${nik}&nip=${nip}`);
+                const cekData = await cek.json();
+
+                if (cekData.duplicate) {
+                  alert("❌ Peserta dengan NIK dan NIP ini sudah terdaftar di pelatihan ini.");
+                  return;
+                }
+                
                 // Validasi Foto 4x6
                 const file = document.getElementById("foto_4x6").files[0];
                 if (!file) return alert("Foto 4x6 wajib diupload.");

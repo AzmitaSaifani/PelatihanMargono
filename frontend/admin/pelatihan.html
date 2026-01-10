@@ -143,11 +143,6 @@
                 />
               </div>
 
-              <div class="col-md-6">
-                <label class="form-label">Narasumber</label>
-                <input type="text" name="narasumber" class="form-control" />
-              </div>
-
               <div class="col-md-12">
                 <label class="form-label">Jumlah JPL</label>
                 <textarea name="jumlah_jpl" class="form-control"></textarea>
@@ -353,7 +348,6 @@
                 <th>Flyer</th>
                 <th>Lokasi</th>
                 <th>Alamat Lengkap</th>
-                <th>Narasumber</th>
                 <th>Tanggal Mulai</th>
                 <th>Tanggal Selesai</th>
                 <th>Waktu Mulai</th>
@@ -452,7 +446,6 @@
                 </td>
                 <td>${item.lokasi ?? "-"}</td>
                 <td>${item.alamat_lengkap ?? "-"}</td>
-                <td>${item.narasumber ?? "-"}</td>
                 <td>${formatTanggal(item.tanggal_mulai)}</td>
                 <td>${formatTanggal(item.tanggal_selesai)}</td>
                 <td>${formatWaktu(item.waktu_mulai)}</td>

@@ -1,4 +1,5 @@
 import { sendEmail } from "../../utils/email.js";
+import { decryptId } from "../../routes/auth//token.js";
 import express from "express";
 import connection from "../../config/db.js";
 import multer from "multer";
@@ -23,11 +24,20 @@ const upload = multer({ storage });
 
 /* CREATE PEMBAYARAN + EMAIL PENDING */
 router.post("/", upload.single("bukti_transfer"), (req, res) => {
-  const { id_pendaftaran } = req.body;
+  const { token } = req.body;
 
-  if (!id_pendaftaran) {
+  if (!token) {
     return res.status(400).json({
-      message: "ID pendaftaran wajib dikirim",
+      message: "token pendaftaran wajib dikirim",
+    });
+  }
+
+  let id_pendaftaran;
+  try {
+    id_pendaftaran = decryptId(token);
+  } catch {
+    return res.status(403).json({
+      message: "Token tidak valid",
     });
   }
 

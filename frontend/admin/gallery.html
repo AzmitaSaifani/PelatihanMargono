@@ -147,6 +147,16 @@
               </div>
 
               <div class="col-md-6">
+                <label class="form-label">Kategori *</label>
+                <select name="kategori" class="form-control" required>
+                  <option value="">-- Pilih Kategori --</option>
+                  <option value="sarpras">Sarpras</option>
+                  <option value="diskusi">Diskusi</option>
+                  <option value="pelatihan">Pelatihan</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
                 <label class="form-label">Status</label>
                 <select name="status" class="form-control">
                   <option value="1">Aktif</option>
@@ -184,6 +194,15 @@
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Gallery</div>
 
+        <div class="col-md-4">
+          <select id="filterKategori" class="form-control">
+            <option value="">Semua Kategori</option>
+            <option value="sarpras">Sarpras</option>
+            <option value="diskusi">Diskusi</option>
+            <option value="pelatihan">Pelatihan</option>
+          </select>
+        </div>
+
         <div class="col-md-4 mt-3">
           <input
             type="text"
@@ -200,6 +219,7 @@
                 <th>No</th>
                 <th>Foto</th>
                 <th>Keterangan</th>
+                <th>Kategori</th>
                 <th>Status</th>
                 <th>Aksi</th>
               </tr>
@@ -232,7 +252,10 @@
 
         // LOAD DATA
         async function loadGallery() {
+          const kategori = document.getElementById("filterKategori").value;
           const res = await fetch(`${API}?admin=1`);
+          if (kategori) url += `&kategori=${kategori}`;
+
           const data = await res.json();
 
           tableBody.innerHTML = "";
@@ -247,6 +270,15 @@
                   }" class="thumb-foto" style="width:70px;height:70px;object-fit:cover";>
                 </td>
                 <td>${item.keterangan ?? "-"}</td>
+                <td><span class="badge bg-${
+                  item.kategori === "sarpras"
+                    ? "secondary"
+                    : item.kategori === "diskusi"
+                    ? "primary"
+                    : "info"
+                }">
+                  ${item.kategori}
+                </span></td>
                 <td>
                   <span class="badge bg-${
                     item.status == 1 ? "success" : "secondary"
@@ -269,6 +301,10 @@
         }
 
         loadGallery();
+
+        document
+          .getElementById("filterKategori")
+          .addEventListener("change", loadGallery);
 
         // CREATE
         formGallery.addEventListener("submit", async (e) => {
