@@ -257,6 +257,7 @@
 
                     <!-- ID Pendaftaran (WAJIB, dari URL) -->
                     <input type="hidden" name="id_pendaftaran" id="id_pendaftaran">
+                    <input type="hidden" name="token" id="token">
 
                     <!-- Pilih Pelatihan -->
                     <div class="col-md-12">
@@ -362,21 +363,18 @@
                 return;
               }
 
-              fetch(`http://localhost:5000/api/pendaftaran/${idPendaftaran}/cek-upload`)
-                .then(function (res) {
-                  if (!res.ok) {
-                    return res.json().then(function (data) {
-                      throw new Error(data.message || "Akses ditolak");
-                    });
-                  }
-                  return res.json();
+              fetch(`http://localhost:5000/api/pendaftaran/validate-token/${token}`)
+                .then(async (res) => {
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.message);
+                  return data;
                 })
-                .then(function () {
-                  // isi hidden input jika lolos validasi
-                  document.getElementById("id_pendaftaran").value = idPendaftaran;
+                .then((data) => {
+                  document.getElementById("id_pendaftaran").value = data.id_pendaftaran;
+                  document.getElementById("token").value = token;
                 })
-                .catch(function () {
-                  alert("Halaman tidak dapat diakses.");
+                .catch((err) => {
+                  alert(err.message || "Akses ditolak");
                   window.location.href = "index.html";
                 });
 

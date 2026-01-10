@@ -145,11 +145,8 @@
               <option value="Menunggu Verifikasi Berkas">
                 Menunggu Verifikasi Berkas
               </option>
-              <option value="Menunggu Pembayaran">Menunggu Pembayaran</option>
+              <option value="Verifikasi Berkas Valid">Berkas Valid</option>
               <option value="Verifikasi Berkas Invalid">Berkas Invalid</option>
-              <option value="Verifikasi Pembayaran Invalid">
-                Pembayaran Invalid
-              </option>
               <option value="Diterima">Diterima</option>
             </select>
           </div>
@@ -203,6 +200,21 @@
         const API = "http://localhost:5000/api/pendaftaran";
         let allData = [];
 
+        // PRIORITAS STATUS UNTUK SORTING TABEL
+        const statusPriority = {
+          "Menunggu Verifikasi Berkas": 1,
+          "Menunggu Pembayaran": 2,
+          "Verifikasi Berkas Invalid": 3,
+          "Verifikasi Pembayaran Invalid": 3,
+          Diterima: 4,
+        };
+
+        const lockedBerkasStatus = [
+          "Menunggu Pembayaran",
+          "Verifikasi Pembayaran Invalid",
+          "Diterima",
+        ];
+
         const tableBody = document.getElementById("tablePendaftaran");
         const filterPelatihan = document.getElementById("filterPelatihan");
         const filterNama = document.getElementById("filterNama");
@@ -251,15 +263,24 @@
 
           if (data.length === 0) {
             tableBody.innerHTML = `
-                  <tr>
-                    <td colspan="13" class="text-center text-muted">
-                      Data tidak ditemukan
-                    </td>
-                  </tr>`;
+            <tr>
+              <td colspan="13" class="text-center text-muted">
+                Data tidak ditemukan
+              </td>
+            </tr>`;
             return;
           }
 
-          data.forEach((item, index) => {
+          // ================================
+          // SORT BERDASARKAN PRIORITAS STATUS
+          // ================================
+          const sorted = [...data].sort((a, b) => {
+            const pa = statusPriority[a.status] || 99;
+            const pb = statusPriority[b.status] || 99;
+            return pa - pb;
+          });
+
+          sorted.forEach((item, index) => {
             const badgeClass =
               item.status === "Menunggu Verifikasi Berkas"
                 ? "warning"
@@ -308,29 +329,23 @@
                   </td>
 
                   <td>
-                    <button class="btn btn-success btn-sm" onclick="verifikasiValid(${
-                      item.id_pendaftaran
-                    })">
-                      Berkas Valid
-                    </button>
+                    ${
+                      lockedBerkasStatus.includes(item.status)
+                        ? `
+                          <button class="btn btn-secondary btn-sm" disabled>
+                            Verifikasi Berkas
+                          </button>
+                        `
+                        : `
+                          <button class="btn btn-success btn-sm" onclick="verifikasiValid(${item.id_pendaftaran})">
+                            Berkas Valid
+                          </button>
 
-                    <button class="btn btn-danger btn-sm" onclick="verifikasiInvalid(${
-                      item.id_pendaftaran
-                    })">
-                      Berkas Tidak Valid
-                    </button>
-
-                    <button class="btn btn-success btn-sm" onclick="paymentValid(${
-                      item.id_pendaftaran
-                    })">
-                      Pembayaran Valid
-                    </button>
-
-                    <button class="btn btn-danger btn-sm" onclick="paymentInvalid(${
-                      item.id_pendaftaran
-                    })">
-                      Pembayaran Tidak Valid
-                    </button>
+                          <button class="btn btn-danger btn-sm" onclick="verifikasiInvalid(${item.id_pendaftaran})">
+                            Berkas Tidak Valid
+                          </button>
+                        `
+                    }
 
                     <button class="btn btn-danger btn-sm" onclick="hapusPendaftaran(${
                       item.id_pendaftaran
@@ -338,6 +353,7 @@
                       Hapus
                     </button>
                   </td>
+
                 </tr>
               `;
           });
@@ -408,29 +424,6 @@
         window.verifikasiInvalid = async (id) => {
           if (!confirm("Tandai berkas TIDAK VALID?")) return;
           const res = await fetch(`${API}/${id}/reject`, { method: "PUT" });
-          const data = await res.json();
-          alert(data.message);
-          loadPendaftaran();
-        };
-
-        // =====================================================
-        // VERIFIKASI PEMBAYARAN
-        // =====================================================
-        window.paymentValid = async (id) => {
-          if (!confirm("Pembayaran valid & peserta diterima?")) return;
-          const res = await fetch(`${API}/${id}/payment-valid`, {
-            method: "PUT",
-          });
-          const data = await res.json();
-          alert(data.message);
-          loadPendaftaran();
-        };
-
-        window.paymentInvalid = async (id) => {
-          if (!confirm("Pembayaran TIDAK VALID?")) return;
-          const res = await fetch(`${API}/${id}/payment-invalid`, {
-            method: "PUT",
-          });
           const data = await res.json();
           alert(data.message);
           loadPendaftaran();

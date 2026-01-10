@@ -557,7 +557,7 @@
                 const cekData = await cek.json();
 
                 if (cekData.duplicate) {
-                  alert("❌ Peserta dengan NIK dan NIP ini sudah terdaftar di pelatihan ini.");
+                  showDuplicateModal(cekData.message);
                   return;
                 }
                 
@@ -575,6 +575,15 @@
 
                 modalKonfirmasi.show();
               });
+
+              function showDuplicateModal(msg) {
+                document.getElementById("duplikatMessage").innerText = msg;
+                const modal = new bootstrap.Modal(
+                  document.getElementById("modalDuplikat")
+                );
+                modal.show();
+              }
+
 
               // ==========================
               // KONFIRMASI SUBMIT
@@ -703,6 +712,35 @@
               </div>
             </div>
           </div>
+
+           <!-- ========================================= -->
+            <!-- MODAL DUPLIKAT PENDAFTARAN -->
+            <!-- ========================================= -->
+            <div
+              class="modal fade"
+              id="modalDuplikat"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Data Duplikat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <p id="duplikatMessage" class="mb-0"></p>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                      Tutup
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
         <!-- Process Steps -->
             <div class="process-steps mt-5" data-aos="fade-up" data-aos-delay="300">

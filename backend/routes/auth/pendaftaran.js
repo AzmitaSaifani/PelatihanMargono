@@ -50,6 +50,48 @@ const upload = multer({
   limits: { fileSize: 1 * 1024 * 1024 }, // 1 MB
 });
 
+// ========================================================
+// CEK DUPLIKAT NIK / NIP PADA PELATIHAN YANG SAMA
+// ========================================================
+router.get("/check-duplikat", (req, res) => {
+  const { id_pelatihan, nik, nip } = req.query;
+
+  if (!id_pelatihan || !nik || !nip) {
+    return res.status(400).json({
+      message: "Parameter id_pelatihan, nik, dan nip wajib diisi",
+    });
+  }
+
+  const sql = `
+    SELECT id_pendaftaran
+    FROM pendaftaran_tb
+    WHERE id_pelatihan = ?
+      AND (nik = ? OR nip = ?)
+    LIMIT 1
+  `;
+
+  connection.query(sql, [id_pelatihan, nik, nip], (err, rows) => {
+    if (err) {
+      console.error("❌ Error cek duplikat:", err);
+      return res.status(500).json({
+        message: "Gagal mengecek data duplikat",
+      });
+    }
+
+    if (rows.length > 0) {
+      return res.json({
+        duplicate: true,
+        message: "NIK atau NIP sudah terdaftar pada pelatihan yang sama",
+      });
+    }
+
+    res.json({
+      duplicate: false,
+      message: "Data belum terdaftar, boleh lanjut",
+    });
+  });
+});
+
 // ======================
 // GET Semua Pendaftaran (ADMIN)
 // ======================
@@ -470,6 +512,7 @@ router.delete("/:id", (req, res) => {
   });
 });
 
+
 // ========================================================
 // STATUS: BERKAS VALID → MENUNGGU PEMBAYARAN + EMAIL
 // ========================================================
@@ -574,6 +617,46 @@ router.put("/:id/accept", (req, res) => {
 });
 
 // ========================================================
+// VALIDASI TOKEN UNTUK HALAMAN UPLOAD PEMBAYARAN
+// ========================================================
+router.get("/validate-token/:token", (req, res) => {
+  const { token } = req.params;
+
+  let id_pendaftaran;
+  try {
+    id_pendaftaran = decryptId(token);
+  } catch {
+    return res.status(403).json({ message: "Token tidak valid" });
+  }
+
+  const sql = `
+    SELECT id_pendaftaran, status
+    FROM pendaftaran_tb
+    WHERE id_pendaftaran = ?
+  `;
+
+  connection.query(sql, [id_pendaftaran], (err, rows) => {
+    if (err) return res.status(500).json({ message: "Server error" });
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Data tidak ditemukan" });
+    }
+
+    if (rows[0].status !== "Menunggu Pembayaran") {
+      return res.status(403).json({
+        message: "Pembayaran hanya dapat dilakukan jika status Menunggu Pembayaran",
+      });
+    }
+
+    res.json({
+      ok: true,
+      id_pendaftaran,
+    });
+  });
+});
+
+
+// ========================================================
 //  STATUS: REJECT (VERIFIKASI BERKAS INVALID + EMAIL)
 // ========================================================
 router.put("/:id/reject", (req, res) => {
@@ -655,212 +738,6 @@ router.put("/:id/reject", (req, res) => {
       res.json({
         message: "❌ Berkas dinyatakan tidak valid & email terkirim",
         status: "Verifikasi Berkas Invalid",
-      });
-    });
-  });
-});
-
-// ========================================================
-// STATUS: PEMBAYARAN VALID → DITERIMA + EMAIL
-// ========================================================
-router.put("/:id/payment-valid", (req, res) => {
-  const { id } = req.params;
-
-  // 1. Ambil data peserta
-  const getPesertaSQL = `
-    SELECT nama_peserta, email
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
-  `;
-
-  connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
-    if (err) {
-      console.error("❌ Error ambil data peserta:", err);
-      return res.status(500).json({ message: "Gagal mengambil data peserta" });
-    }
-
-    if (pesertaRes.length === 0) {
-      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
-    }
-
-    const { nama_peserta, email } = pesertaRes[0];
-
-    // 2. Update status → DITERIMA
-    const updateStatusSQL = `
-      UPDATE pendaftaran_tb
-      SET status = 'Diterima'
-      WHERE id_pendaftaran = ?
-    `;
-
-    connection.query(updateStatusSQL, [id], async (err) => {
-      if (err) {
-        console.error("❌ Error update status pembayaran:", err);
-        return res
-          .status(500)
-          .json({ message: "Gagal update status pembayaran" });
-      }
-
-      // 3. Kirim email konfirmasi diterima
-      try {
-        await sendEmail({
-          to: email,
-          subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
-          html: `
-            <p>Yth. <b>${nama_peserta}</b>,</p>
-
-            <p>
-              Terima kasih atas konfirmasi pembayaran yang telah Anda lakukan.
-            </p>
-
-            <p>
-              Kami informasikan bahwa <b>pembayaran Anda telah kami terima dan valid</b>.
-              Dengan demikian, <b>pendaftaran Anda dinyatakan DITERIMA</b>.
-            </p>
-
-            <p>
-              Informasi lanjutan terkait pelaksanaan pelatihan
-              (jadwal, teknis, dan ketentuan lainnya)
-              akan kami sampaikan melalui grup WhatsApp pelatihan, 
-            </p>
-
-            <p>
-              Status pendaftaran Anda saat ini:
-              <b>DITERIMA</b>
-            </p>
-
-            <br>
-            <p>
-              Hormat kami,<br>
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-            </p>
-          `,
-        });
-
-        console.log("📧 Email pembayaran valid terkirim ke:", email);
-      } catch (emailErr) {
-        console.error("⚠️ Email gagal dikirim:", emailErr.message);
-      }
-
-      // 4. Response frontend
-      res.json({
-        message:
-          "✅ Pembayaran valid. Status peserta DITERIMA & email terkirim",
-        status: "Diterima",
-      });
-    });
-  });
-});
-
-// ========================================================
-// STATUS: PEMBAYARAN INVALID + EMAIL
-// ========================================================
-router.put("/:id/payment-invalid", (req, res) => {
-  const { id } = req.params;
-
-  // 1. Ambil data peserta
-  const getPesertaSQL = `
-    SELECT 
-      d.nama_peserta,
-      d.email,
-      d.harga_pelatihan,
-      p.nama_pelatihan
-    FROM pendaftaran_tb d
-    JOIN pelatihan_tb p
-      ON d.id_pelatihan = p.id_pelatihan
-    WHERE d.id_pendaftaran = ?
-  `;
-
-  connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
-    if (err) {
-      console.error("❌ Error ambil data peserta:", err);
-      return res.status(500).json({ message: "Gagal mengambil data peserta" });
-    }
-
-    if (pesertaRes.length === 0) {
-      return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
-    }
-
-    const { nama_peserta, email, harga_pelatihan, nama_pelatihan } =
-      pesertaRes[0];
-
-    // 2. Update status pembayaran invalid
-    const updateStatusSQL = `
-      UPDATE pendaftaran_tb
-      SET status = 'Verifikasi Pembayaran Invalid'
-      WHERE id_pendaftaran = ?
-    `;
-
-    connection.query(updateStatusSQL, [id], async (err) => {
-      if (err) {
-        console.error("❌ Error update status pembayaran:", err);
-        return res
-          .status(500)
-          .json({ message: "Gagal update status pembayaran" });
-      }
-
-      // 3. Kirim email ke peserta
-      try {
-        await sendEmail({
-          to: email,
-          subject: "Informasi Verifikasi Pembayaran Pelatihan",
-          html: `
-            <p>Yth. <b>${nama_peserta}</b>,</p>
-
-            <p>
-              Terima kasih telah melakukan pembayaran untuk pelatihan di
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
-            </p>
-
-            <p>
-              Setelah dilakukan verifikasi, kami informasikan bahwa
-              <b>bukti pembayaran Anda belum dapat kami validasi</b>.
-            </p>
-
-            <p>
-              <b>Detail Pelatihan:</b><br>
-              Nama Pelatihan: <b>${nama_pelatihan}</b><br>
-              Biaya Pelatihan: <b>Rp ${Number(harga_pelatihan).toLocaleString(
-                "id-ID"
-              )}</b>
-            </p>
-
-            <p>
-              Hal ini dapat disebabkan oleh:
-              <ul>
-                <li>Nominal pembayaran tidak sesuai</li>
-                <li>Bukti pembayaran kurang jelas</li>
-                <li>Data transfer tidak terbaca</li>
-              </ul>
-            </p>
-
-            <p>
-              Silakan melakukan <b>upload ulang bukti pembayaran</b>
-              sesuai instruksi yang akan kami sampaikan selanjutnya.
-            </p>
-
-            <p>
-              Status pendaftaran Anda saat ini:
-              <b>Verifikasi Pembayaran Invalid</b>
-            </p>
-
-            <br>
-            <p>
-              Hormat kami,<br>
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-            </p>
-          `,
-        });
-
-        console.log("📧 Email pembayaran invalid terkirim ke:", email);
-      } catch (emailErr) {
-        console.error("⚠️ Email gagal dikirim:", emailErr.message);
-      }
-
-      // 4. Response ke frontend
-      res.json({
-        message:
-          "❌ Pembayaran tidak valid. Status diperbarui & email terkirim",
-        status: "Verifikasi Pembayaran Invalid",
       });
     });
   });
