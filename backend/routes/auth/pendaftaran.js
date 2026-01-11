@@ -1,4 +1,5 @@
 // backend/routes/auth/pendaftaran.js
+import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
 import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
@@ -512,7 +513,6 @@ router.delete("/:id", (req, res) => {
   });
 });
 
-
 // ========================================================
 // STATUS: BERKAS VALID → MENUNGGU PEMBAYARAN + EMAIL
 // ========================================================
@@ -607,6 +607,15 @@ router.put("/:id/accept", (req, res) => {
         console.error("Email gagal dikirim:", emailErr.message);
       }
 
+      logAdmin({
+        id_user: req.headers["x-admin-id"],
+        email: req.headers["x-admin-email"],
+        nama_lengkap: req.headers["x-admin-nama"],
+        aktivitas: "AKSI",
+        keterangan: `Verifikasi berkas VALID untuk ID ${id} (${nama_peserta})`,
+        req,
+      });
+
       res.json({
         message:
           "✅ Berkas valid. Status diubah ke Menunggu Pembayaran & email terkirim",
@@ -644,7 +653,8 @@ router.get("/validate-token/:token", (req, res) => {
 
     if (rows[0].status !== "Menunggu Pembayaran") {
       return res.status(403).json({
-        message: "Pembayaran hanya dapat dilakukan jika status Menunggu Pembayaran",
+        message:
+          "Pembayaran hanya dapat dilakukan jika status Menunggu Pembayaran",
       });
     }
 
@@ -654,7 +664,6 @@ router.get("/validate-token/:token", (req, res) => {
     });
   });
 });
-
 
 // ========================================================
 //  STATUS: REJECT (VERIFIKASI BERKAS INVALID + EMAIL)
@@ -734,6 +743,15 @@ router.put("/:id/reject", (req, res) => {
         console.error("⚠️ Email gagal dikirim:", emailErr.message);
       }
 
+      logAdmin({
+        id_user: req.headers["x-admin-id"],
+        email: req.headers["x-admin-email"],
+        nama_lengkap: req.headers["x-admin-nama"],
+        aktivitas: "AKSI",
+        keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
+        req,
+      });
+
       // 4. Response ke frontend
       res.json({
         message: "❌ Berkas dinyatakan tidak valid & email terkirim",
@@ -766,12 +784,12 @@ router.get("/export/excel", async (req, res) => {
     }
 
     if (tahun) {
-      where.push("YEAR(daftar.created_at) = ?");
+      where.push("YEAR(daftar.tanggal_daftar) = ?");
       params.push(tahun);
     }
 
     if (tanggal_mulai && tanggal_selesai) {
-      where.push("DATE(daftar.created_at) BETWEEN ? AND ?");
+      where.push("DATE(daftar.tanggal_daftar) BETWEEN ? AND ?");
       params.push(tanggal_mulai, tanggal_selesai);
     }
 

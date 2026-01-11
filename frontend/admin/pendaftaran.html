@@ -200,6 +200,15 @@
         const API = "http://localhost:5000/api/pendaftaran";
         let allData = [];
 
+        // ================================
+        // HEADER IDENTITAS ADMIN
+        // ================================
+        const ADMIN_HEADERS = {
+          "x-admin-id": localStorage.getItem("admin_id"),
+          "x-admin-email": localStorage.getItem("admin_email"),
+          "x-admin-nama": localStorage.getItem("admin_nama"),
+        };
+
         // PRIORITAS STATUS UNTUK SORTING TABEL
         const statusPriority = {
           "Menunggu Verifikasi Berkas": 1,
@@ -250,9 +259,22 @@
         // LOAD DATA PENDAFTARAN
         // ==========================================
         async function loadPendaftaran() {
-          const res = await fetch(API);
-          allData = await res.json();
-          renderTable(allData);
+          try {
+            const res = await fetch(API);
+            const data = await res.json();
+
+            if (!res.ok || !Array.isArray(data)) {
+              console.error("API Error:", data);
+              alert("Gagal mengambil data pendaftaran.");
+              return;
+            }
+
+            allData = data;
+            renderTable(allData);
+          } catch (err) {
+            console.error("Fetch error:", err);
+            alert("Server tidak merespons.");
+          }
         }
 
         // =====================================================
@@ -385,7 +407,7 @@
 
           if (tanggalMulai.value) {
             filtered = filtered.filter((d) => {
-              const tgl = d.created_at.split("T")[0];
+              const tgl = d.tanggal_daftar.split(" ")[0];
               return tgl >= tanggalMulai.value;
             });
           }
@@ -415,7 +437,11 @@
         // =====================================================
         window.verifikasiValid = async (id) => {
           if (!confirm("Berkas valid & kirim instruksi pembayaran?")) return;
-          const res = await fetch(`${API}/${id}/accept`, { method: "PUT" });
+
+          const res = await fetch(`${API}/${id}/accept`, {
+            method: "PUT",
+            headers: ADMIN_HEADERS,
+          });
           const data = await res.json();
           alert(data.message);
           loadPendaftaran();
@@ -423,7 +449,10 @@
 
         window.verifikasiInvalid = async (id) => {
           if (!confirm("Tandai berkas TIDAK VALID?")) return;
-          const res = await fetch(`${API}/${id}/reject`, { method: "PUT" });
+          const res = await fetch(`${API}/${id}/reject`, {
+            method: "PUT",
+            headers: ADMIN_HEADERS,
+          });
           const data = await res.json();
           alert(data.message);
           loadPendaftaran();
@@ -469,7 +498,7 @@
 
           if (tanggalMulai.value) {
             filtered = filtered.filter((d) => {
-              const tgl = d.created_at.split("T")[0];
+              const tgl = d.tanggal_daftar.split("T")[0];
               return tgl >= tanggalMulai.value;
             });
           }

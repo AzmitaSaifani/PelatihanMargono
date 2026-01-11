@@ -196,6 +196,24 @@
         const API = "http://localhost:5000/api/pembayaran";
         let allData = [];
 
+        // ================================
+        // HEADER IDENTITAS ADMIN (WAJIB)
+        // ================================
+        const ADMIN_HEADERS = {
+          "x-admin-id": localStorage.getItem("admin_id"),
+          "x-admin-email": localStorage.getItem("admin_email"),
+          "x-admin-nama": localStorage.getItem("admin_nama"),
+        };
+
+        // ================================
+        // PRIORITAS STATUS PEMBAYARAN
+        // ================================
+        const statusPriority = {
+          PENDING: 1, // butuh aksi admin
+          INVALID: 2, // perlu perhatian
+          VALID: 3, // sudah selesai
+        };
+
         const tableBody = document.getElementById("tablePembayaran");
         const pelatihan = document.getElementById("filterPelatihan")?.value;
         const status = document.getElementById("filterStatus")?.value;
@@ -249,7 +267,14 @@
                   </tr>`;
             return;
           }
-          data.forEach((item, index) => {
+
+          const sorted = [...data].sort((a, b) => {
+            const pa = statusPriority[a.status_bayar] || 99;
+            const pb = statusPriority[b.status_bayar] || 99;
+            return pa - pb;
+          });
+          
+          sorted.forEach((item, index) => {
             const badgeClass =
               item.status_bayar === "PENDING"
                 ? "warning"
@@ -365,6 +390,7 @@
 
           const res = await fetch(`${API}/${id}/validate`, {
             method: "PUT",
+            headers: ADMIN_HEADERS,
           });
 
           const data = await res.json();
@@ -380,6 +406,7 @@
 
           const res = await fetch(`${API}/${id}/invalid`, {
             method: "PUT",
+            headers: ADMIN_HEADERS,
           });
 
           const data = await res.json();

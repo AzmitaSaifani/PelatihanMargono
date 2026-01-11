@@ -4,6 +4,20 @@ import db from "../../config/db.js";
 
 const router = express.Router();
 
+// ===============================
+// HELPER: Ambil IP & Browser Admin
+// ===============================
+function getClientInfo(req) {
+  return {
+    ip:
+      req.headers["x-forwarded-for"] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      null,
+    userAgent: req.headers["user-agent"] || null,
+  };
+}
+
 router.post("/", (req, res) => {
   const { email, password } = req.body;
 
@@ -41,14 +55,33 @@ router.post("/", (req, res) => {
       user.id_user,
     ]);
 
-    // 📌 LOGIN SUKSES
+    // ===============================
+    // SIMPAN LOG ADMIN
+    // ===============================
+    const client = getClientInfo(req);
+
+    const logSQL = `
+      INSERT INTO log_admin
+      (id_user, email, nama_lengkap, ip_address, user_agent, aktivitas, keterangan)
+      VALUES (?, ?, ?, ?, ?, 'LOGIN', 'Admin login berhasil')
+    `;
+
+    db.query(logSQL, [
+      user.id_user,
+      user.email,
+      user.nama_lengkap,
+      client.ip,
+      client.userAgent,
+    ]);
+
+    // Response
     res.json({
       message: "Login Admin Berhasil!",
       admin: {
         id_user: user.id_user,
         email: user.email,
         nama_lengkap: user.nama_lengkap,
-        level: user.level_user, // 1 = admin
+        level: user.level_user,
         loginTime: Date.now(),
         lastActive: Date.now(),
       },

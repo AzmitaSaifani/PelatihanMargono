@@ -1,3 +1,4 @@
+import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
 import { decryptId } from "../../routes/auth//token.js";
 import express from "express";
@@ -276,6 +277,15 @@ router.put("/:id/validate", (req, res) => {
           console.error("⚠️ Email gagal dikirim:", emailErr.message);
         }
 
+        logAdmin({
+          id_user: req.headers["x-admin-id"],
+          email: req.headers["x-admin-email"],
+          nama_lengkap: req.headers["x-admin-nama"],
+          aktivitas: "AKSI",
+          keterangan: `Validasi pembayaran VALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
+          req,
+        });
+
         res.json({
           message:
             "✅ Pembayaran valid. Status peserta DITERIMA & email terkirim",
@@ -391,6 +401,15 @@ router.put("/:id/invalid", (req, res) => {
         } catch (emailErr) {
           console.error("⚠️ Email gagal dikirim:", emailErr);
         }
+
+        logAdmin({
+          id_user: req.headers["x-admin-id"],
+          email: req.headers["x-admin-email"],
+          nama_lengkap: req.headers["x-admin-nama"],
+          aktivitas: "AKSI",
+          keterangan: `Validasi pembayaran INVALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
+          req,
+        });
 
         res.json({
           message: `⚠️ Pembayaran ditandai INVALID. ${emailStatus}`,
