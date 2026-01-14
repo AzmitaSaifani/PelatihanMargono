@@ -1,5 +1,6 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
+import { logEmail } from "../../utils/emailLogger.js";
 import { decryptId } from "../../routes/auth//token.js";
 import express from "express";
 import connection from "../../config/db.js";
@@ -51,10 +52,10 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
   const bukti_transfer = req.file.filename;
 
   const sqlCari = `
-    SELECT nama_peserta, email, status
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
-  `;
+      SELECT nama_peserta, email, status
+      FROM pendaftaran_tb
+      WHERE id_pendaftaran = ?
+    `;
 
   connection.query(sqlCari, [id_pendaftaran], async (err, hasil) => {
     if (err) {
@@ -81,10 +82,10 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
     const { nama_peserta, email } = hasil[0];
 
     const sqlInsert = `
-      INSERT INTO pembayaran_tb
-      (id_pendaftaran, bukti_transfer, status, uploaded_at)
-      VALUES (?, ?, 'PENDING', NOW())
-    `;
+        INSERT INTO pembayaran_tb
+        (id_pendaftaran, bukti_transfer, status, uploaded_at)
+        VALUES (?, ?, 'PENDING', NOW())
+      `;
 
     connection.query(
       sqlInsert,
@@ -97,48 +98,66 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
         }
 
         // =====================
-        // KIRIM EMAIL PENDING
+        // KIRIM EMAIL PENDING + LOG
         // =====================
-        let emailStatus = "Email gagal dikirim";
+        let emailStatus = "GAGAL";
 
         try {
           const sent = await sendEmail({
             to: email,
             subject: "Konfirmasi Penerimaan Bukti Pembayaran",
             html: `
-                <p>Yth. <b>${nama_peserta}</b>,</p>
+                  <p>Yth. <b>${nama_peserta}</b>,</p>
 
-                <p>
-                  Terima kasih. Bukti pembayaran Anda telah kami terima
-                  dan saat ini sedang dalam proses <b>verifikasi oleh tim kami</b>.
-                </p>
+                  <p>
+                    Terima kasih. Bukti pembayaran Anda telah kami terima
+                    dan saat ini sedang dalam proses <b>verifikasi oleh tim kami</b>.
+                  </p>
 
-                <p>
-                  Status pembayaran Anda saat ini:
-                  <b>PENDING (Menunggu Verifikasi Pembayaran)</b>.
-                </p>
+                  <p>
+                    Status pembayaran Anda saat ini:
+                    <b>PENDING (Menunggu Verifikasi Pembayaran)</b>.
+                  </p>
 
-                <p>
-                  Hasil verifikasi akan kami informasikan melalui email
-                  setelah proses pengecekan selesai.
-                </p>
+                  <p>
+                    Hasil verifikasi akan kami informasikan melalui email
+                    setelah proses pengecekan selesai.
+                  </p>
 
-                <br>
-                <p>
-                  Hormat kami,<br>
-                  <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-                </p>
-              `,
+                  <br>
+                  <p>
+                    Hormat kami,<br>
+                    <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+                  </p>
+                `,
           });
 
-          if (sent) emailStatus = "Email konfirmasi terkirim";
-        } catch (errEmail) {
-          console.error("⚠️ Email PENDING gagal:", errEmail);
-        }
+          if (sent) emailStatus = "TERKIRIM";
 
-        res.status(201).json({
-          message: `Bukti pembayaran berhasil diupload. ${emailStatus}`,
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_PENDING",
+            subject: "Konfirmasi Penerimaan Bukti Pembayaran",
+            status: emailStatus,
+          });
+        } catch (errEmail) {
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_PENDING",
+            subject: "Konfirmasi Penerimaan Bukti Pembayaran",
+            status: "GAGAL",
+            error_message: errEmail.message,
+          });
+        }
+        return res.status(201).json({
+          success: true,
+          message: "Bukti pembayaran berhasil diupload dan sedang diverifikasi",
           id_pembayaran: result.insertId,
+          status: "PENDING",
         });
       }
     );
@@ -148,26 +167,26 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
 /* GET ALL */
 router.get("/", (req, res) => {
   const sql = `
-    SELECT 
-    bayar.id_pembayaran,
-    bayar.id_pendaftaran,
-    bayar.bukti_transfer,
-    bayar.status AS status_bayar,
-    bayar.uploaded_at,
-    daftar.nama_peserta,
-    daftar.no_wa,
-    daftar.email,
-    daftar.harga_pelatihan,
-    pel.id_pelatihan,
-    pel.nama_pelatihan
-  FROM pembayaran_tb bayar
-  LEFT JOIN pendaftaran_tb daftar 
-    ON bayar.id_pendaftaran = daftar.id_pendaftaran
-  LEFT JOIN pelatihan_tb pel 
-    ON daftar.id_pelatihan = pel.id_pelatihan
-  ORDER BY bayar.id_pembayaran DESC
+      SELECT 
+      bayar.id_pembayaran,
+      bayar.id_pendaftaran,
+      bayar.bukti_transfer,
+      bayar.status AS status_bayar,
+      bayar.uploaded_at,
+      daftar.nama_peserta,
+      daftar.no_wa,
+      daftar.email,
+      daftar.harga_pelatihan,
+      pel.id_pelatihan,
+      pel.nama_pelatihan
+    FROM pembayaran_tb bayar
+    LEFT JOIN pendaftaran_tb daftar 
+      ON bayar.id_pendaftaran = daftar.id_pendaftaran
+    LEFT JOIN pelatihan_tb pel 
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    ORDER BY bayar.id_pembayaran DESC
 
-  `;
+    `;
 
   connection.query(sql, (err, results) => {
     if (err)
@@ -187,15 +206,15 @@ router.put("/:id/validate", (req, res) => {
 
   // 1. Ambil data pembayaran + peserta
   const getDataSQL = `
-    SELECT 
-      bayar.id_pendaftaran,
-      daftar.nama_peserta,
-      daftar.email
-    FROM pembayaran_tb bayar
-    JOIN pendaftaran_tb daftar
-      ON bayar.id_pendaftaran = daftar.id_pendaftaran
-    WHERE bayar.id_pembayaran = ?
-  `;
+      SELECT 
+        bayar.id_pendaftaran,
+        daftar.nama_peserta,
+        daftar.email
+      FROM pembayaran_tb bayar
+      JOIN pendaftaran_tb daftar
+        ON bayar.id_pendaftaran = daftar.id_pendaftaran
+      WHERE bayar.id_pembayaran = ?
+    `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
     if (err) {
@@ -215,10 +234,10 @@ router.put("/:id/validate", (req, res) => {
 
     // 2. Update status pembayaran → VALID
     const updateBayarSQL = `
-      UPDATE pembayaran_tb
-      SET status = 'VALID'
-      WHERE id_pembayaran = ?
-    `;
+        UPDATE pembayaran_tb
+        SET status = 'VALID'
+        WHERE id_pembayaran = ?
+      `;
 
     connection.query(updateBayarSQL, [id], async (err) => {
       if (err) {
@@ -228,10 +247,10 @@ router.put("/:id/validate", (req, res) => {
 
       // 3. Update status pendaftaran → DITERIMA
       const updateDaftarSQL = `
-        UPDATE pendaftaran_tb
-        SET status = 'Diterima'
-        WHERE id_pendaftaran = ?
-      `;
+          UPDATE pendaftaran_tb
+          SET status = 'Diterima'
+          WHERE id_pendaftaran = ?
+        `;
 
       connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
         if (err) {
@@ -242,39 +261,58 @@ router.put("/:id/validate", (req, res) => {
         }
 
         // 4. Kirim email ke peserta
+        let emailStatus = "GAGAL";
+
         try {
-          await sendEmail({
+          const sent = await sendEmail({
             to: email,
             subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
             html: `
-              <p>Yth. <b>${nama_peserta}</b>,</p>
+                <p>Yth. <b>${nama_peserta}</b>,</p>
 
-              <p>
-                Terima kasih. Kami informasikan bahwa
-                <b>pembayaran Anda telah kami terima dan dinyatakan valid</b>.
-              </p>
+                <p>
+                  Terima kasih. Kami informasikan bahwa
+                  <b>pembayaran Anda telah kami terima dan dinyatakan valid</b>.
+                </p>
 
-              <p>
-                Dengan ini, status pendaftaran Anda dinyatakan:
-                <b>DITERIMA</b>.
-              </p>
+                <p>
+                  Dengan ini, status pendaftaran Anda dinyatakan:
+                  <b>DITERIMA</b>.
+                </p>
 
-              <p>
-                Informasi lebih lanjut mengenai jadwal dan teknis pelatihan
-                akan disampaikan melalui email berikutnya.
-              </p>
+                <p>
+                  Informasi lebih lanjut mengenai jadwal dan teknis pelatihan
+                  akan disampaikan melalui email berikutnya.
+                </p>
 
-              <br>
-              <p>
-                Hormat kami,<br>
-                <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-              </p>
-            `,
+                <br>
+                <p>
+                  Hormat kami,<br>
+                  <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+                </p>
+              `,
           });
 
-          console.log("📧 Email pembayaran valid terkirim ke:", email);
+          if (sent) emailStatus = "TERKIRIM";
+
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_VALID",
+            subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
+            status: emailStatus,
+          });
         } catch (emailErr) {
-          console.error("⚠️ Email gagal dikirim:", emailErr.message);
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_VALID",
+            subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
+            status: "GAGAL",
+            error_message: emailErr.message,
+          });
         }
 
         logAdmin({
@@ -303,15 +341,15 @@ router.put("/:id/invalid", (req, res) => {
 
   // 1. Ambil data peserta
   const getDataSQL = `
-    SELECT 
-      bayar.id_pendaftaran,
-      daftar.nama_peserta,
-      daftar.email
-    FROM pembayaran_tb bayar
-    JOIN pendaftaran_tb daftar
-      ON bayar.id_pendaftaran = daftar.id_pendaftaran
-    WHERE bayar.id_pembayaran = ?
-  `;
+      SELECT 
+        bayar.id_pendaftaran,
+        daftar.nama_peserta,
+        daftar.email
+      FROM pembayaran_tb bayar
+      JOIN pendaftaran_tb daftar
+        ON bayar.id_pendaftaran = daftar.id_pendaftaran
+      WHERE bayar.id_pembayaran = ?
+    `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
     if (err) {
@@ -331,10 +369,10 @@ router.put("/:id/invalid", (req, res) => {
 
     // 2. Update status pembayaran → INVALID
     const updateBayarSQL = `
-      UPDATE pembayaran_tb
-      SET status = 'INVALID'
-      WHERE id_pembayaran = ?
-    `;
+        UPDATE pembayaran_tb
+        SET status = 'INVALID'
+        WHERE id_pembayaran = ?
+      `;
 
     connection.query(updateBayarSQL, [id], async (err) => {
       if (err) {
@@ -346,10 +384,10 @@ router.put("/:id/invalid", (req, res) => {
 
       // 3. Update status pendaftaran (opsional tapi disarankan)
       const updateDaftarSQL = `
-        UPDATE pendaftaran_tb
-        SET status = 'Perlu Perbaikan'
-        WHERE id_pendaftaran = ?
-      `;
+          UPDATE pendaftaran_tb
+          SET status = 'Perlu Perbaikan'
+          WHERE id_pendaftaran = ?
+        `;
 
       connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
         if (err) {
@@ -360,46 +398,63 @@ router.put("/:id/invalid", (req, res) => {
         }
 
         // 4. Kirim email ke peserta
-        let emailStatus = "Email gagal dikirim";
+        let emailStatus = "GAGAL";
 
         try {
           const sent = await sendEmail({
             to: email,
             subject: "Informasi Pembayaran Belum Valid",
             html: `
-              <p>Yth. <b>${nama_peserta}</b>,</p>
+                <p>Yth. <b>${nama_peserta}</b>,</p>
 
-              <p>
-                Terima kasih atas partisipasi Anda dalam program pelatihan kami.
-                Setelah dilakukan verifikasi, kami informasikan bahwa
-                <b>bukti pembayaran yang Anda kirimkan belum dapat kami validasi</b>.
-              </p>
+                <p>
+                  Terima kasih atas partisipasi Anda dalam program pelatihan kami.
+                  Setelah dilakukan verifikasi, kami informasikan bahwa
+                  <b>bukti pembayaran yang Anda kirimkan belum dapat kami validasi</b>.
+                </p>
 
-              <p>
-                Hal ini dapat disebabkan oleh:
-                <ul>
-                  <li>Bukti transfer tidak jelas</li>
-                  <li>Nominal tidak sesuai</li>
-                  <li>Data pembayaran tidak lengkap</li>
-                </ul>
-              </p>
+                <p>
+                  Hal ini dapat disebabkan oleh:
+                  <ul>
+                    <li>Bukti transfer tidak jelas</li>
+                    <li>Nominal tidak sesuai</li>
+                    <li>Data pembayaran tidak lengkap</li>
+                  </ul>
+                </p>
 
-              <p>
-                Silakan melakukan unggah ulang bukti pembayaran yang valid
-                melalui sistem pendaftaran.
-              </p>
+                <p>
+                  Silakan melakukan unggah ulang bukti pembayaran yang valid
+                  melalui sistem pendaftaran.
+                </p>
 
-              <br>
-              <p>
-                Hormat kami,<br>
-                <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-              </p>
-            `,
+                <br>
+                <p>
+                  Hormat kami,<br>
+                  <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+                </p>
+              `,
           });
 
-          if (sent) emailStatus = "Email notifikasi terkirim";
+          if (sent) emailStatus = "TERKIRIM";
+
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_INVALID",
+            subject: "Informasi Pembayaran Belum Valid",
+            status: emailStatus,
+          });
         } catch (emailErr) {
-          console.error("⚠️ Email gagal dikirim:", emailErr);
+          await logEmail({
+            id_pendaftaran,
+            email,
+            nama_penerima: nama_peserta,
+            jenis_email: "PEMBAYARAN_INVALID",
+            subject: "Informasi Pembayaran Belum Valid",
+            status: "GAGAL",
+            error_message: emailErr.message,
+          });
         }
 
         logAdmin({
@@ -424,10 +479,10 @@ router.put("/:id/pending", (req, res) => {
   const { id } = req.params;
 
   const sql = `
-      UPDATE pembayaran_tb 
-      SET status='PENDING'
-      WHERE id_pembayaran=?
-  `;
+        UPDATE pembayaran_tb 
+        SET status='PENDING'
+        WHERE id_pembayaran=?
+    `;
 
   connection.query(sql, [id], (err) => {
     if (err)
@@ -491,21 +546,21 @@ router.get("/export/excel", async (req, res) => {
     const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
     const sql = `
-      SELECT
-        daftar.nama_peserta,
-        pel.nama_pelatihan,
-        daftar.no_wa,
-        daftar.email,
-        bayar.status AS status_bayar,
-        bayar.uploaded_at
-      FROM pembayaran_tb bayar
-      JOIN pendaftaran_tb daftar
-        ON bayar.id_pendaftaran = daftar.id_pendaftaran
-      JOIN pelatihan_tb pel
-        ON daftar.id_pelatihan = pel.id_pelatihan
-      ${whereSQL}
-      ORDER BY bayar.uploaded_at DESC
-    `;
+        SELECT
+          daftar.nama_peserta,
+          pel.nama_pelatihan,
+          daftar.no_wa,
+          daftar.email,
+          bayar.status AS status_bayar,
+          bayar.uploaded_at
+        FROM pembayaran_tb bayar
+        JOIN pendaftaran_tb daftar
+          ON bayar.id_pendaftaran = daftar.id_pendaftaran
+        JOIN pelatihan_tb pel
+          ON daftar.id_pelatihan = pel.id_pelatihan
+        ${whereSQL}
+        ORDER BY bayar.uploaded_at DESC
+      `;
 
     const [rows] = await connection.promise().query(sql, params);
 

@@ -1,6 +1,7 @@
 // backend/routes/auth/pendaftaran.js
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
+import { logEmail } from "../../utils/emailLogger.js";
 import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
@@ -161,7 +162,6 @@ router.post(
   ]),
   async (req, res) => {
     const {
-      id_pendaftaran,
       id_pelatihan,
       nik,
       nip,
@@ -266,16 +266,15 @@ router.post(
           // ======================
           const insertSQL = `
           INSERT INTO pendaftaran_tb (
-            id_pendaftaran, id_pelatihan, harga_pelatihan,  nik, nip, gelar_depan, nama_peserta, gelar_belakang,
+            id_pelatihan, harga_pelatihan,  nik, nip, gelar_depan, nama_peserta, gelar_belakang,
             asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
             status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
             provinsi_kantor, surat_tugas, foto_4x6, status
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
           const values = [
-            id_pendaftaran,
             id_pelatihan,
             harga_pelatihan,
             nik,
@@ -311,46 +310,70 @@ router.post(
               return res.status(500).json({ message: "Gagal mendaftar" });
             }
 
+            const newId = result.insertId;
+
             // ======================
             // KIRIM EMAIL (AMAN)
             // ======================
+            let emailStatus = "GAGAL";
             try {
-              await sendEmail({
+              const sent = await sendEmail({
                 to: email,
-                subject: "Status Pendaftaran – Menunggu Verifikasi Berkas",
+                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
                 html: `
-                <p>Yth. <b>${nama_peserta}</b>,</p>
-                <p>Terima kasih telah mendaftar pelatihan di
+                  <p>Yth. <b>${nama_peserta}</b>,</p>
+
+                  <p>
+                    Terima kasih telah mendaftar pelatihan di
                     <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
                   </p>
 
                   <p>
-                    Status pendaftaran Anda saat ini adalah
-                    <b>Menunggu Verifikasi Berkas</b>.
+                    Berkas pendaftaran Anda telah kami terima dan saat ini
+                    sedang dalam proses <b>verifikasi oleh tim kami</b>.
                   </p>
 
                   <p>
-                    Tim kami akan melakukan verifikasi terhadap berkas yang telah Anda unggah.
-                    Informasi selanjutnya akan disampaikan melalui <b>Email</b>.
+                    Status pendaftaran Anda saat ini:
+                    <b>Menunggu Verifikasi Berkas</b>
                   </p>
 
                   <p>
-                    Mohon memastikan email Anda aktif dan rutin memeriksa folder
-                    <i>Inbox</i> maupun <i>Spam</i>.
+                    Hasil verifikasi akan kami informasikan melalui email.
                   </p>
-                <br>
-                <p>Hormat kami,<br>
-                <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
-              `,
+
+                  <br>
+                  <p>
+                    Hormat kami,<br>
+                    <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
+                  </p>
+                `,
               });
-            } catch (emailErr) {
-              console.error("⚠️ Email gagal dikirim:", emailErr.message);
-              // EMAIL GAGAL ≠ PENDAFTARAN GAGAL
+              if (sent) emailStatus = "TERKIRIM";
+
+              await logEmail({
+                id_pendaftaran: newId,
+                email,
+                nama_penerima: nama_peserta,
+                jenis_email: "BERKAS_PENDING",
+                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                status: emailStatus,
+              });
+            } catch (errEmail) {
+              await logEmail({
+                id_pendaftaran: newId,
+                email,
+                nama_penerima: nama_peserta,
+                jenis_email: "BERKAS_PENDING",
+                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                status: "GAGAL",
+                error_message: errEmail.message,
+              });
             }
 
             res.status(201).json({
               message: "✅ Pendaftaran berhasil",
-              id_pendaftaran: result.insertId,
+              id_pendaftaran: newId
             });
           });
         }
@@ -560,8 +583,11 @@ router.put("/:id/accept", (req, res) => {
       }
 
       // 📧 EMAIL
+      let emailStatus = "GAGAL";
+      let errorMessage = null;
+
       try {
-        await sendEmail({
+        const sent = await sendEmail({
           to: email,
           subject: "Instruksi Pembayaran Pelatihan",
           html: `
@@ -603,9 +629,25 @@ router.put("/:id/accept", (req, res) => {
             </p>
           `,
         });
+
+        if (sent !== false) {
+          emailStatus = "TERKIRIM";
+        }
+
       } catch (emailErr) {
         console.error("Email gagal dikirim:", emailErr.message);
       }
+
+      // 2️⃣ Log email ke database (WAJIB setelah try/catch)
+      await logEmail({
+        id_pendaftaran: id,
+        email,
+        nama_penerima: nama_peserta,
+        jenis_email: "BERKAS_VALID",
+        subject: "Berkas Dinyatakan Valid – Menunggu Pembayaran",
+        status: emailStatus,
+        error_message: emailStatus === "GAGAL" ? errorMessage : null
+      });
 
       logAdmin({
         id_user: req.headers["x-admin-id"],
@@ -742,6 +784,15 @@ router.put("/:id/reject", (req, res) => {
       } catch (emailErr) {
         console.error("⚠️ Email gagal dikirim:", emailErr.message);
       }
+
+      await logEmail({
+        id_pendaftaran: id,
+        email,
+        nama_penerima: nama_peserta,
+        jenis_email: "BERKAS_INVALID",
+        subject: "Berkas Tidak Valid",
+        status: "TERKIRIM",
+      });
 
       logAdmin({
         id_user: req.headers["x-admin-id"],

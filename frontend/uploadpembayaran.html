@@ -252,7 +252,7 @@
           <!-- Form Daftar Pelatihan -->
             <div class="col-lg-12">
               <div class="appointment-form-wrapper" data-aos="fade-up" data-aos-delay="200">
-                <form id="formPendaftaran" class="appointment-form" enctype="multipart/form-data">
+                <form id="formPendaftaran" class="appointment-form no-php-email-form" enctype="multipart/form-data">
                   <div class="row gy-3">
 
                     <!-- ID Pendaftaran (WAJIB, dari URL) -->
@@ -346,176 +346,6 @@
             </div>
 
           </div><!-- End Appointment Form -->
-
-          <!-- script Upload Pembayaran -->
-          <script>
-            document.addEventListener("DOMContentLoaded", () => {
-
-              // =====================================================
-              // 🔐 CEK AKSES HALAMAN (TANPA AWAIT)
-              // =====================================================
-              const params = new URLSearchParams(window.location.search);
-              const token = params.get("token");
-
-              if (!token) {
-                alert("Akses tidak valid.");
-                window.location.href = "index.html";
-                return;
-              }
-
-              fetch(`http://localhost:5000/api/pendaftaran/validate-token/${token}`)
-                .then(async (res) => {
-                  const data = await res.json();
-                  if (!res.ok) throw new Error(data.message);
-                  return data;
-                })
-                .then((data) => {
-                  document.getElementById("id_pendaftaran").value = data.id_pendaftaran;
-                  document.getElementById("token").value = token;
-                })
-                .catch((err) => {
-                  alert(err.message || "Akses ditolak");
-                  window.location.href = "index.html";
-                });
-
-               // ==========================================
-              // Format tanggal ISO → DD/MM/YYYY
-              // ==========================================
-              function formatTanggalIndo(dateString) {
-                const date = new Date(dateString);
-                const d = String(date.getDate()).padStart(2, "0");
-                const m = String(date.getMonth() + 1).padStart(2, "0");
-                const y = date.getFullYear();
-                return `${d}/${m}/${y}`;
-              }
-
-              // ======================
-              // LOAD MENU PELATIHAN + FILTER TANGGAL + STATUS PUBLISH
-              // ======================
-              async function loadPelatihan() {
-              console.log("Mengambil data pelatihan...");
-
-              const res = await fetch("http://localhost:5000/api/pelatihan");
-              if (!res.ok) { 
-                console.error("Response error:", res.status);
-                return;
-              }
-
-              const data = await res.json();
-              const select = document.getElementById("menupelatihan");
-              const today = new Date().toISOString().split("T")[0];
-
-              data.forEach(item => {
-
-                // HANYA tampilkan status publish
-                if (item.status !== "publish") return;
-
-                const tanggalISO = item.tanggal_mulai;
-                if (!tanggalISO) return;
-
-                const tanggalOnly = tanggalISO.split("T")[0];
-
-                // Hanya tampilkan pelatihan yang belum lewat
-                if (tanggalOnly >= today) {
-                  const opt = document.createElement("option");
-                  opt.value = item.id_pelatihan;
-
-                  const tanggalFormatted = formatTanggalIndo(tanggalISO);
-                  opt.textContent = `${item.nama_pelatihan} (${tanggalFormatted})`;
-
-                  select.appendChild(opt);
-                }
-              });
-            }
-
-              loadPelatihan();
-
-
-              // ============================================================
-              // HANDLE SUBMIT → TAMPILKAN MODAL KONFIRMASI
-              // ============================================================
-              const form = document.getElementById("formPendaftaran");
-              const modalKonfirmasi = new bootstrap.Modal(document.getElementById("modalKonfirmasiPembayaran"));
-              const modalSuccess = new bootstrap.Modal(document.getElementById("modalPembayaranBerhasil"));
-              const modalGagal = new bootstrap.Modal(document.getElementById("modalPembayaranGagal"));
-
-              form.addEventListener("submit", (e) => {
-                e.preventDefault();
-
-                const bukti = document.querySelector("input[name='bukti_transfer']").files[0];
-
-                if (!bukti) {
-                  document.getElementById("modalPembayaranGagalMessage").textContent =
-                    "Bukti pembayaran wajib diupload.";
-
-                  modalKonfirmasi.hide(); // ⬅️ Tutup modal konfirmasi jika terbuka
-                  modalGagal.show();
-                  return;
-                }
-
-                const allowed = ["image/jpeg","image/jpg","image/png","application/pdf"];
-                if (!allowed.includes(bukti.type)) {
-                  document.getElementById("modalPembayaranGagalMessage").textContent =
-                    "Format file harus JPG, PNG, atau PDF.";
-
-                  modalKonfirmasi.hide();
-                  modalGagal.show();
-                  return;
-                }
-
-                if (bukti.size > 3 * 1024 * 1024) {
-                  document.getElementById("modalPembayaranGagalMessage").textContent =
-                    "Ukuran file maksimal 3 MB.";
-
-                  modalKonfirmasi.hide();
-                  modalGagal.show();
-                  return;
-                }
-
-                modalKonfirmasi.show();
-              });
-
-
-              // ============================================================
-              // KONFIRMASI UPLOAD → BARU KIRIM DATA KE BACKEND
-              // ============================================================
-              document.getElementById("btnKonfirmasiUpload").addEventListener("click", async () => {
-                const formData = new FormData(form);
-
-                try {
-                  const response = await fetch("http://localhost:5000/api/pembayaran", {
-                    method: "POST",
-                    body: formData
-                  });
-
-                  const data = await response.json();
-
-                  if (!response.ok) {
-                    document.getElementById("modalPembayaranGagalMessage").textContent =
-                      data.message || "Upload gagal, coba beberapa saat lagi.";
-
-                    modalKonfirmasi.hide(); // ⬅️ Pastikan modal konfirmasi tertutup
-                    modalGagal.show();
-                    return;
-                  }
-
-                  modalSuccess.show();
-                  form.reset();
-                  modalKonfirmasi.hide();
-
-                } catch (err) {
-                  console.error(err);
-                  document.getElementById("modalPembayaranGagalMessage").textContent =
-                    "Terjadi kesalahan jaringan. Silakan coba kembali.";
-
-                  modalKonfirmasi.hide(); // ⬅️ Tutup modal konfirmasi
-                  modalGagal.show();
-                }
-              });
-
-            });
-            </script>
-
         </div>
         
         <!-- Modal Konfirmasi Upload Pembayaran -->
@@ -539,7 +369,7 @@
                   Cek Kembali
                 </button>
 
-                <button id="btnKonfirmasiUpload" class="btn btn-primary">
+                <button type="button" id="btnKonfirmasiUpload" class="btn btn-primary">
                   Upload Bukti Pembayaran
                 </button>
               </div>
@@ -600,6 +430,147 @@
               </div>
             </div>
           </div>
+
+          <!-- script Upload Pembayaran -->
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+
+              // ================= TOKEN =================
+              const params = new URLSearchParams(window.location.search);
+              const token = params.get("token");
+
+              if (!token) {
+                alert("Akses tidak valid.");
+                location.href = "index.html";
+                return;
+              }
+
+              fetch(`http://localhost:5000/api/pendaftaran/validate-token/${token}`)
+                .then(r => r.json())
+                .then(data => {
+                  if (!data.ok) throw new Error("Token tidak valid");
+                  document.getElementById("id_pendaftaran").value = data.id_pendaftaran;
+                  document.getElementById("token").value = token;
+                })
+                .catch(() => {
+                  alert("Token tidak valid");
+                  location.href = "index.html";
+                });
+
+              // ================= LOAD PELATIHAN =================
+              async function loadPelatihan() {
+                const res = await fetch("http://localhost:5000/api/pelatihan");
+                console.log("STATUS:", res.status);
+                console.log("HEADERS:", [...res.headers]);
+
+
+                const text = await res.text();
+                console.log("RAW RESPONSE:", text);
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch (e) {
+                  console.error("JSON ERROR:", e);
+                }
+                const select = document.getElementById("menupelatihan");
+                const today = new Date().toISOString().split("T")[0];
+
+                data.forEach(item => {
+                  if (item.status !== "publish") return;
+                  const tgl = item.tanggal_mulai?.split("T")[0];
+                  if (tgl >= today) {
+                    const opt = document.createElement("option");
+                    opt.value = item.id_pelatihan;
+                    opt.textContent = `${item.nama_pelatihan}`;
+                    select.appendChild(opt);
+                  }
+                });
+              }
+              loadPelatihan();
+
+              // ================= MODAL =================
+              const form = document.getElementById("formPendaftaran");
+              const modalKonfirmasi = new bootstrap.Modal(document.getElementById("modalKonfirmasiPembayaran"));
+              const modalSukses = new bootstrap.Modal(document.getElementById("modalPembayaranBerhasil"));
+              const modalGagal = new bootstrap.Modal(document.getElementById("modalPembayaranGagal"));
+
+              // ================= SUBMIT FORM =================
+              form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                console.log("SUBMIT DETECTED");
+
+                const file = document.querySelector("input[name='bukti_transfer']").files[0];
+
+                if (!file) {
+                  document.getElementById("modalPembayaranGagalMessage").innerText = "File wajib diupload.";
+                  modalGagal.show();
+                  return;
+                }
+
+                const allowed = ["image/jpeg","image/png","image/jpg","application/pdf"];
+                if (!allowed.includes(file.type)) {
+                  document.getElementById("modalPembayaranGagalMessage").innerText = "Format harus JPG, PNG atau PDF.";
+                  modalGagal.show();
+                  return;
+                }
+
+                if (file.size > 3 * 1024 * 1024) {
+                  document.getElementById("modalPembayaranGagalMessage").innerText = "Ukuran maksimal 3MB.";
+                  modalGagal.show();
+                  return;
+                }
+
+                modalKonfirmasi.show();
+              });
+
+              // ================= KONFIRMASI =================
+              document.getElementById("btnKonfirmasiUpload").addEventListener("click", async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData(form);
+
+              try {
+                const res = await fetch("http://localhost:5000/api/pembayaran", {
+                  method: "POST",
+                  body: formData
+                });
+
+                const text = await res.text();
+                console.log("UPLOAD RESPONSE:", res.status, text);
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch {
+                  data = { message: "Server tidak mengirim JSON" };
+                }
+
+                modalKonfirmasi.hide();
+
+                if (!res.ok) {
+                  document.getElementById("modalPembayaranGagalMessage").innerText =
+                    data.message || "Upload gagal";
+                  modalGagal.show();
+                  return;
+                }
+
+                // ✅ INI YANG KAMU TUNGGU
+                modalSukses.show();
+                form.reset();
+
+              } catch (err) {
+                console.error("UPLOAD ERROR:", err);
+                modalKonfirmasi.hide();
+                document.getElementById("modalPembayaranGagalMessage").innerText =
+                  "Tidak dapat terhubung ke server.";
+                modalGagal.show();
+              }
+            });
+
+            });
+            </script>
+
 
         <!-- Process Steps -->
             <div class="process-steps mt-5" data-aos="fade-up" data-aos-delay="300">
@@ -702,7 +673,7 @@
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <!-- <script src="assets/vendor/php-email-form/validate.js"></script> -->
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
