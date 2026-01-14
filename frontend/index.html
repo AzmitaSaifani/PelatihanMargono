@@ -420,14 +420,41 @@
             document.addEventListener("DOMContentLoaded", function () {
               const calendarEl = document.getElementById("calendar");
 
+              // === util aman (tidak kena H-1) ===
+              function toYMD(dateObj) {
+                const y = dateObj.getFullYear();
+                const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+                const d = String(dateObj.getDate()).padStart(2, "0");
+                return `${y}-${m}-${d}`;
+              }
+
+              function parseDateOnly(str) {
+                // str = "2026-01-25T17:00:00.000Z"
+                const d = new Date(str);        // parse UTC dari API
+                d.setHours(d.getHours() + 7);   // konversi ke WIB
+                d.setHours(0, 0, 0, 0);         // kunci ke awal hari
+                return d;
+              }
+
+              function formatDateOnly(date) {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, "0");
+                const d = String(date.getDate()).padStart(2, "0");
+                return `${y}-${m}-${d}`;
+              }
+
               const calendar = new FullCalendar.Calendar(calendarEl, {
+                timeZone: "Asia/Jakarta",
+
                 initialView: "dayGridMonth",
+                fixedWeekCount: false,
+                displayEventTime: false,
+
                 headerToolbar: {
                   left: "prev,next today",
                   center: "title",
                   right: "dayGridMonth,timeGridWeek,listWeek",
                 },
-                displayEventTime: false,
 
                 events: async function (fetchInfo, successCallback, failureCallback) {
                   try {
@@ -442,32 +469,46 @@
                     // ===============================
                     // MAPPING KE FULLCALENDAR
                     // ===============================
-                    const mapped = filteredData.map(item => ({
-                      id: item.id_pelatihan,
-                      title: item.nama_pelatihan,
-                      start: item.tanggal_mulai,
+                    const mapped = [];
 
-                      backgroundColor: item.warna || "#28c7a8",
-                      borderColor: item.warna || "#28c7a8",
-                      textColor: "#ffffff",
+                    filteredData.forEach(item => {
+                      const color = item.warna || "#3498db";
 
-                      extendedProps: {
-                        jumlah_jpl:item.jumlah_jpl,
-                        kuota: item.sisa_kuota,
-                        totalKuota: item.kuota,
-                        lokasi: item.lokasi,
-                        tanggal_mulai: item.tanggal_mulai,
-                        tanggal_selesai: item.tanggal_selesai,
-                        waktu_mulai: item.waktu_mulai,
-                        waktu_selesai: item.waktu_selesai,
-                        kategori: item.kategori,
-                        kriteria_peserta:item.kriteria_peserta,
-                        harga:item.harga,
+                      let start = parseDateOnly(item.tanggal_mulai);
+                      let end   = parseDateOnly(item.tanggal_selesai);
+
+                      // loop per hari
+                      while (start <= end) {
+                        mapped.push({
+                          id: item.id_pelatihan + "_" + formatDateOnly(start),
+                          title: item.nama_pelatihan,
+                          start: formatDateOnly(start),
+                          allDay: true,
+
+                          backgroundColor: color,
+                          borderColor: color,
+                          textColor: "#ffffff",
+
+                          extendedProps: {
+                            kuota: item.sisa_kuota,
+                            totalKuota: item.kuota,
+                            lokasi: item.lokasi,
+                            tanggal_mulai: item.tanggal_mulai,
+                            tanggal_selesai: item.tanggal_selesai,
+                            waktu_mulai: item.waktu_mulai,
+                            waktu_selesai: item.waktu_selesai,
+                            kategori: item.kategori,
+                          }
+                        });
+
+                        // maju ke hari berikutnya
+                        start.setDate(start.getDate() + 1);
                       }
-                    }));
+                    });
 
                     successCallback(mapped);
-                  } catch (err) {
+
+                    } catch (err) {
                     console.error("Gagal load event:", err);
                     failureCallback(err);
                   }

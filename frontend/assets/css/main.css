@@ -142,59 +142,31 @@ h6 {
     transform: rotate(360deg);
   }
 }
-/* 
-.calendar .calendar {
-  background: var(--surface-color);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 5px 15px
-    color-mix(in srgb, var(--default-color), transparent 85%);
-  transition: all 0.3s ease;
-  height: 100%;
-} */
 
-/* Container Kalender */
 #calendar {
   max-width: 1100px;
   margin: 40px auto;
-  padding: 20px;
   background: white;
+  padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,.1);
 }
 
-/* Hilangkan label aneh bawaan FullCalendar (Thu Friday dll) */
-.fc-event-main-frame {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-
-/* Judul event rapi, tidak keluar kolom */
-.fc-daygrid-event .fc-event-title {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis; /* titik-titik */
-  max-width: 100%;
-  display: inline-block;
-}
-
-/* Style event box */
 .fc-daygrid-event {
-  padding: 2px 6px !important;
-  border-radius: 6px !important;
-  max-width: 100% !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  font-weight: 600;
+  font-size: 13px;
 }
 
-/* Supaya container event tidak overflow */
-.fc-daygrid-day-events {
-  overflow: hidden !important;
+.fc-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Hover biar lebih oke */
-.fc-daygrid-event:hover {
-  filter: brightness(1.1);
-  cursor: pointer;
+.fc-daygrid-event-harness {
+  width: 100% !important;
 }
 
 /*--------------------------------------------------------------
@@ -3448,7 +3420,6 @@ hero-image img {
   color: var(--contrast-color);
 }
 
-
 .department-details
   .key-services
   .cta-wrapper
@@ -6560,19 +6531,30 @@ hero-image img {
   border-radius: 8px;
 }
 
-.no-scroll { overflow: hidden; }
+.no-scroll {
+  overflow: hidden;
+}
 
 .zoom-modal {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.7);
-  justify-content:center; align-items:center; z-index:99999;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
 }
 .zoom-modal-content img {
-  max-width:90%; max-height:90%;
+  max-width: 90%;
+  max-height: 90%;
 }
 .zoom-close {
-  position:absolute; top:20px; right:30px;
-  font-size:30px; color:white; cursor:pointer;
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
 }
 
 .nav-cta {
@@ -6587,4 +6569,48 @@ hero-image img {
 .nav-cta:hover {
   background: #145ea8;
   box-shadow: 0 4px 12px rgba(20, 94, 168, 0.4);
+}
+
+/* Event bar memanjang seperti Google Calendar */
+.fc-daygrid-event {
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Agar event benar-benar melebar */
+.fc-daygrid-event-harness {
+  width: 100% !important;
+}
+
+/* Event multi-day tidak dipotong */
+.fc-event {
+  white-space: nowrap;
+}
+
+/* Mode Google Calendar bar */
+.fc-daygrid-block-event {
+  display: flex !important;
+  align-items: center;
+  height: 26px;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Hilangkan wrapper per hari */
+.fc-daygrid-event-harness {
+  width: 100% !important;
+}
+
+/* Supaya bar benar-benar nyambung */
+.fc-daygrid-event {
+  margin: 2px 0 !important;
+}
+
+/* Jangan potong event multi-day */
+.fc-event {
+  white-space: nowrap;
 }

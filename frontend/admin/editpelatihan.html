@@ -235,6 +235,17 @@
             />
           </div>
 
+          <div class="col-md-4">
+            <label class="form-label">Warna di Kalender</label>
+              <input 
+                type="color" 
+                id="edit_warna"
+                name="warna" 
+                class="form-control form-control-color"
+                value="#3498db"
+              >
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Harga Pelatihan (Rp)</label>
             <input
@@ -354,7 +365,15 @@
         // =========================
         function formatForInput(dateString) {
           if (!dateString) return "";
-          return new Date(dateString).toISOString().split("T")[0];
+
+          const d = new Date(dateString);     // parse UTC
+          d.setHours(d.getHours() + 7);       // konversi ke WIB
+
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+
+          return `${y}-${m}-${day}`;
         }
 
         // =========================
@@ -387,6 +406,7 @@
           document.getElementById("edit_waktu_selesai").value =
             data.waktu_selesai;
           document.getElementById("edit_kuota").value = data.kuota ?? "";
+          document.getElementById("edit_warna").value = data.warna ?? "";
           document.getElementById("edit_harga").value = Number(data.harga) ?? 0;
           document.getElementById("edit_kategori").value = data.kategori;
           document.getElementById("edit_keterangan").value = data.kriteria_peserta;

@@ -199,6 +199,16 @@
               </div>
 
               <div class="col-md-4">
+                <label class="form-label">Warna di Kalender</label>
+                <input 
+                  type="color" 
+                  name="warna" 
+                  class="form-control form-control-color"
+                  value="#3498db"
+                >
+              </div>
+
+              <div class="col-md-4">
                 <label class="form-label">Harga Pelatihan (Rp)</label>
                 <input
                   type="number"
@@ -353,6 +363,7 @@
                 <th>Waktu Mulai</th>
                 <th>Waktu Selesai</th>
                 <th>Kuota Peserta</th>
+                <th>Warna Kalender</th>
                 <th>Harga</th>
                 <th>Kategori Peserta</th>
                 <th>Kriteria Peserta</th>
@@ -451,6 +462,7 @@
                 <td>${formatWaktu(item.waktu_mulai)}</td>
                 <td>${formatWaktu(item.waktu_selesai)}</td>
                 <td>${item.kuota ?? "-"}</td>
+                <td>${item.warna ?? "-"}</td>
                 <td>
                   ${
                     item.harga > 0

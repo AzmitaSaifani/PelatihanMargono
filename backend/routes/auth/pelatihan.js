@@ -35,6 +35,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    warna,
     harga,
     kategori,
     kriteria_peserta,
@@ -43,6 +44,8 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     status,
     created_by,
   } = req.body;
+
+  warna = warna || "#3498db";
 
   // FIX TANGGAL KOSONG
   tanggal_mulai = tanggal_mulai && tanggal_mulai !== "" ? tanggal_mulai : null;
@@ -100,7 +103,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
   const sql = `
     INSERT INTO pelatihan_tb (
       nama_pelatihan, jumlah_jpl, lokasi, alamat_lengkap,
-      tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, harga,
+      tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, warna, harga,
       kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
@@ -116,6 +119,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    warna,
     harga || 0,
     kategori,
     kriteria_peserta,
@@ -178,6 +182,7 @@ router.get("/", (req, res) => {
     p.waktu_mulai,
     p.waktu_selesai,
     p.kuota,
+    p.warna,
     p.harga,
     p.kategori,
     p.kriteria_peserta,
@@ -235,6 +240,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     waktu_mulai,
     waktu_selesai,
     kuota,
+    warna,
     harga,
     kategori,
     kriteria_peserta,
@@ -268,7 +274,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     const sql = `
       UPDATE pelatihan_tb
       SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
-          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, harga=?,
+          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, warna=?, harga=?,
           kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
     `;
@@ -283,6 +289,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
       waktu_mulai,
       waktu_selesai,
       kuota,
+      warna,
       harga || 0,
       kategori,
       kriteria_peserta,
@@ -379,6 +386,7 @@ router.get("/export/excel", async (req, res) => {
         p.waktu_mulai,
         p.waktu_selesai,
         p.kuota,
+        p.warna,
         p.harga,
         p.kategori,
         p.kriteria_peserta,
@@ -434,6 +442,7 @@ router.get("/export/excel", async (req, res) => {
       "Waktu Mulai",
       "Waktu Selesai",
       "Kuota",
+      "Warna",
       "Harga",
       "Kategori",
       "Kriteria Peserta",
@@ -491,6 +500,7 @@ router.get("/export/excel", async (req, res) => {
         row.waktu_mulai,
         row.waktu_selesai,
         row.kuota,
+        row.warna,
         row.harga > 0 ? row.harga : 0,
         row.kategori,
         row.kriteria_peserta,
