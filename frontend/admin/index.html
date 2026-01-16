@@ -1,6 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
   <head>
+    <meta charset="UTF-8" />
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      type="image/png"
+      sizes="512x512"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+      sizes="180x180"
+    />
+
     <title>Admin Dashboard - RSMS</title>
 
     <link
@@ -8,97 +23,282 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      .stat-card {
+        border-radius: 14px;
+        padding: 20px;
+        color: #fff;
+        min-height: 130px;
+      }
+      .stat-title {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+      .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+      }
+    </style>
   </head>
 
-  <body class="p-4">
-    <button class="btn btn-danger logout-btn" onclick="logoutAdmin()">
-      Logout
-    </button>
-    <div class="text-center mt-5 mb-4">
-      <h2 class="fw-bold">Dashboard Admin Diklat <br> Prof. Dr. Margono Soekarjo Purwokerto</h2>
-      <p class="text-muted">Selamat datang di panel administrasi.</p>
-    </div>
-
-    <div class="list-group mx-auto" style="max-width: 900px">
-      <!-- Dropdown 1 -->
-      <div class="list-group-item p-0">
-        <button
-          class="btn w-100 text-start py-3 dropdown-toggle"
-          data-bs-toggle="collapse"
-          data-bs-target="#menuPelatihan"
+  <body class="bg-light">
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
         >
-          Pelatihan
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse" id="menuPelatihan">
-          <a
-            href="pelatihan.html"
-            class="list-group-item list-group-item-action"
-          >
-            Manajemen Pelatihan
-          </a>
-          <a
-            href="pendaftaran.html"
-            class="list-group-item list-group-item-action"
-          >
-            Data Pendaftar Pelatihan
-          </a>
-          <a
-            href="pembayaran.html"
-            class="list-group-item list-group-item-action"
-          >
-            Verifikasi Pembayaran
-          </a>
-          <a href="gallery.html" class="list-group-item list-group-item-action">
-            Gallery Diklat
-          </a>
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="container py-4">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold">
+          Dashboard Admin Diklat<br />
+          RSUD Prof. Dr. Margono Soekarjo
+        </h2>
+        <p class="text-muted">Ringkasan data sistem pelatihan</p>
+      </div>
+
+      <!-- ================= STATISTIK ================= -->
+
+      <!-- PENDAFTARAN -->
+      <h5 class="fw-bold mb-3">
+        <a href="pendaftaran.html" class="text-decoration-none text-dark">
+          Statistik Pendaftaran
+        </a>
+      </h5>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card bg-primary">
+            <div class="stat-title">Total Pendaftar</div>
+            <div class="stat-value" id="pendaftaran_total">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-warning text-dark">
+            <div class="stat-title">Menunggu Verifikasi Berkas</div>
+            <div class="stat-value" id="pendaftaran_verifikasi">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-info">
+            <div class="stat-title">Menunggu Pembayaran</div>
+            <div class="stat-value" id="pendaftaran_pembayaran">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-danger">
+            <div class="stat-title">Invalid Berkas</div>
+            <div class="stat-value" id="pembayaran_invalid">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-success">
+            <div class="stat-title">Diterima</div>
+            <div class="stat-value" id="pendaftaran_diterima">0</div>
+          </div>
         </div>
       </div>
 
-      <!-- Dropdown 2 -->
-      <div class="list-group-item p-0 mt-2">
-        <button
-          class="btn w-100 text-start py-3 dropdown-toggle"
-          data-bs-toggle="collapse"
-          data-bs-target="#menuTim"
-        >
-          Tim & Mitra Pelatihan
-        </button>
+      <!-- PEMBAYARAN -->
+      <h5 class="fw-bold mb-3">
+        <a href="pembayaran.html" class="text-decoration-none text-dark">
+          Statistik Pembayaran
+        </a>
+      </h5>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card bg-primary">
+            <div class="stat-title">Total Pembayaran</div>
+            <div class="stat-value" id="pembayaran_total">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-warning text-dark">
+            <div class="stat-title">Menunggu Verifikasi Pembayaran</div>
+            <div class="stat-value" id="pembayaran_pending">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-success">
+            <div class="stat-title">Valid</div>
+            <div class="stat-value" id="pembayaran_valid">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-danger">
+            <div class="stat-title">Invalid</div>
+            <div class="stat-value" id="pembayaran_invalid">0</div>
+          </div>
+        </div>
+      </div>
 
-        <div class="collapse" id="menuTim">
-          <a
-            href="fasilitator.html"
-            class="list-group-item list-group-item-action"
-          >
-            Profesional Fasilitor dan Instruktur Tersertifikasi
-          </a>
-          <a
-            href="penyelenggara.html"
-            class="list-group-item list-group-item-action"
-          >
-            Tim Penyelenggara Pelatihan Tersertifikasi
-          </a>
-          <a
-            href="institusi.html"
-            class="list-group-item list-group-item-action"
-          >
-            Institusi Kerjasama
-          </a>
+      <!-- PELATIHAN -->
+      <h5 class="fw-bold mb-3">
+        <a href="pelatihan.html" class="text-decoration-none text-dark">
+          Statistik Pelatihan
+        </a>
+      </h5>
+      <div class="row g-3 mb-5">
+        <div class="col-md-3">
+          <div class="stat-card bg-primary">
+            <div class="stat-title">Total Pelatihan</div>
+            <div class="stat-value" id="pelatihan_total">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-success">
+            <div class="stat-title">Aktif</div>
+            <div class="stat-value" id="pelatihan_aktif">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-secondary">
+            <div class="stat-title">Draft</div>
+            <div class="stat-value" id="pelatihan_draft">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card bg-info">
+            <div class="stat-title">Peserta Diterima</div>
+            <div class="stat-value" id="pelatihan_diterima">0</div>
+          </div>
         </div>
       </div>
     </div>
-  </body>
-  <script>
-    // ===============================
-    //   LOGOUT FUNCTION
-    // ===============================
-    function logoutAdmin() {
-      if (confirm("Apakah Anda yakin ingin logout?")) {
-        localStorage.removeItem("admin");
-        window.location.href = "loginadmin.html";
+
+    <!-- ================= JS ================= -->
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="http://localhost:5000/static/admin_check.js"></script>
+
+    <script>
+      function logoutAdmin() {
+        if (confirm("Apakah Anda yakin ingin logout?")) {
+          localStorage.removeItem("admin");
+          window.location.href = "loginadmin.html";
+        }
       }
-    }
-  </script>
-  <script src="http://localhost:5000/static/admin_check.js"></script>
-  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+      async function loadDashboardStatistik() {
+        try {
+          const res = await fetch(
+            "http://localhost:5000/api/dashboard/statistik"
+          );
+          const data = await res.json();
+
+          // Pendaftaran
+          pendaftaran_total.innerText = data.pendaftaran.total;
+          pendaftaran_verifikasi.innerText =
+            data.pendaftaran.menunggu_verifikasi;
+          pendaftaran_pembayaran.innerText =
+            data.pendaftaran.menunggu_pembayaran;
+          pendaftaran_diterima.innerText = data.pendaftaran.diterima;
+
+          // Pembayaran
+          pembayaran_total.innerText = data.pembayaran.total;
+          pembayaran_pending.innerText = data.pembayaran.pending;
+          pembayaran_valid.innerText = data.pembayaran.valid;
+          pembayaran_invalid.innerText = data.pembayaran.invalid;
+
+          // Pelatihan
+          pelatihan_total.innerText = data.pelatihan.total;
+          pelatihan_aktif.innerText = data.pelatihan.aktif;
+          pelatihan_draft.innerText = data.pelatihan.draft;
+          pelatihan_diterima.innerText = data.pelatihan.total_peserta_diterima;
+        } catch (err) {
+          alert("Gagal memuat statistik dashboard");
+          console.error(err);
+        }
+      }
+
+      loadDashboardStatistik();
+    </script>
+  </body>
 </html>

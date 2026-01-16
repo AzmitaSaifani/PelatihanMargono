@@ -2,6 +2,20 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      type="image/png"
+      sizes="512x512"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+      sizes="180x180"
+    />
+
     <title>Admin - Penyelenggara</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -26,10 +40,22 @@
   </head>
 
   <body>
-    <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+    >
       <div class="container">
-        <a class="navbar-brand fw-bold" href="index.html">Admin DIKLAT</a>
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
 
         <button
           class="navbar-toggler"
@@ -47,8 +73,9 @@
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
-                >Pelatihan</a
               >
+                Pelatihan
+              </a>
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
                   <a class="dropdown-item" href="pelatihan.html"
@@ -66,9 +93,7 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="gallery.html"
-                    >Gallery Diklat</a
-                  >
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
                 </li>
               </ul>
             </li>
@@ -78,31 +103,30 @@
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
-                >Tim & Mitra Pelatihan</a
               >
+                Tim & Mitra
+              </a>
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
                   <a class="dropdown-item" href="fasilitator.html"
-                    >Profesional Fasilitor & Instruktur Tersertifikasi</a
+                    >Fasilitator</a
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="penyelenggara.html" 
-                    >Tim Penyelenggara Pelatihan Tersertifikasi</a
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html"
-                    >Institusi Kerjasama</a
-                  >
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
                 </li>
               </ul>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link text-danger fw-bold" href="logout.html"
-                >Logout</a
-              >
+              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
+                Logout
+              </button>
             </li>
           </ul>
         </div>
