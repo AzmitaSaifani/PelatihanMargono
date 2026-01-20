@@ -301,8 +301,6 @@
         </div>
       </section>
 
-      <!-- /Hero Section -->
-
       <!-- Home About Section -->
       <section id="home-about" class="home-about section">
         <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -310,76 +308,48 @@
 
             <div class="col-lg-12" data-aos="fade-left" data-aos-delay="300">
               <div class="about-content">
-                <h2 style="text-align: center;">PROFIL SINGKAT</h2>
+                <h2 style="text-align: center;">PROFIL DIKLAT</h2>
 
-                <!-- BAGIAN ATAS (2 INFO) -->
+               <!-- BAGIAN ATAS -->
                 <div class="row g-4 mt-4">
-                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="400">
+                  <div class="col-md-12" data-aos="fade-up">
                     <div class="feature-item">
-                      <h4>RSUD Prof. Dr. Margono Soekarjo Purwokerto merupakan RS rujukan pelayanan kesehatan kelas A, RS pendidikan dan institusi penyelenggara pelatihan bidang kesehatan terakreditasi A sejak tahun 2023</h4>
+                      <h4 id="profilRingkasAtas">Memuat...</h4>
                     </div>
                   </div>
 
-                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="500">
+                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="150">
                     <div class="feature-item">
-                      <h4>
-                        SK Kemenkes RI Nomor HK.02.02/F/2866/2023 <br>
-                        <a href="http://asik.rsmargono.go.id:7222/pelatihan_diklat/assets/download/SK%20RSUD%20PROF%20DR.MARGONO%20SOEKARJO%20(UTAMA%20FK%20UNIV.JENDERAL%20SOEDIRMAN).pdf" 
-                          target="_blank"
-                          style="font-size: 14px; margin-left: 10px; text-decoration: none;">
-                          Tampilan SK pdf/download
-                        </a>
+                      <h4 id="profilSK">
+                        Memuat...
                       </h4>
                     </div>
                   </div>
                 </div>
 
-                <br>
-
-                <!-- BAGIAN FOTO & DESKRIPSI (INI YG HARUS DALAM SATU ROW) -->
-                <div class="row g-4 mt-2">
-
+                <!-- FOTO & DESKRIPSI -->
+                <div class="row g-4 mt-4">
                   <!-- FOTO -->
-                  <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
+                  <div class="col-lg-6" data-aos="fade-right">
                     <div class="about-image">
                       <img
                         src="assets/img/health/facilities-1.webp"
-                        alt="Modern Healthcare Facility"
+                        alt="RSMS"
                         class="img-fluid rounded-3 mb-4"
                       />
-                      <div class="experience-badge">
-                        <span class="years">25+</span>
-                        <span class="text">Years of Excellence</span>
-                      </div>
                     </div>
                   </div>
 
-                  <!-- DESKRIPSI -->
-                  <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
-                    <div class="about-content">
-                      <p class="lead">Histori Singkat RSMS Institusi Penyelenggara Pelatihan:</p>
-                      <ul>
-                        <li>Berawal dari Pengampuan oleh BAPELKES Provinsi Jawa Tengah pada tahun 2018–2019</li>
-                        <li>Divisi Diklat RSMS sebagai Institusi Penyelenggara Pelatihan berdasarkan SK KAPUS BPPSDMK Nomor HK.02.02/I/1826/2020</li>
-                        <li>Kategori Akreditasi A (berlaku 5 tahun)</li>
-                      </ul>
+                  <!-- DESKRIPSI DINAMIS -->
+                  <div class="col-lg-6" data-aos="fade-left">
+                    <div id="profilDiklatContent"></div>
 
-                      <p class="lead">Tim Kerja:</p>
-                      <ul>
-                        <li>Pimpinan Diklat</li>
-                        <li>Tim Penyusun Mutu Pelatihan & Penjaminan Mutu Pelatihan</li>
-                        <li>TPM Tim Audit Mutu Internal</li>
-                        <li>Fasilitator Pelatihan (Narasumber & Instruktur)</li>
-                        <li>Panitia Penyelenggara Pelatihan</li>
-                      </ul>
-                        <!-- CTA BUTTON -->
-                        <div class="cta-wrapper mt-4">
-                          <a href="profil.html" class="btn btn-primary">Profil Selengkapnya</a>
-                          <a href="profil.html" class="btn btn-outline">Tim Diklat</a>
-                       </div>
+                    <!-- CTA -->
+                    <div class="cta-wrapper mt-4">
+                      <a href="profil.html" class="btn btn-primary">Profil Selengkapnya</a>
+                      <a href="profil.html#tim-diklat" class="btn btn-outline">Tim Diklat</a>
                     </div>
                   </div>
-
                 </div>
 
               </div>
@@ -388,8 +358,143 @@
           </div>
         </div>
       </section>
-
       <!-- /Home About Section -->
+
+      <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          try {
+            /* =========================
+              LOAD PROFIL DIKLAT (AGGREGATOR)
+              ========================= */
+            const res = await fetch("http://localhost:5000/api/profil-diklat");
+            const data = await res.json();
+
+            const { institusi, histori, sertifikat, timKerja } = data;
+
+            if (!institusi) {
+              throw new Error("Data institusi kosong");
+            }
+
+            document.getElementById("profilRingkasAtas").innerText =
+              institusi.deskripsi;
+
+            /* =========================
+              HISTORI AKREDITASI AKTIF
+              ========================= */
+            const historiAktif = histori[histori.length - 1];
+
+            document.getElementById("profilSK").innerHTML = `
+              <strong>Akreditasi:</strong> ${historiAktif.kategori_akreditasi}<br>
+              <strong>Nomor SK:</strong> ${historiAktif.nomor_sk}<br>
+              <strong>Masa Berlaku:</strong> ${historiAktif.masa_berlaku}<br>
+              <a href="${historiAktif.link_sk}" target="_blank"
+                style="text-decoration:none;color:#20c997;">
+                📄 Lihat SK Penetapan
+              </a>
+            `;
+
+            /* =========================
+              SERTIFIKAT AKREDITASI
+              ========================= */
+            let sertifikatHtml = `
+              <div class="feature-item mb-4">
+                <p class="lead">
+                  <strong>Sertifikat Akreditasi</strong>
+                </p>
+                <div class="row g-3">
+            `;
+
+            if (sertifikat.length === 0) {
+              sertifikatHtml += `<p class="text-muted">Belum ada sertifikat.</p>`;
+            } else {
+              sertifikat.forEach((s) => {
+                sertifikatHtml += `
+                  <div class="col-md-6">
+                    <img
+                      src="http://localhost:5000/${s.file_path}"
+                      class="img-fluid rounded shadow-sm zoomable-img"
+                      alt="${s.keterangan}"
+                      data-img="http://localhost:5000/${s.file_path}"
+                    />
+                    <small class="d-block mt-2">${s.keterangan}</small>
+                  </div>
+                `;
+              });
+            }
+
+            sertifikatHtml += `</div></div>`;
+
+            /* =========================
+              TIM KERJA
+              ========================= */
+            let timHtml = `
+              <div class="feature-item mb-4">
+                <p class="lead"><strong>Tim Diklat</strong></p>
+                <ul class="ps-3">
+            `;
+
+            if (timKerja.length === 0) {
+              timHtml += `<li class="text-muted">Data tim belum tersedia</li>`;
+            } else {
+              timKerja.forEach((t) => {
+                timHtml += `<li>${t.jabatan}</li>`;
+              });
+            }
+
+            timHtml += `</ul></div>`;
+
+            /* =========================
+              RENDER KE HALAMAN
+              ========================= */
+            document.getElementById("profilDiklatContent").innerHTML = `
+
+              ${sertifikatHtml}
+              ${timHtml}
+            `;
+
+            /* =========================
+              ZOOM IMAGE MODAL (WAJIB SETELAH innerHTML)
+              ========================= */
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const captionText = document.getElementById("modalCaption");
+            const closeBtn = document.querySelector(".img-modal-close");
+
+            document.querySelectorAll(".zoomable-img").forEach((img) => {
+              img.addEventListener("click", () => {
+                modal.style.display = "flex";
+                modalImg.src = img.dataset.img;
+                // captionText.innerText = img.alt || "";
+              });
+            });
+
+            closeBtn.onclick = () => {
+              modal.style.display = "none";
+            };
+
+            modal.onclick = (e) => {
+              if (e.target === modal) {
+                modal.style.display = "none";
+              }
+            };
+
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                modal.style.display = "none";
+              }
+            });
+          } catch (err) {
+            console.error("Gagal load profil diklat:", err);
+          }
+        });
+        </script>
+
+        <!-- MODAL ZOOM GAMBAR SERTIFIKAT -->
+        <div id="imageModal" class="img-modal">
+          <span class="img-modal-close">&times;</span>
+          <img class="img-modal-content" id="modalImage">
+          <div class="img-modal-caption" id="modalCaption"></div>
+        </div>
 
       <!-- Calendar Section -->
        <section>
@@ -454,6 +559,10 @@
                   left: "prev,next today",
                   center: "title",
                   right: "dayGridMonth,timeGridWeek,listWeek",
+                },
+
+                eventDidMount: function (info) {
+                  info.el.style.cursor = "pointer";
                 },
 
                 events: async function (fetchInfo, successCallback, failureCallback) {

@@ -243,147 +243,221 @@
       </div>
     </div><!-- End Page Title -->
 
+    <!-- Home About Section -->
+      <section id="home-about" class="home-about section">
+        <div class="container" data-aos="fade-up" data-aos-delay="100">
+          <div class="row gy-5 align-items-center">
+
+            <div class="col-lg-12" data-aos="fade-left" data-aos-delay="300">
+              <div class="about-content">
+               <!-- BAGIAN ATAS -->
+                <div class="row g-4">
+                  <div class="col-md-12" data-aos="fade-up">
+                    <div class="feature-item">
+                      <h4 id="profilRingkasAtas">Memuat...</h4>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12" data-aos="fade-up" data-aos-delay="150">
+                    <div class="feature-item">
+                      <h4 id="profilSK">
+                        Memuat...
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FOTO & DESKRIPSI -->
+                <div class="row g-4 mt-4">
+                  <!-- FOTO -->
+                  <div class="col-lg-6" data-aos="fade-right">
+                    <div class="about-image">
+                      <img
+                        src="assets/img/health/facilities-1.webp"
+                        alt="RSMS"
+                        class="img-fluid rounded-3 mb-4"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- DESKRIPSI DINAMIS -->
+                  <div class="col-lg-6" data-aos="fade-left">
+                    <div id="profilDiklatContent"></div>
+
+                    <!-- CTA -->
+                    <div class="cta-wrapper mt-4">
+                      <a href="#tim-diklat" class="btn btn-primary">Tim Diklat</a>
+                      <a id="btnStrukturOrganisasi" target="_blank" class="btn btn-outline">
+                        Struktur Organisasi
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+      <!-- /Home About Section -->
+
+      <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          try {
+            /* =========================
+              LOAD PROFIL DIKLAT (AGGREGATOR)
+              ========================= */
+            const res = await fetch("http://localhost:5000/api/profil-diklat");
+            const data = await res.json();
+
+            const { institusi, histori, sertifikat, timKerja } = data;
+
+            if (!institusi) {
+              throw new Error("Data institusi kosong");
+            }
+
+            document.getElementById("profilRingkasAtas").innerText =
+              institusi.deskripsi;
+
+            /* =========================
+              HISTORI AKREDITASI AKTIF
+              ========================= */
+            const historiAktif = histori[histori.length - 1];
+
+            document.getElementById("profilSK").innerHTML = `
+              <strong>Akreditasi:</strong> ${historiAktif.kategori_akreditasi}<br>
+              <strong>Nomor SK:</strong> ${historiAktif.nomor_sk}<br>
+              <strong>Masa Berlaku:</strong> ${historiAktif.masa_berlaku}<br>
+              <a href="${historiAktif.link_sk}" target="_blank"
+                style="text-decoration:none;color:#20c997;">
+                📄 Lihat SK Penetapan
+              </a>
+            `;
+
+            /* =========================
+              SERTIFIKAT AKREDITASI
+              ========================= */
+            let sertifikatHtml = `
+              <div class="feature-item mb-4">
+                <p class="lead">
+                  <strong>Sertifikat Akreditasi</strong>
+                </p>
+                <div class="row g-3">
+            `;
+
+            if (sertifikat.length === 0) {
+              sertifikatHtml += `<p class="text-muted">Belum ada sertifikat.</p>`;
+            } else {
+              sertifikat.forEach((s) => {
+                sertifikatHtml += `
+                  <div class="col-md-6">
+                    <img
+                      src="http://localhost:5000/${s.file_path}"
+                      class="img-fluid rounded shadow-sm zoomable-img"
+                      alt="${s.keterangan}"
+                      data-img="http://localhost:5000/${s.file_path}"
+                    />
+                    <small class="d-block mt-2">${s.keterangan}</small>
+                  </div>
+                `;
+              });
+            }
+
+            sertifikatHtml += `</div></div>`;
+
+            /* =========================
+              TIM KERJA
+              ========================= */
+            let timHtml = `
+              <div class="feature-item mb-4">
+                <p class="lead"><strong>Tim Diklat</strong></p>
+                <ul class="ps-3">
+            `;
+
+            if (timKerja.length === 0) {
+              timHtml += `<li class="text-muted">Data tim belum tersedia</li>`;
+            } else {
+              timKerja.forEach((t) => {
+                timHtml += `<li>${t.jabatan}</li>`;
+              });
+            }
+
+            timHtml += `</ul></div>`;
+
+            /* =========================
+              RENDER KE HALAMAN
+              ========================= */
+            document.getElementById("profilDiklatContent").innerHTML = `
+
+              ${sertifikatHtml}
+              ${timHtml}
+            `;
+
+            /* =========================
+              ZOOM IMAGE MODAL (WAJIB SETELAH innerHTML)
+              ========================= */
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const captionText = document.getElementById("modalCaption");
+            const closeBtn = document.querySelector(".img-modal-close");
+
+            document.querySelectorAll(".zoomable-img").forEach((img) => {
+              img.addEventListener("click", () => {
+                modal.style.display = "flex";
+                modalImg.src = img.dataset.img;
+                // captionText.innerText = img.alt || "";
+              });
+            });
+
+            closeBtn.onclick = () => {
+              modal.style.display = "none";
+            };
+
+            modal.onclick = (e) => {
+              if (e.target === modal) {
+                modal.style.display = "none";
+              }
+            };
+
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                modal.style.display = "none";
+              }
+            });
+
+            /* =========================
+            STRUKTUR ORGANISASI
+            ========================= */
+          const strukturRes = await fetch(
+            "http://localhost:5000/api/struktur-organisasi"
+          );
+          const struktur = await strukturRes.json();
+
+          if (struktur && document.getElementById("btnStrukturOrganisasi")) {
+            document.getElementById("btnStrukturOrganisasi").href =
+              struktur.file_url;
+          }
+
+          } catch (err) {
+            console.error("Gagal load profil diklat:", err);
+          }
+        });
+        </script>
+
+        <!-- MODAL ZOOM GAMBAR SERTIFIKAT -->
+        <div id="imageModal" class="img-modal">
+          <span class="img-modal-close">&times;</span>
+          <img class="img-modal-content" id="modalImage">
+          <div class="img-modal-caption" id="modalCaption"></div>
+        </div>
+
+      <!-- /Home About Section -->
+
     <!-- About Section -->
     <section id="about" class="about section">
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row gy-4">
-          <div class="col-lg-6">
-            <div class="content">
-              <h4 style="font-weight: bold;">BE A HOSPITAL UNIVERSITY</h4>
-              <h5>PROSES BISNIS PELAYANAN RUMAH SAKIT + PROGRAM PENGEMBANGAN SDM + INSTITUSI PENYELENGGARA PELATIHAN BIDANG KESEHATAN.</h5><br>
-              <p class="lead">Histori Singkat RSMS Institusi Penyelenggara Pelatihan:</p>
-                      <ul>
-                        <li>Berawal dari Pengampuan oleh BAPELKES Provinsi Jawa Tengah pada tahun 2018–2019</li>
-                        <li>Divisi Diklat RSMS sebagai Institusi Penyelenggara Pelatihan berdasarkan SK KAPUS BPPSDMK Nomor HK.02.02/I/1826/2020</li>
-                        <li>Kategori Akreditasi A (berlaku 5 tahun)</li>
-                      </ul>
-
-                      <p class="lead">Pendayagunaan SDM RSMS:</p>
-                      <ul>
-                        <li>Tim Penyusun Mutu Pelatihan & Penjaminan Mutu Pelatihan</li>
-                        <li>TPM Tim Audit Mutu Internal</li>
-                        <li>Fasilitator Pelatihan (Narasumber & Instruktur)</li>
-                        <li>Panitia Penyelenggara Pelatihan</li>
-                      </ul>
-
-              <section id="home-about" class="home-about section">
-                <div class="container" data-aos="fade-up" data-aos-delay="100">
-                  <div class="row gy-5 align-items-center">
-
-                    <div class="col-lg-12" data-aos="fade-left" data-aos-delay="300">
-                      <div class="about-content">
-
-                        <!-- FOTO SERTIFIKAT -->
-                        <div class="col-md-6 d-flex justify-content-center align-items-start" data-aos="fade-up" data-aos-delay="400">
-                          <div class="feature-item">
-                            <div class="icon">
-                            </div>
-                            <div class="col-md-6 d-flex justify-content-center align-items-center" data-aos="fade-up" data-aos-delay="500">
-                              <img 
-                                src="http://localhost:8080/pelatihanmargono/backend/uploads/profil/akreditasi.png"
-                                alt="Sertifikat Akreditasi"
-                                class="img-fluid sertifikat-img"
-                                style="cursor: zoom-in;"
-                                onclick="zoomFlyer(this.src)"
-                              >
-                            </div>
-                          </div>
-                        </div>
-                        <!-- FOTO SERTIFIKAT -->
-                        <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
-                          <div class="feature-item">
-                            <div class="icon">
-                            </div>
-                            <div class="col-md-6 d-flex justify-content-center align-items-start" data-aos="fade-up" data-aos-delay="500">
-                              <img 
-                                src="http://localhost:8080/pelatihanmargono/backend/uploads/profil/rumah sakit pendidikan.png"
-                                alt="Sertifikat Akreditasi"
-                                class="img-fluid rumah sakit pendidikan-img"
-                                style="cursor: zoom-in;"
-                                onclick="zoomFlyer(this.src)"
-                              >
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- BAGIAN ATAS (2 INFO) -->
-                        <div class="row g-4 mt-4">
-                          <div class="col-md-6" data-aos="fade-up" data-aos-delay="400">
-                            <div class="feature-item">
-                              <h4>RSUD Prof. Dr. Margono Soekarjo Purwokerto menjadi RS Kelas A Pendidikan sejak tahun 2023</h4>
-                            </div>
-                          </div>
-
-                          <div class="col-md-6" data-aos="fade-up" data-aos-delay="500">
-                            <div class="feature-item">
-                              <h4>
-                                SK Kemenkes RI Nomor HK.02.02/F/2866/2023 <br>
-                                <a href="http://asik.rsmargono.go.id:7222/pelatihan_diklat/assets/download/SK%20RSUD%20PROF%20DR.MARGONO%20SOEKARJO%20(UTAMA%20FK%20UNIV.JENDERAL%20SOEDIRMAN).pdf" 
-                                  target="_blank"
-                                  style="font-size: 14px; margin-left: 10px; text-decoration: none;">
-                                  Tampilan SK pdf/download
-                                </a>
-                              </h4>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                <!-- Modal Zoom Flyer -->
-                  <div id="zoomFlyerModal" class="zoom-modal">
-                    <div class="zoom-modal-content">
-                      <span class="zoom-close" onclick="closeZoom()">&times;</span>
-                      <img id="zoomFlyerImage" class="zoom-image">
-                    </div>
-                  </div>
-
-              </section>
-
-              <script>
-                // Zoom foto
-                function zoomFlyer(src) {
-                  document.getElementById("zoomFlyerImage").src = src;
-                  document.getElementById("zoomFlyerModal").style.display = "flex";
-                }
-
-                function closeZoom() {
-                  document.getElementById("zoomFlyerModal").style.display = "none";
-                }
-              </script>
-
-
-              <div class="cta-buttons" data-aos="fade-up" data-aos-delay="300">
-                <a href="#tim-diklat" class="btn-primary">Tim Diklat</a>
-                <a href="http://asik.rsmargono.go.id:7222/pelatihan_diklat/assets/download/STRUKTUR%20ORGANISASI%20DIKLIT.pdf" 
-                  class="btn-secondary" 
-                  target="_blank">
-                  Struktur Organisasi
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6">
-            <div class="image-section" data-aos="fade-left" data-aos-delay="200">
-              <div class="main-image">
-                <img src="assets/img/health/consultation-3.webp" alt="Healthcare consultation" class="img-fluid">
-              </div>
-              <div class="image-grid">
-                <div class="grid-item">
-                  <img src="assets/img/health/facilities-2.webp" alt="Medical facility" class="img-fluid">
-                </div>
-                <div class="grid-item">
-                  <img src="assets/img/health/staff-5.webp" alt="Medical staff" class="img-fluid">
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div id="tim-diklat" class="certifications-section" data-aos="fade-up" data-aos-delay="400">
@@ -391,7 +465,6 @@
             <div class="col-lg-12">
               <div class="section-header">
                 <h3 style="font-weight: bold";>TIM DIKLAT RSUD MARGONO SOEKARJO</h3>
-                <!-- <p>We are proud to be accredited by leading healthcare organizations</p> -->
               <section>
                 <div class="certifications-grid">
                 <div class="certification-item">

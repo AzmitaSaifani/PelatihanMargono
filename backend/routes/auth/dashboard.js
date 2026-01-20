@@ -12,7 +12,8 @@ router.get("/statistik", async (req, res) => {
       connection.promise().query(`
         SELECT
           COUNT(*) AS total,
-          SUM(status = 'Menunggu Verifikasi') AS menunggu_verifikasi,
+          SUM(status = 'Menunggu Verifikasi Berkas') AS menunggu_verifikasi_berkas,
+          SUM(status = 'Verifikasi Berkas Invalid') AS pendaftaran_invalid_berkas,
           SUM(status = 'Menunggu Pembayaran') AS menunggu_pembayaran,
           SUM(status = 'Diterima') AS diterima,
           SUM(status = 'Perlu Perbaikan') AS perlu_perbaikan

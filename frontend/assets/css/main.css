@@ -149,7 +149,7 @@ h6 {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .fc-daygrid-event {
@@ -6613,4 +6613,68 @@ hero-image img {
 /* Jangan potong event multi-day */
 .fc-event {
   white-space: nowrap;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+  transition: 0.2s ease;
+}
+
+/* === IMAGE MODAL === */
+.img-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.img-modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  animation: zoomIn 0.25s ease;
+}
+
+.img-modal-caption {
+  color: #ddd;
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.img-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.zoomable-img {
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.zoomable-img:hover {
+  transform: scale(1.02);
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

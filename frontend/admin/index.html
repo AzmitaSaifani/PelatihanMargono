@@ -139,11 +139,11 @@
     <!-- ================= CONTENT ================= -->
     <div class="container py-4">
       <div class="text-center mb-4">
-        <h2 class="fw-bold">
+        <h1 class="fw-bold mt-4 mb-5">
           Dashboard Admin Diklat<br />
           RSUD Prof. Dr. Margono Soekarjo
-        </h2>
-        <p class="text-muted">Ringkasan data sistem pelatihan</p>
+        </h1>
+        <!-- <p class="text-muted">Ringkasan data sistem pelatihan</p> -->
       </div>
 
       <!-- ================= STATISTIK ================= -->
@@ -151,72 +151,90 @@
       <!-- PENDAFTARAN -->
       <h5 class="fw-bold mb-3">
         <a href="pendaftaran.html" class="text-decoration-none text-dark">
-          Statistik Pendaftaran
+          Statistik Pendaftaran Peserta
         </a>
       </h5>
       <div class="row g-3 mb-4">
         <div class="col-md-3">
-          <div class="stat-card bg-primary">
-            <div class="stat-title">Total Pendaftar</div>
-            <div class="stat-value" id="pendaftaran_total">0</div>
-          </div>
+          <a href="pendaftaran.html" class="text-decoration-none">
+            <div class="stat-card bg-primary">
+              <div class="stat-title">Total Pendaftaran Peserta</div>
+              <div class="stat-value" id="pendaftaran_total">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-warning text-dark">
-            <div class="stat-title">Menunggu Verifikasi Berkas</div>
-            <div class="stat-value" id="pendaftaran_verifikasi">0</div>
-          </div>
+          <a href="pendaftaran.html" class="text-decoration-none">
+            <div class="stat-card bg-warning text-dark">
+              <div class="stat-title">Menunggu Verifikasi Berkas</div>
+              <div class="stat-value" id="verifikasi_berkas">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-info">
-            <div class="stat-title">Menunggu Pembayaran</div>
-            <div class="stat-value" id="pendaftaran_pembayaran">0</div>
-          </div>
+          <a href="pendaftaran.html" class="text-decoration-none">
+            <div class="stat-card bg-info">
+              <div class="stat-title">Menunggu Pembayaran</div>
+              <div class="stat-value" id="pendaftaran_pembayaran">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-danger">
-            <div class="stat-title">Invalid Berkas</div>
-            <div class="stat-value" id="pembayaran_invalid">0</div>
-          </div>
+          <a href="pendaftaran.html" class="text-decoration-none">
+            <div class="stat-card bg-danger">
+              <div class="stat-title">Berkas Pendaftaran Invalid</div>
+              <div class="stat-value" id="pendaftaran_invalid_berkas">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-success">
-            <div class="stat-title">Diterima</div>
-            <div class="stat-value" id="pendaftaran_diterima">0</div>
-          </div>
+          <a href="pendaftaran.html" class="text-decoration-none">
+            <div class="stat-card bg-success">
+              <div class="stat-title">Total Peserta Diterima</div>
+              <div class="stat-value" id="pendaftaran_diterima">0</div>
+            </div>
+          </a>
         </div>
       </div>
 
       <!-- PEMBAYARAN -->
       <h5 class="fw-bold mb-3">
         <a href="pembayaran.html" class="text-decoration-none text-dark">
-          Statistik Pembayaran
+          Statistik Pembayaran Pelatihan
         </a>
       </h5>
       <div class="row g-3 mb-4">
         <div class="col-md-3">
-          <div class="stat-card bg-primary">
-            <div class="stat-title">Total Pembayaran</div>
-            <div class="stat-value" id="pembayaran_total">0</div>
-          </div>
+          <a href="pembayaran.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-primary">
+              <div class="stat-title">Total Pembayaran Peserta</div>
+              <div class="stat-value" id="pembayaran_total">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-warning text-dark">
-            <div class="stat-title">Menunggu Verifikasi Pembayaran</div>
-            <div class="stat-value" id="pembayaran_pending">0</div>
-          </div>
+          <a href="pembayaran.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-warning text-dark">
+              <div class="stat-title">Menunggu Verifikasi Pembayaran</div>
+              <div class="stat-value" id="pembayaran_pending">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-success">
-            <div class="stat-title">Valid</div>
-            <div class="stat-value" id="pembayaran_valid">0</div>
-          </div>
+          <a href="pembayaran.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-success">
+              <div class="stat-title">Bukti Pembayaran Valid</div>
+              <div class="stat-value" id="pembayaran_valid">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-danger">
-            <div class="stat-title">Invalid</div>
-            <div class="stat-value" id="pembayaran_invalid">0</div>
-          </div>
+          <a href="pembayaran.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-danger">
+              <div class="stat-title">Bukti Pembayaran Invalid</div>
+              <div class="stat-value" id="pembayaran_invalid">0</div>
+            </div>
+          </a>
         </div>
       </div>
 
@@ -228,28 +246,28 @@
       </h5>
       <div class="row g-3 mb-5">
         <div class="col-md-3">
-          <div class="stat-card bg-primary">
-            <div class="stat-title">Total Pelatihan</div>
-            <div class="stat-value" id="pelatihan_total">0</div>
-          </div>
+          <a href="pelatihan.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-primary">
+              <div class="stat-title">Total Pelatihan</div>
+              <div class="stat-value" id="pelatihan_total">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-success">
-            <div class="stat-title">Aktif</div>
-            <div class="stat-value" id="pelatihan_aktif">0</div>
-          </div>
+          <a href="pelatihan.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-success">
+              <div class="stat-title">Aktif</div>
+              <div class="stat-value" id="pelatihan_aktif">0</div>
+            </div>
+          </a>
         </div>
         <div class="col-md-3">
-          <div class="stat-card bg-secondary">
-            <div class="stat-title">Draft</div>
-            <div class="stat-value" id="pelatihan_draft">0</div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="stat-card bg-info">
-            <div class="stat-title">Peserta Diterima</div>
-            <div class="stat-value" id="pelatihan_diterima">0</div>
-          </div>
+          <a href="pelatihan.html" class="text-decoration-none text-dark">
+            <div class="stat-card bg-secondary">
+              <div class="stat-title">Draft</div>
+              <div class="stat-value" id="pelatihan_draft">0</div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
@@ -273,25 +291,44 @@
           );
           const data = await res.json();
 
-          // Pendaftaran
-          pendaftaran_total.innerText = data.pendaftaran.total;
-          pendaftaran_verifikasi.innerText =
-            data.pendaftaran.menunggu_verifikasi;
-          pendaftaran_pembayaran.innerText =
+          // ================= PENDAFTARAN =================
+          document.getElementById("pendaftaran_total").innerText =
+            data.pendaftaran.total;
+
+          document.getElementById("verifikasi_berkas").innerText =
+            data.pendaftaran.menunggu_verifikasi_berkas;
+
+          document.getElementById("pendaftaran_pembayaran").innerText =
             data.pendaftaran.menunggu_pembayaran;
-          pendaftaran_diterima.innerText = data.pendaftaran.diterima;
 
-          // Pembayaran
-          pembayaran_total.innerText = data.pembayaran.total;
-          pembayaran_pending.innerText = data.pembayaran.pending;
-          pembayaran_valid.innerText = data.pembayaran.valid;
-          pembayaran_invalid.innerText = data.pembayaran.invalid;
+          document.getElementById("pendaftaran_invalid_berkas").innerText =
+            data.pendaftaran.pendaftaran_invalid_berkas;
 
-          // Pelatihan
-          pelatihan_total.innerText = data.pelatihan.total;
-          pelatihan_aktif.innerText = data.pelatihan.aktif;
-          pelatihan_draft.innerText = data.pelatihan.draft;
-          pelatihan_diterima.innerText = data.pelatihan.total_peserta_diterima;
+          document.getElementById("pendaftaran_diterima").innerText =
+            data.pendaftaran.diterima;
+
+          // ================= PEMBAYARAN =================
+          document.getElementById("pembayaran_total").innerText =
+            data.pembayaran.total;
+
+          document.getElementById("pembayaran_pending").innerText =
+            data.pembayaran.pending;
+
+          document.getElementById("pembayaran_valid").innerText =
+            data.pembayaran.valid;
+
+          document.getElementById("pembayaran_invalid").innerText =
+            data.pembayaran.invalid;
+
+          // ================= PELATIHAN =================
+          document.getElementById("pelatihan_total").innerText =
+            data.pelatihan.total;
+
+          document.getElementById("pelatihan_aktif").innerText =
+            data.pelatihan.aktif;
+
+          document.getElementById("pelatihan_draft").innerText =
+            data.pelatihan.draft;
         } catch (err) {
           alert("Gagal memuat statistik dashboard");
           console.error(err);
