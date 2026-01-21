@@ -52,9 +52,19 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
   const bukti_transfer = req.file.filename;
 
   const sqlCari = `
-      SELECT nama_peserta, email, status
-      FROM pendaftaran_tb
-      WHERE id_pendaftaran = ?
+      SELECT 
+        daftar.nama_peserta,
+        daftar.email,
+        daftar.status,
+
+        pel.nama_pelatihan,
+        pel.lokasi,
+        pel.tanggal_mulai,
+        pel.tanggal_selesai
+      FROM pendaftaran_tb daftar
+      JOIN pelatihan_tb pel
+        ON daftar.id_pelatihan = pel.id_pelatihan
+      WHERE daftar.id_pendaftaran = ?
     `;
 
   connection.query(sqlCari, [id_pendaftaran], async (err, hasil) => {
@@ -79,7 +89,14 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
       });
     }
 
-    const { nama_peserta, email } = hasil[0];
+    const {
+      nama_peserta,
+      email,
+      nama_pelatihan,
+      lokasi,
+      tanggal_mulai,
+      tanggal_selesai,
+    } = hasil[0];
 
     const sqlInsert = `
         INSERT INTO pembayaran_tb
@@ -102,6 +119,18 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
         // =====================
         let emailStatus = "GAGAL";
 
+        const formatTanggal = (dateStr) => {
+          if (!dateStr) return "-";
+          return new Date(dateStr).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        };
+
+        const tglMulaiFormatted = formatTanggal(tanggal_mulai);
+        const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+
         try {
           const sent = await sendEmail({
             to: email,
@@ -119,10 +148,38 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
                     <b>PENDING (Menunggu Verifikasi Pembayaran)</b>.
                   </p>
 
-                  <p>
-                    Hasil verifikasi akan kami informasikan melalui email
-                    setelah proses pengecekan selesai.
-                  </p>
+                  <hr>
+
+                    <p><b>Detail Pelatihan:</b></p>
+                    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+                    <tr>
+                      <td><b>Nama Peserta</b></td>
+                      <td>:</td>
+                      <td>${nama_peserta}</td>
+                    </tr>
+                      <tr>
+                        <td><b>Nama Pelatihan</b></td>
+                        <td>:</td>
+                        <td>${nama_pelatihan}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Lokasi</b></td>
+                        <td>:</td>
+                        <td>${lokasi}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Waktu Pelaksanaan</b></td>
+                        <td>:</td>
+                        <td>${tglMulaiFormatted} s.d. ${tglSelesaiFormatted}</td>
+                      </tr>
+                    </table>
+
+                    <br>
+
+                    <p>
+                      Hasil verifikasi akan kami informasikan melalui email
+                      setelah proses pengecekan selesai.
+                    </p>
 
                   <br>
                   <p>
@@ -173,12 +230,19 @@ router.get("/", (req, res) => {
       bayar.bukti_transfer,
       bayar.status AS status_bayar,
       bayar.uploaded_at,
+
       daftar.nama_peserta,
       daftar.no_wa,
       daftar.email,
       daftar.harga_pelatihan,
+
       pel.id_pelatihan,
-      pel.nama_pelatihan
+      pel.nama_pelatihan,
+      pel.lokasi,
+      pel.tanggal_mulai,
+      pel.tanggal_selesai,
+      pel.link_grup_wa
+
     FROM pembayaran_tb bayar
     LEFT JOIN pendaftaran_tb daftar 
       ON bayar.id_pendaftaran = daftar.id_pendaftaran
@@ -189,10 +253,13 @@ router.get("/", (req, res) => {
     `;
 
   connection.query(sql, (err, results) => {
-    if (err)
-      return res
-        .status(500)
-        .json({ message: "Gagal mengambil data pembayaran" });
+    if (err) {
+      console.error("❌ GET pembayaran error:", err);
+      return res.status(500).json({
+        message: "Gagal mengambil data pembayaran",
+        error: err.sqlMessage, // 🔥 biar kelihatan jelas saat debug
+      });
+    }
 
     res.json(results);
   });
@@ -209,12 +276,21 @@ router.put("/:id/validate", (req, res) => {
       SELECT 
         bayar.id_pendaftaran,
         daftar.nama_peserta,
-        daftar.email
+        daftar.email,
+
+        pel.nama_pelatihan,
+        pel.lokasi,
+        pel.tanggal_mulai,
+        pel.tanggal_selesai,
+        pel.link_grup_wa
+
       FROM pembayaran_tb bayar
       JOIN pendaftaran_tb daftar
         ON bayar.id_pendaftaran = daftar.id_pendaftaran
+      JOIN pelatihan_tb pel
+        ON daftar.id_pelatihan = pel.id_pelatihan
       WHERE bayar.id_pembayaran = ?
-    `;
+          `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
     if (err) {
@@ -230,7 +306,16 @@ router.put("/:id/validate", (req, res) => {
         .json({ message: "Data pembayaran tidak ditemukan" });
     }
 
-    const { id_pendaftaran, nama_peserta, email } = dataRes[0];
+    const {
+      id_pendaftaran,
+      nama_peserta,
+      email,
+      nama_pelatihan,
+      lokasi,
+      tanggal_mulai,
+      tanggal_selesai,
+      link_grup_wa,
+    } = dataRes[0];
 
     // 2. Update status pembayaran → VALID
     const updateBayarSQL = `
@@ -263,6 +348,18 @@ router.put("/:id/validate", (req, res) => {
         // 4. Kirim email ke peserta
         let emailStatus = "GAGAL";
 
+        const formatTanggal = (dateStr) => {
+          if (!dateStr) return "-";
+          return new Date(dateStr).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        };
+
+        const tglMulaiFormatted = formatTanggal(tanggal_mulai);
+        const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+
         try {
           const sent = await sendEmail({
             to: email,
@@ -280,10 +377,55 @@ router.put("/:id/validate", (req, res) => {
                   <b>DITERIMA</b>.
                 </p>
 
-                <p>
-                  Informasi lebih lanjut mengenai jadwal dan teknis pelatihan
-                  akan disampaikan melalui email berikutnya.
-                </p>
+                <hr>
+
+                <p><b>Detail Pelatihan:</b></p>
+                  <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td><b>Nama Peserta</b></td>
+                    <td>:</td>
+                    <td>${nama_peserta}</td>
+                  </tr>
+                    <tr>
+                      <td><b>Nama Pelatihan</b></td>
+                      <td>:</td>
+                      <td>${nama_pelatihan}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Lokasi</b></td>
+                      <td>:</td>
+                      <td>${lokasi}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Waktu Pelaksanaan</b></td>
+                      <td>:</td>
+                      <td>${tglMulaiFormatted} s.d. ${tglSelesaiFormatted}</td>
+                    </tr>
+                  </table>
+
+                  <br>
+
+                  ${
+                    link_grup_wa
+                      ? `
+                        <p>
+                          Untuk memudahkan koordinasi dan penyampaian informasi pelatihan,
+                          silakan bergabung ke <b>Grup WhatsApp Peserta</b> melalui tautan berikut:
+                        </p>
+
+                        <p>
+                          <a href="${link_grup_wa}" target="_blank">
+                             Gabung Grup WhatsApp Peserta Pelatihan
+                          </a>
+                        </p>
+                      `
+                      : `
+                        <p>
+                          Informasi grup WhatsApp peserta akan kami sampaikan
+                          melalui email selanjutnya.
+                        </p>
+                      `
+                  }
 
                 <br>
                 <p>
@@ -344,11 +486,19 @@ router.put("/:id/invalid", (req, res) => {
       SELECT 
         bayar.id_pendaftaran,
         daftar.nama_peserta,
-        daftar.email
+        daftar.email,
+
+        pel.nama_pelatihan,
+        pel.lokasi,
+        pel.tanggal_mulai,
+        pel.tanggal_selesai
       FROM pembayaran_tb bayar
       JOIN pendaftaran_tb daftar
         ON bayar.id_pendaftaran = daftar.id_pendaftaran
+      JOIN pelatihan_tb pel
+        ON daftar.id_pelatihan = pel.id_pelatihan
       WHERE bayar.id_pembayaran = ?
+
     `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
@@ -365,7 +515,15 @@ router.put("/:id/invalid", (req, res) => {
         .json({ message: "Data pembayaran tidak ditemukan" });
     }
 
-    const { id_pendaftaran, nama_peserta, email } = dataRes[0];
+    const {
+      id_pendaftaran,
+      nama_peserta,
+      email,
+      nama_pelatihan,
+      lokasi,
+      tanggal_mulai,
+      tanggal_selesai,
+    } = dataRes[0];
 
     // 2. Update status pembayaran → INVALID
     const updateBayarSQL = `
@@ -400,6 +558,18 @@ router.put("/:id/invalid", (req, res) => {
         // 4. Kirim email ke peserta
         let emailStatus = "GAGAL";
 
+        const formatTanggal = (dateStr) => {
+          if (!dateStr) return "-";
+          return new Date(dateStr).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        };
+
+        const tglMulaiFormatted = formatTanggal(tanggal_mulai);
+        const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+
         try {
           const sent = await sendEmail({
             to: email,
@@ -413,8 +583,31 @@ router.put("/:id/invalid", (req, res) => {
                   <b>bukti pembayaran yang Anda kirimkan belum dapat kami validasi</b>.
                 </p>
 
+                 <hr>
+
+                <p><b>Detail Pelatihan:</b></p>
+                <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td><b>Nama Pelatihan</b></td>
+                    <td>:</td>
+                    <td>${nama_pelatihan}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Lokasi</b></td>
+                    <td>:</td>
+                    <td>${lokasi}</td>
+                  </tr>
+                  <tr>
+                    <td><b>Waktu Pelaksanaan</b></td>
+                    <td>:</td>
+                    <td>${tglMulaiFormatted} s.d. ${tglSelesaiFormatted}</td>
+                  </tr>
+                </table>
+
+                <br>
+
                 <p>
-                  Hal ini dapat disebabkan oleh:
+                  Adapun kemungkinan penyebab pembayaran belum valid:
                   <ul>
                     <li>Bukti transfer tidak jelas</li>
                     <li>Nominal tidak sesuai</li>

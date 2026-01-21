@@ -207,7 +207,7 @@ router.post(
     const foto_4x6 = req.files?.foto_4x6?.[0]?.filename ?? null;
 
     // =====================================================
-    // 1️⃣ AMBIL HARGA PELATIHAN
+    // AMBIL HARGA PELATIHAN
     // =====================================================
     const getHargaSQL = `
       SELECT harga
@@ -232,7 +232,7 @@ router.post(
       const harga_pelatihan = hargaRes[0].harga;
 
       // =====================================================
-      // 2️⃣ CEK KUOTA
+      // CEK KUOTA
       // =====================================================
       const cekKuotaSQL = `
         SELECT kuota - (
@@ -313,14 +313,53 @@ router.post(
             const newId = result.insertId;
 
             // ======================
-            // KIRIM EMAIL (AMAN)
+            // AMBIL DATA PELATIHAN
             // ======================
-            let emailStatus = "GAGAL";
-            try {
-              const sent = await sendEmail({
-                to: email,
-                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                html: `
+            const getPelatihanSQL = `
+              SELECT 
+                nama_pelatihan,
+                tanggal_mulai,
+                tanggal_selesai
+              FROM pelatihan_tb
+              WHERE id_pelatihan = ?
+            `;
+
+            connection.query(
+              getPelatihanSQL,
+              [id_pelatihan],
+              async (err, pelRes) => {
+                if (err || pelRes.length === 0) {
+                  console.error("❌ Error ambil data pelatihan:", err);
+                  return res.status(500).json({
+                    message: "Gagal mengambil data pelatihan",
+                  });
+                }
+
+                const { nama_pelatihan, tanggal_mulai, tanggal_selesai } =
+                  pelRes[0];
+
+                const formatTanggal = (dateStr) => {
+                  return new Date(dateStr).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  });
+                };
+
+                const waktuPelaksanaan = `${formatTanggal(
+                  tanggal_mulai
+                )} s.d. ${formatTanggal(tanggal_selesai)}`;
+
+                // ======================
+                // KIRIM EMAIL (AMAN)
+                // ======================
+                let emailStatus = "GAGAL";
+                try {
+                  const sent = await sendEmail({
+                    to: email,
+                    subject:
+                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                    html: `
                   <p>Yth. <b>${nama_peserta}</b>,</p>
 
                   <p>
@@ -328,19 +367,40 @@ router.post(
                     <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
                   </p>
 
-                  <p>
-                    Berkas pendaftaran Anda telah kami terima dan saat ini
-                    sedang dalam proses <b>verifikasi oleh tim kami</b>.
-                  </p>
+                  <p><b>Detail Pendaftaran Pelatihan:</b></p>
+                    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+                      <tr>
+                        <td><b>Nama Peserta</b></td>
+                        <td>:</td>
+                        <td>${nama_peserta}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Nama Pelatihan</b></td>
+                        <td>:</td>
+                        <td>${nama_pelatihan}</td>
+                      </tr>
+                      <tr>
+                        <td><b>Waktu Pelaksanaan</b></td>
+                        <td>:</td>
+                        <td>${waktuPelaksanaan}</td>
+                      </tr>
+                    </table>
 
-                  <p>
-                    Status pendaftaran Anda saat ini:
-                    <b>Menunggu Verifikasi Berkas</b>
-                  </p>
+                    <br>
 
-                  <p>
-                    Hasil verifikasi akan kami informasikan melalui email.
-                  </p>
+                    <p>
+                      Berkas pendaftaran Anda telah kami terima dan saat ini
+                      sedang dalam proses <b>verifikasi oleh tim kami</b>.
+                    </p>
+
+                    <p>
+                      Status pendaftaran Anda saat ini:
+                      <b>Menunggu Verifikasi Berkas</b>
+                    </p>
+
+                    <p>
+                      Informasi lanjutan akan kami sampaikan melalui email berikutnya.
+                    </p>
 
                   <br>
                   <p>
@@ -348,33 +408,37 @@ router.post(
                     <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
                   </p>
                 `,
-              });
-              if (sent) emailStatus = "TERKIRIM";
+                  });
+                  if (sent) emailStatus = "TERKIRIM";
 
-              await logEmail({
-                id_pendaftaran: newId,
-                email,
-                nama_penerima: nama_peserta,
-                jenis_email: "BERKAS_PENDING",
-                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                status: emailStatus,
-              });
-            } catch (errEmail) {
-              await logEmail({
-                id_pendaftaran: newId,
-                email,
-                nama_penerima: nama_peserta,
-                jenis_email: "BERKAS_PENDING",
-                subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                status: "GAGAL",
-                error_message: errEmail.message,
-              });
-            }
+                  await logEmail({
+                    id_pendaftaran: newId,
+                    email,
+                    nama_penerima: nama_peserta,
+                    jenis_email: "BERKAS_PENDING",
+                    subject:
+                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                    status: emailStatus,
+                  });
+                } catch (errEmail) {
+                  await logEmail({
+                    id_pendaftaran: newId,
+                    email,
+                    nama_penerima: nama_peserta,
+                    jenis_email: "BERKAS_PENDING",
+                    subject:
+                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                    status: "GAGAL",
+                    error_message: errEmail.message,
+                  });
+                }
 
-            res.status(201).json({
-              message: "✅ Pendaftaran berhasil",
-              id_pendaftaran: newId
-            });
+                res.status(201).json({
+                  message: "✅ Pendaftaran berhasil",
+                  id_pendaftaran: newId,
+                });
+              }
+            );
           });
         }
       );
@@ -547,11 +611,13 @@ router.put("/:id/accept", (req, res) => {
       d.nama_peserta,
       d.email,
       d.harga_pelatihan,
-      p.nama_pelatihan
-    FROM pendaftaran_tb d
-    JOIN pelatihan_tb p
-      ON d.id_pelatihan = p.id_pelatihan
-    WHERE d.id_pendaftaran = ?
+      p.nama_pelatihan,
+    p.tanggal_mulai,
+    p.tanggal_selesai
+  FROM pendaftaran_tb d
+  JOIN pelatihan_tb p
+    ON d.id_pelatihan = p.id_pelatihan
+  WHERE d.id_pendaftaran = ?
   `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
@@ -564,12 +630,37 @@ router.put("/:id/accept", (req, res) => {
       return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
     }
 
-    const { nama_peserta, email, harga_pelatihan, nama_pelatihan } =
-      pesertaRes[0];
+    const {
+      nama_peserta,
+      email,
+      harga_pelatihan,
+      nama_pelatihan,
+      tanggal_mulai,
+      tanggal_selesai,
+    } = pesertaRes[0];
 
-    // 🔐 BUAT TOKEN
+    // ======================
+    // FORMAT TANGGAL
+    // ======================
+    const formatTanggal = (dateStr) => {
+      if (!dateStr) return "-";
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
+    const waktuPelaksanaan = `${formatTanggal(
+      tanggal_mulai
+    )} s.d. ${formatTanggal(tanggal_selesai)}`;
+
+    // 🔐 TOKEN PEMBAYARAN
     const token = encryptId(id);
 
+    // ======================
+    // UPDATE STATUS
+    // ======================
     const updateStatusSQL = `
       UPDATE pendaftaran_tb 
       SET status = 'Menunggu Pembayaran'
@@ -597,13 +688,30 @@ router.put("/:id/accept", (req, res) => {
               Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b>.
             </p>
 
-            <p>
-              <b>Detail Pelatihan</b><br>
-              Nama Pelatihan: ${nama_pelatihan}<br>
-              Biaya: <b>Rp ${Number(harga_pelatihan).toLocaleString(
-                "id-ID"
-              )}</b>
-            </p>
+            <hr>
+
+            <p><b>Detail Pelatihan:</b></p>
+            <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+              <tr>
+                <td><b>Nama Pelatihan</b></td>
+                <td>:</td>
+                <td>${nama_pelatihan}</td>
+              </tr>
+              <tr>
+                <td><b>Waktu Pelaksanaan</b></td>
+                <td>:</td>
+                <td>${waktuPelaksanaan}</td>
+              </tr>
+              <tr>
+                <td><b>Biaya</b></td>
+                <td>:</td>
+                <td><b>Rp ${Number(harga_pelatihan).toLocaleString(
+                  "id-ID"
+                )}</b></td>
+              </tr>
+            </table>
+
+            <br>
 
             <p><b>Langkah Selanjutnya:</b></p>
             <ol>
@@ -633,7 +741,6 @@ router.put("/:id/accept", (req, res) => {
         if (sent !== false) {
           emailStatus = "TERKIRIM";
         }
-
       } catch (emailErr) {
         console.error("Email gagal dikirim:", emailErr.message);
       }
@@ -646,7 +753,7 @@ router.put("/:id/accept", (req, res) => {
         jenis_email: "BERKAS_VALID",
         subject: "Berkas Dinyatakan Valid – Menunggu Pembayaran",
         status: emailStatus,
-        error_message: emailStatus === "GAGAL" ? errorMessage : null
+        error_message: emailStatus === "GAGAL" ? errorMessage : null,
       });
 
       logAdmin({
@@ -715,9 +822,16 @@ router.put("/:id/reject", (req, res) => {
 
   // 1. Ambil data peserta (email & nama)
   const getPesertaSQL = `
-    SELECT nama_peserta, email
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
+    SELECT
+      nama_peserta,
+      email,
+      p.nama_pelatihan,
+      p.tanggal_mulai,
+      p.tanggal_selesai
+    FROM pendaftaran_tb d
+    JOIN pelatihan_tb p
+      ON d.id_pelatihan = p.id_pelatihan
+    WHERE d.id_pendaftaran = ?
   `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
@@ -730,9 +844,33 @@ router.put("/:id/reject", (req, res) => {
       return res.status(404).json({ message: "Pendaftaran tidak ditemukan" });
     }
 
-    const { nama_peserta, email } = pesertaRes[0];
+    const {
+      nama_peserta,
+      email,
+      nama_pelatihan,
+      tanggal_mulai,
+      tanggal_selesai,
+    } = pesertaRes[0];
 
-    // 2. Update status
+    // ======================
+    // FORMAT TANGGAL
+    // ======================
+    const formatTanggal = (dateStr) => {
+      if (!dateStr) return "-";
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
+    const waktuPelaksanaan = `${formatTanggal(
+      tanggal_mulai
+    )} s.d. ${formatTanggal(tanggal_selesai)}`;
+
+    // ======================
+    // UPDATE STATUS
+    // ======================
     const updateStatusSQL = `
       UPDATE pendaftaran_tb 
       SET status = 'Verifikasi Berkas Invalid'
@@ -745,12 +883,25 @@ router.put("/:id/reject", (req, res) => {
         return res.status(500).json({ message: "Gagal update status" });
       }
 
-      // 3. Kirim email (AMAN: gagal email ≠ gagal update)
-      try {
-        await sendEmail({
-          to: email,
-          subject: "Informasi Verifikasi Berkas Pendaftaran Pelatihan",
-          html: `
+      // 2. Update status
+      const updateStatusSQL = `
+      UPDATE pendaftaran_tb 
+      SET status = 'Verifikasi Berkas Invalid'
+      WHERE id_pendaftaran = ?
+    `;
+
+      connection.query(updateStatusSQL, [id], async (err) => {
+        if (err) {
+          console.error("❌ Error update status:", err);
+          return res.status(500).json({ message: "Gagal update status" });
+        }
+
+        // 3. Kirim email (AMAN: gagal email ≠ gagal update)
+        try {
+          await sendEmail({
+            to: email,
+            subject: "Informasi Verifikasi Berkas Pendaftaran Pelatihan",
+            html: `
             <p>Yth. <b>${nama_peserta}</b>,</p>
 
             <p>
@@ -763,9 +914,36 @@ router.put("/:id/reject", (req, res) => {
               <b>berkas pendaftaran Anda dinyatakan belum valid</b>.
             </p>
 
+            <hr>
+
+            <p><b>Detail Pelatihan:</b></p>
+            <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+              <tr>
+                <td><b>Nama Pelatihan</b></td>
+                <td>:</td>
+                <td>${nama_pelatihan}</td>
+              </tr>
+              <tr>
+                <td><b>Waktu Pelaksanaan</b></td>
+                <td>:</td>
+                <td>${waktuPelaksanaan}</td>
+              </tr>
+            </table>
+
+            <br>
+
             <p>
-              Tim kami akan menghubungi Anda untuk menyampaikan informasi
-              lebih lanjut terkait perbaikan berkas yang diperlukan.
+              Adapun beberapa kemungkinan penyebab berkas belum valid, antara lain:
+            </p>
+            <ul>
+              <li>Dokumen tidak lengkap</li>
+              <li>Format dokumen tidak sesuai</li>
+              <li>Data pada dokumen tidak terbaca dengan jelas</li>
+            </ul>
+
+            <p>
+              Tim kami akan menghubungi Anda untuk menyampaikan
+              informasi lebih lanjut terkait perbaikan berkas.
             </p>
 
             <p>
@@ -778,35 +956,36 @@ router.put("/:id/reject", (req, res) => {
               <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
             </p>
           `,
+          });
+
+          console.log("📧 Email verifikasi invalid terkirim ke:", email);
+        } catch (emailErr) {
+          console.error("⚠️ Email gagal dikirim:", emailErr.message);
+        }
+
+        await logEmail({
+          id_pendaftaran: id,
+          email,
+          nama_penerima: nama_peserta,
+          jenis_email: "BERKAS_INVALID",
+          subject: "Berkas Tidak Valid",
+          status: "TERKIRIM",
         });
 
-        console.log("📧 Email verifikasi invalid terkirim ke:", email);
-      } catch (emailErr) {
-        console.error("⚠️ Email gagal dikirim:", emailErr.message);
-      }
+        logAdmin({
+          id_user: req.headers["x-admin-id"],
+          email: req.headers["x-admin-email"],
+          nama_lengkap: req.headers["x-admin-nama"],
+          aktivitas: "AKSI",
+          keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
+          req,
+        });
 
-      await logEmail({
-        id_pendaftaran: id,
-        email,
-        nama_penerima: nama_peserta,
-        jenis_email: "BERKAS_INVALID",
-        subject: "Berkas Tidak Valid",
-        status: "TERKIRIM",
-      });
-
-      logAdmin({
-        id_user: req.headers["x-admin-id"],
-        email: req.headers["x-admin-email"],
-        nama_lengkap: req.headers["x-admin-nama"],
-        aktivitas: "AKSI",
-        keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
-        req,
-      });
-
-      // 4. Response ke frontend
-      res.json({
-        message: "❌ Berkas dinyatakan tidak valid & email terkirim",
-        status: "Verifikasi Berkas Invalid",
+        // 4. Response ke frontend
+        res.json({
+          message: "❌ Berkas dinyatakan tidak valid & email terkirim",
+          status: "Verifikasi Berkas Invalid",
+        });
       });
     });
   });

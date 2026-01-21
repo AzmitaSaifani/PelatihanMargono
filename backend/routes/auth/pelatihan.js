@@ -168,181 +168,6 @@ router.get("/:id", (req, res) => {
   });
 });
 
-// === READ: Lihat semua pelatihan ===
-router.get("/", (req, res) => {
-  const sql = `
-  SELECT 
-    p.id_pelatihan,
-    p.nama_pelatihan,
-    p.jumlah_jpl,
-    p.lokasi,
-    p.alamat_lengkap,
-    p.tanggal_mulai,
-    p.tanggal_selesai,
-    p.waktu_mulai,
-    p.waktu_selesai,
-    p.kuota,
-    p.warna,
-    p.harga,
-    p.kategori,
-    p.kriteria_peserta,
-    p.tipe_pelatihan,
-    p.durasi,
-    p.flyer_url,
-    p.status,
-    p.created_by,
-    p.created_at,
-    p.updated_at,
-
-    /* jumlah peserta yang status = diterima */
-    (
-      SELECT COUNT(*) 
-      FROM pendaftaran_tb d 
-      WHERE d.id_pelatihan = p.id_pelatihan
-      AND d.status = 'diterima'
-    ) AS jumlah_diterima,
-
-    /* sisa kuota (kuota - peserta diterima) */
-    p.kuota -
-    (
-      SELECT COUNT(*) 
-      FROM pendaftaran_tb d 
-      WHERE d.id_pelatihan = p.id_pelatihan
-      AND d.status = 'diterima'
-    ) AS sisa_kuota
-
-    FROM pelatihan_tb p
-    ORDER BY p.tanggal_mulai ASC
-  `;
-
-  connection.query(sql, (err, result) => {
-    if (err) {
-      console.error("❌ Gagal mengambil data pelatihan:", err);
-      return res.status(500).json({
-        message: "Gagal mengambil data pelatihan",
-        error: err.message,
-      });
-    }
-    res.status(200).json(result);
-  });
-});
-
-// === UPDATE: Edit pelatihan ===
-router.put("/:id", upload.single("flyer_url"), (req, res) => {
-  const { id } = req.params;
-  const {
-    nama_pelatihan,
-    jumlah_jpl,
-    lokasi,
-    alamat_lengkap,
-    tanggal_mulai,
-    tanggal_selesai,
-    waktu_mulai,
-    waktu_selesai,
-    kuota,
-    warna,
-    harga,
-    kategori,
-    kriteria_peserta,
-    tipe_pelatihan,
-    durasi,
-    status,
-    updated_by,
-  } = req.body;
-
-  if (kategori && !ALLOWED_KATEGORI.includes(kategori)) {
-    return res.status(400).json({
-      message: "❌ Kategori pelatihan harus: Nakes atau Non Nakes",
-    });
-  }
-
-  const flyer_url = req.file ? req.file.filename : null;
-
-  // Ambil data lama untuk hapus file lama jika ada upload baru
-  const getOldFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
-  connection.query(getOldFlyer, [id], (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Pelatihan tidak ditemukan." });
-    }
-
-    const oldFlyer = results[0].flyer_url;
-    if (flyer_url && oldFlyer) {
-      const oldPath = path.join("uploads/flyer", oldFlyer);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); // hapus file lama
-    }
-
-    const sql = `
-      UPDATE pelatihan_tb
-      SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
-          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, warna=?, harga=?,
-          kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
-      WHERE id_pelatihan=?
-    `;
-
-    const values = [
-      nama_pelatihan,
-      jumlah_jpl,
-      lokasi,
-      alamat_lengkap,
-      tanggal_mulai,
-      tanggal_selesai,
-      waktu_mulai,
-      waktu_selesai,
-      kuota,
-      warna,
-      harga || 0,
-      kategori,
-      kriteria_peserta,
-      tipe_pelatihan,
-      durasi,
-      flyer_url || oldFlyer,
-      status,
-      id,
-    ];
-
-    connection.query(sql, values, (err) => {
-      if (err) {
-        console.error("❌ Gagal memperbarui pelatihan:", err);
-        return res
-          .status(500)
-          .json({ message: "❌ Gagal memperbarui pelatihan" });
-      }
-      res.status(200).json({ message: "✅ Pelatihan berhasil diperbarui!" });
-    });
-  });
-});
-
-// === DELETE: Hapus pelatihan ===
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-
-  // Ambil nama file dulu biar bisa dihapus dari folder
-  const getFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
-  connection.query(getFlyer, [id], (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Pelatihan tidak ditemukan." });
-    }
-
-    const flyer = results[0].flyer_url;
-    if (flyer) {
-      const flyerPath = path.join("uploads/flyer", flyer);
-      if (fs.existsSync(flyerPath)) fs.unlinkSync(flyerPath); // hapus file
-    }
-
-    const deleteSql = `DELETE FROM pelatihan_tb WHERE id_pelatihan = ?`;
-    connection.query(deleteSql, [id], (err) => {
-      if (err) {
-        console.error("❌ Gagal menghapus pelatihan:", err);
-        return res
-          .status(500)
-          .json({ message: "❌ Gagal menghapus pelatihan" });
-      }
-
-      res.status(200).json({ message: "✅ Pelatihan berhasil dihapus!" });
-    });
-  });
-});
-
 // ======================
 // EXPORT EXCEL PELATIHAN
 // ======================
@@ -539,6 +364,181 @@ router.get("/export/excel", async (req, res) => {
     console.error("❌ Export Excel Pelatihan error:", err);
     res.status(500).json({ message: "Gagal export Excel pelatihan" });
   }
+});
+
+// === READ: Lihat semua pelatihan ===
+router.get("/", (req, res) => {
+  const sql = `
+  SELECT 
+    p.id_pelatihan,
+    p.nama_pelatihan,
+    p.jumlah_jpl,
+    p.lokasi,
+    p.alamat_lengkap,
+    p.tanggal_mulai,
+    p.tanggal_selesai,
+    p.waktu_mulai,
+    p.waktu_selesai,
+    p.kuota,
+    p.warna,
+    p.harga,
+    p.kategori,
+    p.kriteria_peserta,
+    p.tipe_pelatihan,
+    p.durasi,
+    p.flyer_url,
+    p.status,
+    p.created_by,
+    p.created_at,
+    p.updated_at,
+
+    /* jumlah peserta yang status = Diterima */
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'Diterima'
+    ) AS jumlah_Diterima,
+
+    /* sisa kuota (kuota - peserta Diterima) */
+    p.kuota -
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'Diterima'
+    ) AS sisa_kuota
+
+    FROM pelatihan_tb p
+    ORDER BY p.tanggal_mulai ASC
+  `;
+
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error("❌ Gagal mengambil data pelatihan:", err);
+      return res.status(500).json({
+        message: "Gagal mengambil data pelatihan",
+        error: err.message,
+      });
+    }
+    res.status(200).json(result);
+  });
+});
+
+// === UPDATE: Edit pelatihan ===
+router.put("/:id", upload.single("flyer_url"), (req, res) => {
+  const { id } = req.params;
+  const {
+    nama_pelatihan,
+    jumlah_jpl,
+    lokasi,
+    alamat_lengkap,
+    tanggal_mulai,
+    tanggal_selesai,
+    waktu_mulai,
+    waktu_selesai,
+    kuota,
+    warna,
+    harga,
+    kategori,
+    kriteria_peserta,
+    tipe_pelatihan,
+    durasi,
+    status,
+    updated_by,
+  } = req.body;
+
+  if (kategori && !ALLOWED_KATEGORI.includes(kategori)) {
+    return res.status(400).json({
+      message: "❌ Kategori pelatihan harus: Nakes atau Non Nakes",
+    });
+  }
+
+  const flyer_url = req.file ? req.file.filename : null;
+
+  // Ambil data lama untuk hapus file lama jika ada upload baru
+  const getOldFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
+  connection.query(getOldFlyer, [id], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: "❌ Pelatihan tidak ditemukan." });
+    }
+
+    const oldFlyer = results[0].flyer_url;
+    if (flyer_url && oldFlyer) {
+      const oldPath = path.join("uploads/flyer", oldFlyer);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath); // hapus file lama
+    }
+
+    const sql = `
+      UPDATE pelatihan_tb
+      SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
+          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, warna=?, harga=?,
+          kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
+      WHERE id_pelatihan=?
+    `;
+
+    const values = [
+      nama_pelatihan,
+      jumlah_jpl,
+      lokasi,
+      alamat_lengkap,
+      tanggal_mulai,
+      tanggal_selesai,
+      waktu_mulai,
+      waktu_selesai,
+      kuota,
+      warna,
+      harga || 0,
+      kategori,
+      kriteria_peserta,
+      tipe_pelatihan,
+      durasi,
+      flyer_url || oldFlyer,
+      status,
+      id,
+    ];
+
+    connection.query(sql, values, (err) => {
+      if (err) {
+        console.error("❌ Gagal memperbarui pelatihan:", err);
+        return res
+          .status(500)
+          .json({ message: "❌ Gagal memperbarui pelatihan" });
+      }
+      res.status(200).json({ message: "✅ Pelatihan berhasil diperbarui!" });
+    });
+  });
+});
+
+// === DELETE: Hapus pelatihan ===
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+
+  // Ambil nama file dulu biar bisa dihapus dari folder
+  const getFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
+  connection.query(getFlyer, [id], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: "❌ Pelatihan tidak ditemukan." });
+    }
+
+    const flyer = results[0].flyer_url;
+    if (flyer) {
+      const flyerPath = path.join("uploads/flyer", flyer);
+      if (fs.existsSync(flyerPath)) fs.unlinkSync(flyerPath); // hapus file
+    }
+
+    const deleteSql = `DELETE FROM pelatihan_tb WHERE id_pelatihan = ?`;
+    connection.query(deleteSql, [id], (err) => {
+      if (err) {
+        console.error("❌ Gagal menghapus pelatihan:", err);
+        return res
+          .status(500)
+          .json({ message: "❌ Gagal menghapus pelatihan" });
+      }
+
+      res.status(200).json({ message: "✅ Pelatihan berhasil dihapus!" });
+    });
+  });
 });
 
 export default router;

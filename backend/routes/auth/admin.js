@@ -1,7 +1,7 @@
 import express from "express";
 import db from "../../config/db.js";
 import bcrypt from "bcryptjs";
-import { authAdmin } from "../../middleware/authAdmin.js";
+import { auth } from "../../middleware/auth.js";
 import { logAdmin } from "./adminLogger.js";
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const router = express.Router();
 /* ======================================================
    GET ALL ADMIN (LEVEL 1 ONLY)
 ====================================================== */
-router.get("/", authAdmin, (req, res) => {
+router.get("/", auth, (req, res) => {
   const sql = `
     SELECT 
       id_user,
@@ -36,7 +36,7 @@ router.get("/", authAdmin, (req, res) => {
 /* ======================================================
    CREATE ADMIN
 ====================================================== */
-router.post("/", authAdmin, async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { email, password, nama_lengkap } = req.body;
 
   if (!email || !password || !nama_lengkap) {
@@ -84,7 +84,7 @@ router.post("/", authAdmin, async (req, res) => {
 /* ======================================================
    UPDATE STATUS ADMIN (AKTIF / NONAKTIF)
 ====================================================== */
-router.put("/:id/status", authAdmin, (req, res) => {
+router.put("/:id/status", auth, (req, res) => {
   const { status_user } = req.body;
   const { id } = req.params;
 
@@ -125,7 +125,7 @@ router.put("/:id/status", authAdmin, (req, res) => {
 /* ======================================================
    DELETE ADMIN
 ====================================================== */
-router.delete("/:id", authAdmin, (req, res) => {
+router.delete("/:id", auth, (req, res) => {
   const { id } = req.params;
 
   // ❌ Cegah admin menghapus dirinya sendiri
