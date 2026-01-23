@@ -236,10 +236,10 @@
     <!-- ======= PAGE TITLE ======= -->
     <div class="page-title">
       <div class="title-wrapper">
-        <h1>Kritik & Saran</h1>
+        <h1>KRITIK & SARAN</h1>
         <p>
           Kami sangat menghargai masukan Anda untuk meningkatkan kualitas
-          pelaksanaan pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo.
+          pelaksanaan Diklat RSUD Prof. Dr. Margono Soekarjo.
         </p>
       </div>
     </div>
@@ -249,11 +249,11 @@
     <div class="container" data-aos="fade-up">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Kritik & Saran Peserta</h4>
+        <!-- <h4 class="mb-0">Kritik & Saran</h4> -->
 
         <!-- TOMBOL BUKA MODAL -->
         <button class="btn btn-accent" data-bs-toggle="modal" data-bs-target="#modalKritik">
-            <i class="bi bi-chat-dots"></i> Kirim Kritik & Saran
+            Kirim Kritik & Saran
         </button>
         </div>
 
@@ -280,33 +280,39 @@
 
     const API = "http://localhost:5000/api/kritik-saran";
 
+    // =====================
+    // ELEMENT
+    // =====================
     const chkAnonim   = document.getElementById("anonim");
     const inputNama  = document.getElementById("nama_lengkap");
     const btnSubmit  = document.getElementById("btnKirimKritik");
     const form       = document.getElementById("formKritik");
-    const notif      = document.getElementById("notif");
 
-  // =====================
-  // MODAL ELEMENT
-  // =====================
-  const modalKritikEl = document.getElementById("modalKritik");
-  const modalNamaEl   = document.getElementById("modalNamaWajib");
-
-  const modalNama = new bootstrap.Modal(modalNamaEl);
-
-  // =====================
-  // DIM MODAL KRITIK SAAT WARNING MUNCUL
-  // =====================
-  modalNamaEl.addEventListener("show.bs.modal", () => {
-    modalKritikEl.classList.add("modal-dimmed");
-  });
-
-  modalNamaEl.addEventListener("hidden.bs.modal", () => {
-    modalKritikEl.classList.remove("modal-dimmed");
-  });
+    const modalKritikEl = document.getElementById("modalKritik");
+    const modalNamaEl   = document.getElementById("modalNamaWajib");
+    const modalTerimaEl = document.getElementById("modalTerimaKasih");
 
     // =====================
-    // LOAD KRITIK AKTIF
+    // MODAL INSTANCE 
+    // =====================
+    const modalKritik = new bootstrap.Modal(modalKritikEl);
+    const modalNama   = new bootstrap.Modal(modalNamaEl);
+    const modalTerima = new bootstrap.Modal(modalTerimaEl, {
+        backdrop: true,
+        keyboard: true
+    });
+
+    let isSubmitSuccess = false;
+
+    modalTerimaEl.addEventListener("hidden.bs.modal", () => {
+        document.body.classList.remove("modal-open");
+        document.body.style.paddingRight = "";
+
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+    });
+
+    // =====================
+    // LOAD KRITIK
     // =====================
     async function loadKritik() {
         const res = await fetch(API);
@@ -341,69 +347,89 @@
     // TOGGLE ANONIM
     // =====================
     chkAnonim.addEventListener("change", () => {
-        if (chkAnonim.checked) {
-        inputNama.value = "Anonim";
-        inputNama.setAttribute("disabled", true);
-        inputNama.removeAttribute("required");
-        } else {
-        inputNama.value = "";
-        inputNama.removeAttribute("disabled");
+    if (chkAnonim.checked) {
+      inputNama.value = "Anonim";
+      inputNama.disabled = true;
+      inputNama.removeAttribute("required");
+    } else {
+      inputNama.value = "";
+      inputNama.disabled = false;
+      inputNama.setAttribute("required", true);
+    }
+  });
+
+    // =====================
+    // CAPTCHA
+    // =====================
+    let captchaResult = 0;
+
+    function generateCaptcha() {
+        const a = Math.floor(Math.random() * 9) + 1;
+        const b = Math.floor(Math.random() * 9) + 1;
+        captchaResult = a + b;
+
+        document.getElementById("captchaQuestion").innerText =
+        `${a} + ${b} = ?`;
+    }
+
+    generateCaptcha();
+
+    // RESET TOTAL SAAT MODAL KRITIK DITUTUP
+    modalKritikEl.addEventListener("hidden.bs.modal", () => {
+        form.reset();
+        inputNama.disabled = false;
         inputNama.setAttribute("required", true);
+        document.getElementById("captchaAnswer").value = "";
+        generateCaptcha();
+
+        if (isSubmitSuccess) {
+            setTimeout(() => {
+            modalTerima.show();
+            loadKritik();
+        }, 150);
+
+        isSubmitSuccess = false;
         }
     });
 
     // =====================
-    // SUBMIT VIA MODAL
+    // SUBMIT
     // =====================
     btnSubmit.addEventListener("click", async () => {
 
-    // VALIDASI NAMA
-    if (!chkAnonim.checked && inputNama.value.trim() === "") {
-        modalNama.show();
-        return;
-    }
+        const captchaInput = document.getElementById("captchaAnswer").value;
 
-    const payload = {
-        nama_lengkap: chkAnonim.checked ? null : inputNama.value.trim(),
-        is_anonim: chkAnonim.checked ? "Y" : "N",
-        no_hp: document.getElementById("no_hp").value,
-        kritik: document.getElementById("kritik").value,
-        saran: document.getElementById("saran").value
-    };
+        if (Number(captchaInput) !== captchaResult) {
+            alert("Jawaban captcha salah. Silakan coba lagi.");
+            generateCaptcha();
+            document.getElementById("captchaAnswer").value = "";
+            return;
+        }
 
-    await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        if (!chkAnonim.checked && inputNama.value.trim() === "") {
+            modalNama.show();
+            return;
+        }
+
+        const payload = {
+            nama_lengkap: chkAnonim.checked ? null : inputNama.value.trim(),
+            is_anonim: chkAnonim.checked ? "Y" : "N",
+            no_hp: document.getElementById("no_hp").value,
+            kritik: document.getElementById("kritik").value,
+            saran: document.getElementById("saran").value
+        };
+
+        await fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        isSubmitSuccess = true;
+        modalKritik.hide();
     });
 
-    // === TUTUP MODAL KRITIK (SATU KALI SAJA)
-    const modalKritik = bootstrap.Modal.getInstance(modalKritikEl);
-    modalKritik.hide();
-
-    // === BERSIHKAN BACKDROP YANG NYANGKUT
-    setTimeout(() => {
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-        document.body.classList.remove("modal-open");
-        document.body.style.paddingRight = "";
-    }, 200);
-
-    // === RESET FORM
-    form.reset();
-    inputNama.disabled = false;
-    inputNama.setAttribute("required", true);
-
-    // === TAMPILKAN MODAL TERIMA KASIH
-    setTimeout(() => {
-        new bootstrap.Modal(
-        document.getElementById("modalTerimaKasih")
-        ).show();
-
-        loadKritik();
-    }, 300);
-    });
-
-    });
+});
 </script>
 
   <!-- ================= MODAL KRITIK & SARAN ================= -->
@@ -456,6 +482,27 @@
             </div>
 
             <div id="notif"></div>
+
+            <!-- Captcha -->
+            <div class="mb-3 mt-3">
+            <label class="form-label">
+                Captcha
+            </label>
+            <div class="d-flex align-items-center gap-2">
+                <span id="captchaQuestion" class="fw-bold"></span>
+                <input
+                type="number"
+                id="captchaAnswer"
+                class="form-control"
+                placeholder="Jawaban"
+                required
+                style="max-width: 120px;"
+                />
+            </div>
+            <small class="text-muted">
+                *Memastikan bahwa Anda bukan bot
+            </small>
+        </div>
 
             </form>
         </div>
