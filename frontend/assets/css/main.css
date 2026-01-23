@@ -6678,3 +6678,8 @@ hero-image img {
     opacity: 1;
   }
 }
+
+.modal-dimmed {
+  filter: brightness(0.4);
+  pointer-events: none;
+}

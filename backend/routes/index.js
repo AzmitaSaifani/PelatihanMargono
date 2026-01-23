@@ -17,6 +17,7 @@ import historiAkreditasiRoutes from "./auth/histori_akreditasi.js";
 import sertifikatAkreditasiRoutes from "./auth/sertifikat_akreditasi.js";
 import timKerjaRoutes from "./auth/tim_kerja.js";
 import strukturOrganisasiRoutes from "./auth/struktur_organisasi.js";
+import kritikSaranRoutes from "./auth/kritikSaran.js";
 
 
 const router = express.Router();
@@ -39,5 +40,6 @@ router.use("/histori-akreditasi", historiAkreditasiRoutes);
 router.use("/sertifikat-akreditasi", sertifikatAkreditasiRoutes);
 router.use("/tim-kerja", timKerjaRoutes);
 router.use("/struktur-organisasi", strukturOrganisasiRoutes);
+router.use("/kritik-saran", kritikSaranRoutes);
 
 export default router;
