@@ -6810,3 +6810,32 @@ hero-image img {
   width: 24px;
   border-radius: 12px;
 }
+
+.thead-telur-asin {
+  background-color: #7eddd8 !important;
+  color: #fff !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent;
+}
+
+/* Biar border & hover tetap rapi */
+.table thead th {
+  vertical-align: middle;
+}
+
+.card-footer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-footer button:not(:disabled):hover {
+  background-color: #4cd5da;
+  color: #fff;
+  border-color: #4cd5da;
+}
+

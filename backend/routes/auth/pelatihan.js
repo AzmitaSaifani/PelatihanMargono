@@ -32,8 +32,6 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     alamat_lengkap,
     tanggal_mulai,
     tanggal_selesai,
-    waktu_mulai,
-    waktu_selesai,
     kuota,
     warna,
     harga,
@@ -103,10 +101,10 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
   const sql = `
     INSERT INTO pelatihan_tb (
       nama_pelatihan, jumlah_jpl, lokasi, alamat_lengkap,
-      tanggal_mulai, tanggal_selesai, waktu_mulai, waktu_selesai, kuota, warna, harga,
+      tanggal_mulai, tanggal_selesai, kuota, warna, harga,
       kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
@@ -116,8 +114,6 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     alamat_lengkap,
     tanggal_mulai,
     tanggal_selesai,
-    waktu_mulai,
-    waktu_selesai,
     kuota,
     warna,
     harga || 0,
@@ -208,8 +204,6 @@ router.get("/export/excel", async (req, res) => {
         p.alamat_lengkap,
         p.tanggal_mulai,
         p.tanggal_selesai,
-        p.waktu_mulai,
-        p.waktu_selesai,
         p.kuota,
         p.warna,
         p.harga,
@@ -264,8 +258,6 @@ router.get("/export/excel", async (req, res) => {
       "Alamat Lengkap",
       "Tanggal Mulai",
       "Tanggal Selesai",
-      "Waktu Mulai",
-      "Waktu Selesai",
       "Kuota",
       "Warna",
       "Harga",
@@ -322,8 +314,6 @@ router.get("/export/excel", async (req, res) => {
         row.alamat_lengkap,
         row.tanggal_mulai,
         row.tanggal_selesai,
-        row.waktu_mulai,
-        row.waktu_selesai,
         row.kuota,
         row.warna,
         row.harga > 0 ? row.harga : 0,
@@ -377,8 +367,6 @@ router.get("/", (req, res) => {
     p.alamat_lengkap,
     p.tanggal_mulai,
     p.tanggal_selesai,
-    p.waktu_mulai,
-    p.waktu_selesai,
     p.kuota,
     p.warna,
     p.harga,
@@ -435,8 +423,6 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     alamat_lengkap,
     tanggal_mulai,
     tanggal_selesai,
-    waktu_mulai,
-    waktu_selesai,
     kuota,
     warna,
     harga,
@@ -472,7 +458,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
     const sql = `
       UPDATE pelatihan_tb
       SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
-          tanggal_mulai=?, tanggal_selesai=?, waktu_mulai=?, waktu_selesai=?, kuota=?, warna=?, harga=?,
+          tanggal_mulai=?, tanggal_selesai=?, kuota=?, warna=?, harga=?,
           kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
     `;
@@ -484,8 +470,6 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
       alamat_lengkap,
       tanggal_mulai,
       tanggal_selesai,
-      waktu_mulai,
-      waktu_selesai,
       kuota,
       warna,
       harga || 0,
