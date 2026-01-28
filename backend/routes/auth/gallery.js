@@ -27,7 +27,7 @@ const upload = multer({ storage });
 // ===============   CREATE GALLERY   ===================
 // ======================================================
 router.post("/", upload.single("foto"), (req, res) => {
-  const { keterangan, status } = req.body;
+  const { keterangan, kategori, status } = req.body;
   const foto = req.file ? req.file.filename : null;
 
   if (!foto) {
@@ -44,7 +44,7 @@ router.post("/", upload.single("foto"), (req, res) => {
     INSERT INTO gallery_tb (keterangan, foto, kategori, status)
     VALUES (?, ?, ?, ?)
   `;
-  const values = [keterangan || null, foto, status || "1"];
+  const values = [keterangan || null, foto, kategori, status || "1"];
 
   connection.query(sql, values, (err, result) => {
     if (err) {

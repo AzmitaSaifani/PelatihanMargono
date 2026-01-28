@@ -186,22 +186,22 @@
           />
         </div>
 
+        <div class="col-md-12">
+          <button
+            class="btn btn-primary mt-2 mb-2 ms-3"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTambahPelatihan"
+          >
+            + Tambah Pelatihan
+          </button>
+        </div>
+
         <!-- TABLE CONTAINER (SCROLLABLE) -->
         <div
           class="table-responsive ms-3 me-3"
           style="max-height: 450px; overflow-y: auto"
         >
-          <div class="col-md-12">
-            <button
-              class="btn btn-primary mt-2 mb-2"
-              data-bs-toggle="modal"
-              data-bs-target="#modalTambahPelatihan"
-            >
-              + Tambah Pelatihan
-            </button>
-          </div>
-
-          <table class="table table-bordered table-hover table-sm mb-0">
+          <table class="table table-bordered table-hover table-sm mb-3">
             <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
@@ -605,7 +605,7 @@
                 </div>
 
                 <div class="col-md-12">
-                  <label class="form-label">Flyer</label>
+                  <p class="mt-2 mb-1 fw-bold">Preview Foto Saat Ini:</p>
                   <input
                     type="file"
                     id="edit_flyer_url"
@@ -616,6 +616,8 @@
                     id="previewFlyer"
                     class="mt-2 border rounded"
                     width="150"
+                    style="max-width: 180px; cursor: zoom-in"
+                    onclick="zoomEditFoto()"
                   />
                 </div>
               </div>
@@ -635,6 +637,15 @@
       </div>
     </div>
     <!-- Modal End -->
+
+    <!-- Modal Zoom Foto -->
+    <div class="modal fade" id="modalZoomFoto" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+          <img id="zoomFotoImg" class="img-fluid rounded shadow" />
+        </div>
+      </div>
+    </div>
 
     <!-- ========================== SCRIPT ========================== -->
     <script>
@@ -874,7 +885,6 @@
         // ======================
         // FILTER
         // ======================
-
         function applyFilterPelatihan() {
           filteredData = [...allData];
 
@@ -981,6 +991,16 @@
             loadPelatihan();
           });
         }
+
+        // =========================
+        // ZOOM FOTO EDIT
+        // =========================
+        window.zoomEditFoto = () => {
+          const src = document.getElementById("previewFlyer").src;
+          document.getElementById("zoomFotoImg").src = src;
+
+          new bootstrap.Modal(document.getElementById("modalZoomFoto")).show();
+        };
 
         // =========================
         // DELETE DATA

@@ -137,59 +137,6 @@
     <div class="container py-4">
       <h2 class="fw-bold mb-4">📌 Kelola Penyelenggara</h2>
 
-      <!-- FORM TAMBAH PENYELENGGARA -->
-      <div class="card mb-4">
-        <div class="card-header bg-dark text-white">Tambah Penyelenggara</div>
-
-        <div class="card-body">
-          <form id="formPenyelenggara">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nama Penyelenggara *</label>
-                <input type="text" name="nama" class="form-control" required />
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-control">
-                  <option value="1">Aktif</option>
-                  <option value="0">Nonaktif</option>
-                </select>
-              </div>
-
-              <div class="col-md-12">
-                <label class="form-label">Keterangan</label>
-                <textarea name="keterangan" class="form-control"></textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Upload Foto *</label>
-                <input
-                  type="file"
-                  name="foto"
-                  class="form-control"
-                  accept="image/*"
-                  required
-                />
-
-                <img
-                  id="previewFoto"
-                  class="mt-2 border rounded"
-                  width="120"
-                  style="display: none"
-                />
-              </div>
-
-              <div class="col-md-12 text-end">
-                <button class="btn btn-primary mt-3">
-                  + Tambah Penyelenggara
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
       <!-- TABEL -->
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Penyelenggara</div>
@@ -203,9 +150,22 @@
           />
         </div>
 
-        <div class="card-body">
+        <div class="col-md-12">
+          <button
+            class="btn btn-primary mt-2 mb-2 ms-3"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTambahPenyelenggara"
+          >
+            + Tambah Penyelenggara
+          </button>
+        </div>
+
+        <div
+          class="table-responsive ms-3 me-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
           <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
                 <th>Foto</th>
@@ -219,6 +179,214 @@
             <tbody id="tablePenyelenggara"></tbody>
           </table>
         </div>
+        <!-- FOOTER PAGINATION -->
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL TAMBAH PENYELENGGARA -->
+    <div
+      class="modal fade"
+      id="modalTambahPenyelenggara"
+      tabindex="-1"
+      aria-labelledby="modalTambahPenyelenggaraLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title" id="modalTambahPenyelenggaraLabel">
+              Tambah Penyelenggara
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formPenyelenggara" enctype="multipart/form-data">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nama Penyelenggara *</label>
+                  <input
+                    type="text"
+                    name="nama"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select name="status" class="form-control">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Keterangan</label>
+                  <textarea
+                    name="keterangan"
+                    class="form-control"
+                    placeholder="Deskripsi singkat penyelenggara"
+                  ></textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Upload Foto *</label>
+                  <input
+                    type="file"
+                    name="foto"
+                    class="form-control"
+                    accept="image/*"
+                    required
+                  />
+
+                  <img
+                    id="previewFoto"
+                    class="mt-2 border rounded"
+                    style="max-width: 180px; display: none"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              form="formPenyelenggara"
+              class="btn btn-primary"
+            >
+              Simpan Penyelenggara
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDIT PENYELENGGARA -->
+    <div
+      class="modal fade"
+      id="modalEditPenyelenggara"
+      tabindex="-1"
+      aria-labelledby="modalEditPenyelenggaraLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title" id="modalEditPenyelenggaraLabel">
+              Edit Penyelenggara
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formEditPenyelenggara" enctype="multipart/form-data">
+              <input type="hidden" id="edit_id" />
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nama Penyelenggara *</label>
+                  <input
+                    type="text"
+                    id="edit_nama"
+                    name="nama"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select id="edit_status" name="status" class="form-control">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Keterangan</label>
+                  <textarea
+                    id="edit_keterangan"
+                    name="keterangan"
+                    class="form-control"
+                  ></textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Foto Baru (opsional)</label>
+                  <input
+                    type="file"
+                    id="edit_foto"
+                    name="foto"
+                    class="form-control"
+                    accept="image/*"
+                  />
+
+                  <img
+                    id="edit_previewFoto"
+                    class="mt-2 border rounded"
+                    style="max-width: 180px; cursor: zoom-in"
+                    onclick="zoomEditFoto()"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              form="formEditPenyelenggara"
+              class="btn btn-primary"
+            >
+              Simpan Perubahan
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -226,8 +394,19 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/penyelenggara";
+
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
         const tableBody = document.getElementById("tablePenyelenggara");
         const form = document.getElementById("formPenyelenggara");
+
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const searchInput = document.getElementById("searchPenyelenggara");
 
         // PREVIEW FOTO
         const fotoInput = form.querySelector('input[name="foto"]');
@@ -241,14 +420,65 @@
           }
         });
 
-        // LOAD DATA
+        /* =========================
+            LOAD DATA
+          ========================= */
         async function loadPenyelenggara() {
-          const res = await fetch(API);
-          const data = await res.json();
+          try {
+            const res = await fetch(`${API}?admin=1`);
+            const json = await res.json();
 
+            allData = Array.isArray(json) ? json : [];
+            applyFilter();
+          } catch (err) {
+            console.error(err);
+            tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-danger">
+            Gagal memuat data penyelenggara
+          </td>
+        </tr>`;
+          }
+        }
+
+        /* =========================
+            FILTER + SEARCH
+          ========================= */
+        function applyFilter() {
+          const keyword = searchInput.value.toLowerCase().trim();
+
+          filteredData = allData.filter(
+            (item) =>
+              !keyword ||
+              item.nama?.toLowerCase().includes(keyword) ||
+              item.keterangan?.toLowerCase().includes(keyword)
+          );
+
+          currentPage = 1;
+          renderTable();
+        }
+
+        // RENDER TABLE
+        function renderTable() {
           tableBody.innerHTML = "";
 
-          data.forEach((item, index) => {
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted">
+            Data tidak ditemukan
+          </td>
+        </tr>`;
+            infoData.innerText = "Showing 0 entries";
+            prevBtn.disabled = nextBtn.disabled = true;
+            return;
+          }
+
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((item, index) => {
             tableBody.innerHTML += `
               <tr>
                 <td>${index + 1}</td>
@@ -273,9 +503,7 @@
 
                 <td>
                   <button class="btn btn-warning btn-sm"
-                    onclick="window.location.href='editpenyelenggara.html?id=${
-                      item.id_penyelenggara
-                    }'">
+                    onclick="openEditPenyelenggara(${item.id_penyelenggara})">
                     Edit
                   </button>
 
@@ -287,9 +515,31 @@
               </tr>
             `;
           });
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(
+            end,
+            filteredData.length
+          )} of ${filteredData.length} entries`;
+
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
         }
 
-        loadPenyelenggara();
+        /* =========================
+            PAGINATION
+          ========================= */
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
 
         // CREATE
         form.addEventListener("submit", async (e) => {
@@ -297,20 +547,88 @@
 
           const formData = new FormData(form);
 
-          const res = await fetch(API, {
-            method: "POST",
-            body: formData,
-          });
+          try {
+            const res = await fetch(API, {
+              method: "POST",
+              body: formData,
+            });
 
-          const data = await res.json();
-          alert(data.message);
+            const data = await res.json();
+            alert(data.message);
 
-          if (res.ok) {
-            form.reset();
-            preview.style.display = "none";
-            loadPenyelenggara();
+            if (res.ok) {
+              form.reset();
+              preview.style.display = "none";
+
+              // kalau pakai modal
+              const modal = bootstrap.Modal.getInstance(
+                document.getElementById("modalTambahPenyelenggara")
+              );
+              if (modal) modal.hide();
+
+              loadPenyelenggara();
+            }
+          } catch (err) {
+            alert("Gagal menambahkan penyelenggara");
+            console.error(err);
           }
         });
+
+        // =========================
+        // OPEN EDIT MODAL
+        // =========================
+        window.openEditPenyelenggara = async (id) => {
+          try {
+            const res = await fetch(`${API}/${id}`);
+            const data = await res.json();
+
+            document.getElementById("edit_id").value = data.id_penyelenggara;
+            document.getElementById("edit_nama").value = data.nama;
+            document.getElementById("edit_keterangan").value =
+              data.keterangan || "";
+            document.getElementById("edit_status").value = data.status;
+
+            document.getElementById(
+              "edit_previewFoto"
+            ).src = `http://localhost:5000/uploads/penyelenggara/${data.foto}`;
+
+            new bootstrap.Modal(
+              document.getElementById("modalEditPenyelenggara")
+            ).show();
+          } catch (err) {
+            alert("Gagal memuat data penyelenggara");
+            console.error(err);
+          }
+        };
+
+        // =========================
+        // SUBMIT EDIT PENYELENGGARA
+        // =========================
+        document
+          .getElementById("formEditPenyelenggara")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById("edit_id").value;
+            const formData = new FormData(
+              document.getElementById("formEditPenyelenggara")
+            );
+
+            const res = await fetch(`${API}/${id}`, {
+              method: "PUT",
+              body: formData,
+            });
+
+            const data = await res.json();
+            alert(data.message);
+
+            if (res.ok) {
+              bootstrap.Modal.getInstance(
+                document.getElementById("modalEditPenyelenggara")
+              ).hide();
+              loadPenyelenggara();
+            }
+          });
 
         // DELETE
         window.hapusPenyelenggara = async (id) => {
@@ -323,19 +641,12 @@
           loadPenyelenggara();
         };
 
-        // LIVE SEARCH
-        document
-          .getElementById("searchPenyelenggara")
-          .addEventListener("input", function () {
-            const keyword = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#tablePenyelenggara tr");
+        /* =========================
+            EVENT
+          ========================= */
+        searchInput.addEventListener("input", applyFilter);
 
-            rows.forEach((row) => {
-              row.style.display = row.innerText.toLowerCase().includes(keyword)
-                ? ""
-                : "none";
-            });
-          });
+        loadPenyelenggara();
       });
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>

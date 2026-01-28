@@ -6839,3 +6839,11 @@ hero-image img {
   border-color: #4cd5da;
 }
 
+/* Modal Zoom harus selalu di atas modal lain */
+#modalZoomFoto {
+  z-index: 2000 !important;
+}
+
+.modal-backdrop.zoom-backdrop {
+  z-index: 1999 !important;
+}

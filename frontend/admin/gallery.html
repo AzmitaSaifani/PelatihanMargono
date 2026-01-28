@@ -41,7 +41,6 @@
   </head>
 
   <body>
-    <!-- NAVBAR -->
     <!-- ================= NAVBAR ================= -->
     <nav
       class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
@@ -140,67 +139,11 @@
     <div class="container py-4">
       <h2 class="mb-4 fw-bold">🖼️ Kelola Gallery</h2>
 
-      <!-- ==================== FORM TAMBAH GALLERY ==================== -->
-      <div class="card mb-4">
-        <div class="card-header bg-dark text-white">Tambah Foto Gallery</div>
-
-        <div class="card-body">
-          <form id="formGallery">
-            <div class="row g-3">
-              <div class="col-md-12">
-                <label class="form-label">Keterangan</label>
-                <textarea name="keterangan" class="form-control"></textarea>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Kategori *</label>
-                <select name="kategori" class="form-control" required>
-                  <option value="">-- Pilih Kategori --</option>
-                  <option value="sarpras">Sarpras</option>
-                  <option value="diskusi">Diskusi</option>
-                  <option value="pelatihan">Pelatihan</option>
-                </select>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Status</label>
-                <select name="status" class="form-control">
-                  <option value="1">Aktif</option>
-                  <option value="0">Nonaktif</option>
-                </select>
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Upload Foto *</label>
-                <input
-                  type="file"
-                  name="foto"
-                  class="form-control"
-                  accept="image/*"
-                  required
-                />
-
-                <img
-                  id="previewFoto"
-                  class="mt-2 border rounded"
-                  width="120"
-                  style="display: none"
-                />
-              </div>
-
-              <div class="col-md-12 text-end">
-                <button class="btn btn-primary mt-3">+ Tambah Gallery</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-
       <!-- ==================== TABEL GALLERY ==================== -->
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Gallery</div>
 
-        <div class="col-md-4">
+        <div class="col-md-4 mt-3 ms-3">
           <select id="filterKategori" class="form-control">
             <option value="">Semua Kategori</option>
             <option value="sarpras">Sarpras</option>
@@ -209,7 +152,7 @@
           </select>
         </div>
 
-        <div class="col-md-4 mt-3">
+        <div class="col-md-4 mt-3 ms-3 mb-3">
           <input
             type="text"
             id="searchGallery"
@@ -218,9 +161,22 @@
           />
         </div>
 
-        <div class="card-body">
+        <div class="col-md-12">
+          <button
+            class="btn btn-primary mt-2 mb-2 ms-3"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTambahGallery"
+          >
+            + Tambah Gallery
+          </button>
+        </div>
+
+        <div
+          class="table-responsive ms-3 me-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
           <table class="table table-bordered">
-            <thead class="table-light">
+            <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
                 <th>Foto</th>
@@ -234,6 +190,223 @@
             <tbody id="tableGallery"></tbody>
           </table>
         </div>
+
+        <!-- FOOTER PAGINATION -->
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Tambah Gallery -->
+    <div
+      class="modal fade"
+      id="modalTambahGallery"
+      tabindex="-1"
+      aria-labelledby="modalTambahGalleryLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title" id="modalTambahGalleryLabel">
+              Tambah Foto Gallery
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formGallery">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">Keterangan</label>
+                  <textarea
+                    name="keterangan"
+                    class="form-control"
+                    placeholder="Deskripsi foto"
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Kategori *</label>
+                  <select name="kategori" class="form-control" required>
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="sarpras">Sarpras</option>
+                    <option value="diskusi">Diskusi</option>
+                    <option value="pelatihan">Pelatihan</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select name="status" class="form-control">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                  </select>
+                </div>
+
+                <div class="col-md-12">
+                  <label class="form-label">Upload Foto *</label>
+                  <input
+                    type="file"
+                    name="foto"
+                    class="form-control"
+                    accept="image/*"
+                    required
+                  />
+
+                  <img
+                    id="previewFoto"
+                    class="mt-3 border rounded"
+                    style="display: none; max-width: 180px"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button type="submit" form="formGallery" class="btn btn-primary">
+              Simpan Gallery
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Gallery -->
+    <div
+      class="modal fade"
+      id="modalEditGallery"
+      tabindex="-1"
+      aria-labelledby="modalEditGalleryLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-warning text-dark">
+            <h5 class="modal-title" id="modalEditGalleryLabel">
+              ✏️ Edit Gallery
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formEditGallery">
+              <input type="hidden" id="edit_id" />
+
+              <div class="mb-3">
+                <label class="form-label">Keterangan</label>
+                <textarea
+                  id="edit_keterangan"
+                  name="keterangan"
+                  class="form-control"
+                ></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Kategori *</label>
+                  <select
+                    id="edit_kategori"
+                    name="kategori"
+                    class="form-control"
+                    required
+                  >
+                    <option value="sarpras">Sarpras</option>
+                    <option value="diskusi">Diskusi</option>
+                    <option value="pelatihan">Pelatihan</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Status</label>
+                  <select id="edit_status" name="status" class="form-control">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Foto Baru (opsional)</label>
+                <input
+                  type="file"
+                  name="foto"
+                  id="edit_foto"
+                  class="form-control"
+                  accept="image/*"
+                />
+
+                <p class="mt-2 mb-1 fw-bold">Preview Foto Saat Ini:</p>
+                <img
+                  id="edit_previewFoto"
+                  class="border rounded"
+                  style="max-width: 180px; cursor: zoom-in"
+                  onclick="zoomEditFoto()"
+                />
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              form="formEditGallery"
+              class="btn btn-warning"
+            >
+              Simpan Perubahan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Zoom Foto -->
+    <div class="modal fade" id="modalZoomFoto" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+          <img id="zoomFotoImg" class="img-fluid rounded shadow" />
+        </div>
       </div>
     </div>
 
@@ -241,8 +414,20 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/gallery";
+
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
         const tableBody = document.getElementById("tableGallery");
         const formGallery = document.getElementById("formGallery");
+
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        const filterKategori = document.getElementById("filterKategori");
+        const searchInput = document.getElementById("searchGallery");
 
         // PREVIEW FOTO
         const fotoInput = formGallery.querySelector('input[name="foto"]');
@@ -256,17 +441,101 @@
           }
         });
 
-        // LOAD DATA
-        async function loadGallery() {
-          const kategori = document.getElementById("filterKategori").value;
-          const res = await fetch(`${API}?admin=1`);
-          if (kategori) url += `&kategori=${kategori}`;
+        document
+          .getElementById("filterKategori")
+          .addEventListener("change", loadGallery);
+
+        // CREATE
+        formGallery.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(formGallery);
+
+          const res = await fetch(API, {
+            method: "POST",
+            body: formData,
+          });
 
           const data = await res.json();
+          alert(data.message);
 
+          if (res.ok) {
+            formGallery.reset();
+            preview.style.display = "none";
+
+            // tutup modal
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalTambahGallery")
+            ).hide();
+
+            loadGallery(); // refresh tabel
+          }
+        });
+
+        // =========================
+        // LOAD DATA
+        // =========================
+        async function loadGallery() {
+          try {
+            const res = await fetch(`${API}?admin=1`);
+            const json = await res.json();
+
+            allData = Array.isArray(json) ? json : [];
+            applyAllFilter();
+          } catch (err) {
+            console.error(err);
+            tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-danger">
+              Gagal memuat data gallery
+            </td>
+          </tr>`;
+          }
+        }
+
+        // =========================
+        // FILTER + SEARCH (SATU PINTU)
+        // =========================
+        function applyAllFilter() {
+          const keyword = searchInput.value.toLowerCase().trim();
+
+          filteredData = allData.filter((item) => {
+            const matchSearch =
+              !keyword ||
+              item.keterangan?.toLowerCase().includes(keyword) ||
+              item.kategori?.toLowerCase().includes(keyword);
+
+            const matchKategori =
+              !filterKategori.value || item.kategori === filterKategori.value;
+
+            return matchSearch && matchKategori;
+          });
+
+          currentPage = 1;
+          renderTable();
+        }
+
+        // LOAD DATA
+        function renderTable() {
           tableBody.innerHTML = "";
 
-          data.forEach((item, index) => {
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Data tidak ditemukan
+            </td>
+          </tr>`;
+            infoData.innerText = "Showing 0 entries";
+            prevBtn.disabled = nextBtn.disabled = true;
+            return;
+          }
+
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((item, index) => {
             tableBody.innerHTML += `
               <tr>
                 <td>${index + 1}</td>
@@ -294,9 +563,9 @@
                 </td>
 
                 <td>
-                  <button class="btn btn-warning btn-sm" onclick="window.location.href='editgallery.html?id=${
+                  <button class="btn btn-warning btn-sm" onclick="openEditGallery(${
                     item.id
-                  }'">Edit</button>
+                  })">Edit</button>
                   <button class="btn btn-danger btn-sm" onclick="hapusGallery(${
                     item.id
                   })">Hapus</button>
@@ -304,34 +573,98 @@
               </tr>
             `;
           });
+
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(
+            end,
+            filteredData.length
+          )} of ${filteredData.length} entries`;
+
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
         }
 
-        loadGallery();
+        // =========================
+        // PAGINATION
+        // =========================
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
 
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
+
+        // =========================
+        // OPEN EDIT MODAL
+        // =========================
+        window.openEditGallery = async (id) => {
+          try {
+            const res = await fetch(`${API}/${id}`);
+            const data = await res.json();
+
+            document.getElementById("edit_id").value = data.id;
+            document.getElementById("edit_keterangan").value =
+              data.keterangan || "";
+            document.getElementById("edit_kategori").value = data.kategori;
+            document.getElementById("edit_status").value = data.status;
+
+            document.getElementById(
+              "edit_previewFoto"
+            ).src = `http://localhost:5000/uploads/gallery/${data.foto}`;
+
+            new bootstrap.Modal(
+              document.getElementById("modalEditGallery")
+            ).show();
+          } catch (err) {
+            alert("Gagal memuat data gallery");
+            console.error(err);
+          }
+        };
+
+        // =========================
+        // SUBMIT EDIT GALLERY
+        // =========================
         document
-          .getElementById("filterKategori")
-          .addEventListener("change", loadGallery);
+          .getElementById("formEditGallery")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-        // CREATE
-        formGallery.addEventListener("submit", async (e) => {
-          e.preventDefault();
+            const id = document.getElementById("edit_id").value;
+            const formData = new FormData(
+              document.getElementById("formEditGallery")
+            );
 
-          const formData = new FormData(formGallery);
+            const res = await fetch(`${API}/${id}`, {
+              method: "PUT",
+              body: formData,
+            });
 
-          const res = await fetch(API, {
-            method: "POST",
-            body: formData,
+            const data = await res.json();
+            alert(data.message);
+
+            if (res.ok) {
+              bootstrap.Modal.getInstance(
+                document.getElementById("modalEditGallery")
+              ).hide();
+              loadGallery();
+            }
           });
 
-          const data = await res.json();
-          alert(data.message);
+        // =========================
+        // ZOOM FOTO EDIT
+        // =========================
+        window.zoomEditFoto = () => {
+          const src = document.getElementById("edit_previewFoto").src;
+          document.getElementById("zoomFotoImg").src = src;
 
-          if (res.ok) {
-            formGallery.reset();
-            preview.style.display = "none";
-            loadGallery();
-          }
-        });
+          new bootstrap.Modal(document.getElementById("modalZoomFoto")).show();
+        };
 
         // DELETE
         window.hapusGallery = async (id) => {
@@ -346,18 +679,13 @@
           loadGallery();
         };
 
-        // LIVE SEARCH
-        document
-          .getElementById("searchGallery")
-          .addEventListener("input", function () {
-            const keyword = this.value.toLowerCase();
-            const rows = document.querySelectorAll("#tableGallery tr");
+        // =========================
+        // EVENT
+        // =========================
+        filterKategori.addEventListener("change", applyAllFilter);
+        searchInput.addEventListener("input", applyAllFilter);
 
-            rows.forEach((row) => {
-              const text = row.innerText.toLowerCase();
-              row.style.display = text.includes(keyword) ? "" : "none";
-            });
-          });
+        loadGallery();
       });
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>
