@@ -1,6 +1,6 @@
 import mysql from "mysql2";
 
-const db = mysql.createPool({
+const connection = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "",
@@ -14,4 +14,4 @@ const db = mysql.createPool({
 
 console.log("✅ MySQL Pool initialized");
 
-export default db;
+export default connection;

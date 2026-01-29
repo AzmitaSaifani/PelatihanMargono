@@ -207,7 +207,6 @@
                 <th>No</th>
                 <th>Nama Pelatihan</th>
                 <th>JPL</th>
-                <th>Flyer</th>
                 <th>Lokasi</th>
                 <th>Mulai</th>
                 <th>Selesai</th>
@@ -279,7 +278,11 @@
 
                 <div class="col-md-12">
                   <label class="form-label">Jumlah JPL</label>
-                  <textarea name="jumlah_jpl" class="form-control"></textarea>
+                  <input
+                    type="number"
+                    name="jumlah_jpl"
+                    class="form-control"
+                  ></input>
                 </div>
 
                 <div class="col-md-6">
@@ -458,6 +461,7 @@
                     id="edit_jumlah_jpl"
                     name="jumlah_jpl"
                     class="form-control"
+                    type="number"
                   />
                 </div>
 
@@ -665,9 +669,14 @@
         // =========================
         function formatForInput(dateString) {
           if (!dateString) return "";
-          return new Date(dateString).toISOString().split("T")[0];
-        }
 
+          const d = new Date(dateString);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+
+          return `${year}-${month}-${day}`;
+        }
         // =========================
         // LOAD DATA
         // =========================
@@ -719,11 +728,6 @@
                 <td>${start + index + 1}</td>
                 <td>${item.nama_pelatihan}</td>
                 <td>${item.jumlah_jpl ?? "-"}</td>
-                <td> <img src="http://localhost:5000/uploads/flyer/${
-                  item.flyer_url
-                }" class="thumb-foto"
-                style="width:70px;height:70px;object-fit:cover";>
-                </td>
                 <td>${item.lokasi ?? "-"}</td>
                 <td>${formatTanggal(item.tanggal_mulai)}</td>
                 <td>${formatTanggal(item.tanggal_selesai)}</td>
@@ -911,6 +915,9 @@
           ========================= */
         window.openEditPelatihan = async (id) => {
           const res = await fetch(`${API}/${id}`);
+          if (!res.ok) {
+            throw new Error("Gagal mengambil data pelatihan");
+          }
           const data = await res.json();
 
           edit_id_pelatihan.value = data.id_pelatihan;
@@ -948,7 +955,7 @@
             const id = edit_id_pelatihan.value;
             const formData = new FormData(formEdit);
 
-            fetch(`${API}/${id}`, {
+            const res = await fetch(`${API}/${id}`, {
               method: "PUT",
               headers: ADMIN_HEADERS,
               body: formData,
@@ -981,7 +988,10 @@
         window.hapusPelatihan = async (id) => {
           if (!confirm("Yakin ingin menghapus pelatihan ini?")) return;
 
-          const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+          const res = await fetch(`${API}/${id}`, { 
+            method: "DELETE",
+            headers: ADMIN_HEADERS, });
+            
           const data = await res.json();
 
           alert(data.message);
@@ -1001,7 +1011,8 @@
         localStorage.removeItem("admin_nama");
 
         // Redirect ke halaman login admin
-        window.location.href = "/pelatihanmargono/frontend/admin/loginadmin.html";
+        window.location.href =
+          "/pelatihanmargono/frontend/admin/loginadmin.html";
       }
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>

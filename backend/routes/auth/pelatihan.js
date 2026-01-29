@@ -1,3 +1,4 @@
+import { logAdmin } from "../../routes/auth/adminLogger.js";
 import express from "express";
 import connection from "../../config/db.js";
 import multer from "multer";
@@ -5,6 +6,8 @@ import path from "path";
 import fs from "fs";
 
 const router = express.Router();
+
+const ALLOWED_KATEGORI = ["Nakes", "Non Nakes"];
 
 // === Konfigurasi upload untuk flyer ===
 const storage = multer.diskStorage({
@@ -145,13 +148,19 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       });
     }
 
+    console.log("ADMIN HEADER:", {
+      adminId,
+      adminEmail,
+      adminNama,
+    });
+
     // ================= ADMIN LOG =================
     logAdmin({
       id_user: adminId,
       email: adminEmail,
       nama_lengkap: adminNama,
-      aktivitas: "CREATE_PELATIHAN",
-      keterangan: `Menambahkan pelatihan: ${nama_pelatihan}`,
+      aktivitas: "AKSI",
+      keterangan: `Menambahkan pelatihan [ID:${result.insertId}] ${nama_pelatihan}`,
       req,
     });
 
@@ -522,7 +531,7 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
         id_user: adminId,
         email: adminEmail,
         nama_lengkap: adminNama,
-        aktivitas: "UPDATE_PELATIHAN",
+        aktivitas: "AKSI",
         keterangan: `Update pelatihan ID ${id}`,
         req,
       });
@@ -535,6 +544,17 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
 // === DELETE: Hapus pelatihan ===
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
+
+  // ambil header admin
+  const adminId = req.headers["x-admin-id"];
+  const adminEmail = req.headers["x-admin-email"];
+  const adminNama = req.headers["x-admin-nama"];
+
+  if (!adminId) {
+    return res.status(401).json({
+      message: "❌ Admin tidak terautentikasi",
+    });
+  }
 
   // Ambil nama file dulu biar bisa dihapus dari folder
   const getFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
@@ -562,7 +582,7 @@ router.delete("/:id", (req, res) => {
         id_user: adminId,
         email: adminEmail,
         nama_lengkap: adminNama,
-        aktivitas: "DELETE_PELATIHAN",
+        aktivitas: "AKSI",
         keterangan: `Hapus pelatihan ID ${id}`,
         req,
       });
