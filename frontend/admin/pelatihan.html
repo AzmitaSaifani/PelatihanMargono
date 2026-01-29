@@ -316,20 +316,6 @@
                   />
                 </div>
 
-                <div class="col-md-6">
-                  <label class="form-label">Waktu Mulai</label>
-                  <input type="time" name="waktu_mulai" class="form-control" />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Waktu Selesai</label>
-                  <input
-                    type="time"
-                    name="waktu_selesai"
-                    class="form-control"
-                  />
-                </div>
-
                 <div class="col-md-4">
                   <label class="form-label">Kuota Peserta</label>
                   <input
@@ -509,26 +495,6 @@
                   />
                 </div>
 
-                <div class="col-md-6">
-                  <label class="form-label">Waktu Mulai</label>
-                  <input
-                    type="time"
-                    id="edit_waktu_mulai"
-                    name="waktu_mulai"
-                    class="form-control"
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Waktu Selesai</label>
-                  <input
-                    type="time"
-                    id="edit_waktu_selesai"
-                    name="waktu_selesai"
-                    class="form-control"
-                  />
-                </div>
-
                 <div class="col-md-4">
                   <label class="form-label">Kuota</label>
                   <input
@@ -670,6 +636,15 @@
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
         const searchInput = document.getElementById("searchInput");
+
+        // ================================
+        // HEADER IDENTITAS ADMIN (WAJIB)
+        // ================================
+        const ADMIN_HEADERS = {
+          "x-admin-id": localStorage.getItem("admin_id"),
+          "x-admin-email": localStorage.getItem("admin_email"),
+          "x-admin-nama": localStorage.getItem("admin_nama"),
+        };
 
         // =========================
         // FORMAT TANGGAL & WAKTU
@@ -860,10 +835,9 @@
             const formData = new FormData(formTambah);
 
             // jika ingin set created_by admin tertentu → misal 1
-            formData.append("created_by", 1);
-
             const res = await fetch(API, {
               method: "POST",
+              headers: ADMIN_HEADERS,
               body: formData,
             });
 
@@ -946,8 +920,6 @@
           edit_alamat_lengkap.value = data.alamat_lengkap ?? "";
           edit_tanggal_mulai.value = formatForInput(data.tanggal_mulai);
           edit_tanggal_selesai.value = formatForInput(data.tanggal_selesai);
-          edit_waktu_mulai.value = data.waktu_mulai ?? "";
-          edit_waktu_selesai.value = data.waktu_selesai ?? "";
           edit_kuota.value = data.kuota ?? "";
           edit_warna.value = data.warna ?? "#3498db";
           edit_harga.value = data.harga ?? 0;
@@ -976,8 +948,9 @@
             const id = edit_id_pelatihan.value;
             const formData = new FormData(formEdit);
 
-            const res = await fetch(`${API}/${id}`, {
+            fetch(`${API}/${id}`, {
               method: "PUT",
+              headers: ADMIN_HEADERS,
               body: formData,
             });
 
@@ -1017,6 +990,19 @@
 
         loadPelatihan();
       });
+
+      // logout admin
+      function logoutAdmin() {
+        if (!confirm("Yakin ingin logout?")) return;
+
+        // Hapus data admin
+        localStorage.removeItem("admin_id");
+        localStorage.removeItem("admin_email");
+        localStorage.removeItem("admin_nama");
+
+        // Redirect ke halaman login admin
+        window.location.href = "/pelatihanmargono/frontend/admin/loginadmin.html";
+      }
     </script>
     <script src="http://localhost:5000/static/admin_check.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

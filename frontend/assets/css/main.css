@@ -6755,25 +6755,6 @@ hero-image img {
   border-radius: 12px;
 }
 
-/* ============================
-   SWIPER PAGINATION INSTITUSI
-   ============================ */
-
-.institusi-swiper {
-  overflow: hidden;
-  padding-bottom: 60px;
-}
-
-/* ===============================
-   SAMAKAN TINGGI SLIDE
-================================ */
-.institusi-swiper .swiper-slide {
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .department-card {
   display: flex;
   align-items: center;
@@ -6846,4 +6827,13 @@ hero-image img {
 
 .modal-backdrop.zoom-backdrop {
   z-index: 1999 !important;
+}
+
+/* LOGO INSTITUSI */
+.logo-institusi {
+  width: 160px;
+  height: 100%;
+  object-fit: contain;
+  /* margin: 0px; */
+  display: block;
 }

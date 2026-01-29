@@ -218,6 +218,8 @@
               </ul>
             </li>
 
+            <li><a href="kritiksaran.html">Kritik Saran</a></li>
+
             <li class="ms-lg-3">
               <a
                 href="daftarpelatihan.html"
@@ -270,106 +272,112 @@
 
           <!-- FullCalendar JS -->
           <script>
-            document.addEventListener("DOMContentLoaded", function () {
-              const calendarEl = document.getElementById("calendar");
+              document.addEventListener("DOMContentLoaded", function () {
+                const calendarEl = document.getElementById("calendar");
 
-              // === util aman (tidak kena H-1) ===
-              function toYMD(dateObj) {
-                const y = dateObj.getFullYear();
-                const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-                const d = String(dateObj.getDate()).padStart(2, "0");
-                return `${y}-${m}-${d}`;
-              }
+                // === util aman (tidak kena H-1) ===
+                function toYMD(dateObj) {
+                  const y = dateObj.getFullYear();
+                  const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+                  const d = String(dateObj.getDate()).padStart(2, "0");
+                  return `${y}-${m}-${d}`;
+                }
 
-              function parseDateOnly(str) {
-                // str = "2026-01-25T17:00:00.000Z"
-                const d = new Date(str);        // parse UTC dari API
-                d.setHours(d.getHours() + 7);   // konversi ke WIB
-                d.setHours(0, 0, 0, 0);         // kunci ke awal hari
-                return d;
-              }
+                // ====== FORMAT RUPIAH  ======
+                    function formatRupiah(angka) {
+                      const nilai = Number(angka) || 0;
+                      return "Rp " + nilai.toLocaleString("id-ID");
+                    }
 
-              function formatDateOnly(date) {
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, "0");
-                const d = String(date.getDate()).padStart(2, "0");
-                return `${y}-${m}-${d}`;
-              }
+                function parseDateOnly(str) {
+                  // str = "2026-01-25T17:00:00.000Z"
+                  const d = new Date(str);        // parse UTC dari API
+                  d.setHours(d.getHours() + 7);   // konversi ke WIB
+                  d.setHours(0, 0, 0, 0);         // kunci ke awal hari
+                  return d;
+                }
 
-              const calendar = new FullCalendar.Calendar(calendarEl, {
-                timeZone: "Asia/Jakarta",
+                function formatDateOnly(date) {
+                  const y = date.getFullYear();
+                  const m = String(date.getMonth() + 1).padStart(2, "0");
+                  const d = String(date.getDate()).padStart(2, "0");
+                  return `${y}-${m}-${d}`;
+                }
 
-                initialView: "dayGridMonth",
-                fixedWeekCount: false,
-                displayEventTime: false,
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                  timeZone: "Asia/Jakarta",
 
-                headerToolbar: {
-                  left: "prev,next today",
-                  center: "title",
-                  right: "dayGridMonth,timeGridWeek,listWeek",
-                },
+                  initialView: "dayGridMonth",
+                  fixedWeekCount: false,
+                  displayEventTime: false,
 
-                eventDidMount: function (info) {
-                  info.el.style.cursor = "pointer";
-                },
+                  headerToolbar: {
+                    left: "prev,next today",
+                    center: "title",
+                    right: "dayGridMonth,timeGridWeek,listWeek",
+                  },
 
-                events: async function (fetchInfo, successCallback, failureCallback) {
-                  try {
-                    const response = await fetch("http://localhost:5000/api/pelatihan");
-                    const data = await response.json();
+                  eventDidMount: function (info) {
+                    info.el.style.cursor = "pointer";
+                  },
 
-                    // ===============================
-                    // FILTER: hanya tampilkan status "publish"
-                    // ===============================
-                    const filteredData = data.filter(item => item.status === "publish");
+                  events: async function (fetchInfo, successCallback, failureCallback) {
+                    try {
+                      const response = await fetch("http://localhost:5000/api/pelatihan");
+                      const data = await response.json();
 
-                    // ===============================
-                    // MAPPING KE FULLCALENDAR
-                    // ===============================
-                    const mapped = [];
+                      // ===============================
+                      // FILTER: hanya tampilkan status "publish"
+                      // ===============================
+                      const filteredData = data.filter(item => item.status === "publish");
 
-                    filteredData.forEach(item => {
-                      const color = item.warna || "#3498db";
+                      // ===============================
+                      // MAPPING KE FULLCALENDAR
+                      // ===============================
+                      const mapped = [];
 
-                      let start = parseDateOnly(item.tanggal_mulai);
-                      let end   = parseDateOnly(item.tanggal_selesai);
+                      filteredData.forEach(item => {
+                        const color = item.warna || "#3498db";
 
-                      // loop per hari
-                      while (start <= end) {
-                        mapped.push({
-                          id: item.id_pelatihan + "_" + formatDateOnly(start),
-                          title: item.nama_pelatihan,
-                          start: formatDateOnly(start),
-                          allDay: true,
+                        let start = parseDateOnly(item.tanggal_mulai);
+                        let end = parseDateOnly(item.tanggal_selesai);
 
-                          backgroundColor: color,
-                          borderColor: color,
-                          textColor: "#ffffff",
+                        // loop per hari
+                        while (start <= end) {
+                          mapped.push({
+                            id: item.id_pelatihan + "_" + formatDateOnly(start),
+                            title: item.nama_pelatihan,
+                            start: formatDateOnly(start),
+                            allDay: true,
 
-                          extendedProps: {
-                            kuota: item.sisa_kuota,
-                            totalKuota: item.kuota,
-                            lokasi: item.lokasi,
-                            tanggal_mulai: item.tanggal_mulai,
-                            tanggal_selesai: item.tanggal_selesai,
-                            waktu_mulai: item.waktu_mulai,
-                            waktu_selesai: item.waktu_selesai,
-                            kategori: item.kategori,
-                          }
-                        });
+                            backgroundColor: color,
+                            borderColor: color,
+                            textColor: "#ffffff",
 
-                        // maju ke hari berikutnya
-                        start.setDate(start.getDate() + 1);
-                      }
-                    });
+                            extendedProps: {
+                              jumlah_jpl:item.jumlah_jpl,
+                              kriteria_peserta:item.kriteria_peserta,
+                              kategori: item.kategori,
+                              kuota: item.sisa_kuota,
+                              totalKuota: item.kuota,
+                              lokasi: item.lokasi,
+                              tanggal_mulai: item.tanggal_mulai,
+                              tanggal_selesai: item.tanggal_selesai,
+                              harga:item.harga,
+                            }
+                          });
 
-                    successCallback(mapped);
+                          // maju ke hari berikutnya
+                          start.setDate(start.getDate() + 1);
+                        }
+                      });
 
+                      successCallback(mapped);
                     } catch (err) {
-                    console.error("Gagal load event:", err);
-                    failureCallback(err);
-                  }
-                },
+                      console.error("Gagal load event:", err);
+                      failureCallback(err);
+                    }
+                  },
 
                   eventClick: function (info) {
                     document.getElementById("modalPelatihan").style.display = "flex";
@@ -382,36 +390,62 @@
                       });
                     }
 
-                    function formatWaktu(waktuDB) {
-                      return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
-                    }
-
                     document.getElementById("modalTitle").innerText = info.event.title;
-
-                    document.getElementById("modalMulai").innerText =
-                      formatTanggal(info.event.extendedProps.tanggal_mulai) +
-                      " | " +
-                      formatWaktu(info.event.extendedProps.waktu_mulai);
-
-                    document.getElementById("modalSelesai").innerText =
-                      formatTanggal(info.event.extendedProps.tanggal_selesai) +
-                      " | " +
-                      formatWaktu(info.event.extendedProps.waktu_selesai);
-
-                    document.getElementById("modalPeserta").innerText =
-                      info.event.extendedProps.kuota + " / " + info.event.extendedProps.totalKuota;
-
-                    document.getElementById("modalLokasi").innerText =
-                      info.event.extendedProps.lokasi;
+                    document.getElementById("modalJumlah_jpl").innerText = info.event.extendedProps.jumlah_jpl;
 
                     document.getElementById("modalKategori").innerText =
                       info.event.extendedProps.kategori || "-";
+
+                    document.getElementById("modalKriteria_peserta").innerText =
+                      info.event.extendedProps.kriteria_peserta;
+
+                    document.getElementById("modalMulai").innerText =
+                      formatTanggal(info.event.extendedProps.tanggal_mulai);
+
+                    document.getElementById("modalSelesai").innerText =
+                      formatTanggal(info.event.extendedProps.tanggal_selesai);
+
+                      document.getElementById("modalLokasi").innerText =
+                      info.event.extendedProps.lokasi;
+
+                    document.getElementById("modalPeserta").innerText =
+                      info.event.extendedProps.kuota +
+                      " / " +
+                      info.event.extendedProps.totalKuota;
+
+                    const harga = Number(info.event.extendedProps.harga) || 0;
+
+                    document.getElementById("modalHarga").innerText =
+                      harga > 0 ? formatRupiah(harga) : "Gratis";
 
                     // ambil elemen tombol
                     const btnDetail = document.getElementById("btnDetail");
 
                     // AMBIL KUOTA SISANYA (di sini error kamu tadi)
-                    const kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+                    let kuotaSisa = Number(info.event.extendedProps.kuota) || 0;
+                    const totalKuota = Number(info.event.extendedProps.totalKuota) || 0;
+
+                    // ===============================
+                    // LOGIKA 1 — CEK EXPIRED (tanggal mulai sudah lewat)
+                    // ===============================
+                    const today = new Date().setHours(0, 0, 0, 0);
+                    const eventDate = new Date(
+                      info.event.extendedProps.tanggal_mulai
+                    ).setHours(0, 0, 0, 0);
+
+                    if (today > eventDate) {
+                      // Anggap kuota 0 di tampilan & logika
+                      kuotaSisa = 0;
+
+                      document.getElementById("modalPeserta").innerText =
+                        `0 / ${totalKuota}`;
+
+                      btnDetail.innerText = "Pendaftaran Ditutup";
+                      btnDetail.style.background = "#777";
+                      btnDetail.style.cursor = "not-allowed";
+                      btnDetail.onclick = null;
+                      return;
+                    }
 
                     // ===============================
                     // LOGIKA KUOTA PENUH
@@ -428,15 +462,16 @@
 
                       btnDetail.onclick = function () {
                         window.location.href =
-                          "/pelatihanmargono/frontend/daftarpelatihan.html?id=" + info.event.id;
+                          "/pelatihanmargono/frontend/daftarpelatihan.html?id=" +
+                          info.event.id;
                       };
                     }
                   },
                 });
 
-              calendar.render();
-            });
-          </script>
+                calendar.render();
+              });
+            </script>
 
             <!-- ==== MODAL DETAIL PELATIHAN ==== -->
             <div id="modalPelatihan" class="modal" style="
@@ -454,11 +489,14 @@
               ">
 
                 <h3 id="modalTitle" style="font-weight: bold;"></h3>
-                <p><b>Kategori:</b> <span id="modalKategori"></span></p>
+                <p><b>Jumlah JPL:</b> <span id="modalJumlah_jpl"></span></p>
+                <p><b>Kategori Peserta:</b> <span id="modalKategori"></span></p>
+                <p><b>Kriteria Peserta:</b> <span id="modalKriteria_peserta"></span></p>
                 <p><b>Mulai:</b> <span id="modalMulai"></span></p>
                 <p><b>Selesai:</b> <span id="modalSelesai"></span></p>
                 <p><b>Lokasi:</b> <span id="modalLokasi"></span></p>
                 <p><b>Kuota:</b> <span id="modalPeserta"></span></p>
+                <p><b>Biaya Pelatihan:</b> <span id="modalHarga"></span></p>
 
                 <button 
                   class="btn btn-outline" 

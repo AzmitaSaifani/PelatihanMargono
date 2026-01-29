@@ -498,14 +498,15 @@
                             textColor: "#ffffff",
 
                             extendedProps: {
+                              jumlah_jpl:item.jumlah_jpl,
+                              kriteria_peserta:item.kriteria_peserta,
+                              kategori: item.kategori,
                               kuota: item.sisa_kuota,
                               totalKuota: item.kuota,
                               lokasi: item.lokasi,
                               tanggal_mulai: item.tanggal_mulai,
                               tanggal_selesai: item.tanggal_selesai,
-                              waktu_mulai: item.waktu_mulai,
-                              waktu_selesai: item.waktu_selesai,
-                              kategori: item.kategori,
+                              harga:item.harga,
                             }
                           });
 
@@ -532,41 +533,33 @@
                       });
                     }
 
-                    function formatWaktu(waktuDB) {
-                      return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
-                    }
-
                     document.getElementById("modalTitle").innerText = info.event.title;
-                    document.getElementById("modalJumlah_jpl").innerText = info.event.jumlah_jpl;
-
-                    document.getElementById("modalMulai").innerText =
-                      formatTanggal(info.event.extendedProps.tanggal_mulai) +
-                      " | " +
-                      formatWaktu(info.event.extendedProps.waktu_mulai);
-
-                    document.getElementById("modalSelesai").innerText =
-                      formatTanggal(info.event.extendedProps.tanggal_selesai) +
-                      " | " +
-                      formatWaktu(info.event.extendedProps.waktu_selesai);
-
-                    document.getElementById("modalPeserta").innerText =
-                      info.event.extendedProps.kuota +
-                      " / " +
-                      info.event.extendedProps.totalKuota;
-
-                    document.getElementById("modalHarga").innerText =
-                      info.harga && Number(info.harga) > 0
-                        ? formatRupiah(info.harga)
-                        : "Gratis";
-
-                    document.getElementById("modalLokasi").innerText =
-                      info.event.extendedProps.lokasi;
+                    document.getElementById("modalJumlah_jpl").innerText = info.event.extendedProps.jumlah_jpl;
 
                     document.getElementById("modalKategori").innerText =
                       info.event.extendedProps.kategori || "-";
 
                     document.getElementById("modalKriteria_peserta").innerText =
                       info.event.extendedProps.kriteria_peserta;
+
+                    document.getElementById("modalMulai").innerText =
+                      formatTanggal(info.event.extendedProps.tanggal_mulai);
+
+                    document.getElementById("modalSelesai").innerText =
+                      formatTanggal(info.event.extendedProps.tanggal_selesai);
+
+                      document.getElementById("modalLokasi").innerText =
+                      info.event.extendedProps.lokasi;
+
+                    document.getElementById("modalPeserta").innerText =
+                      info.event.extendedProps.kuota +
+                      " / " +
+                      info.event.extendedProps.totalKuota;
+
+                    const harga = Number(info.event.extendedProps.harga) || 0;
+
+                    document.getElementById("modalHarga").innerText =
+                      harga > 0 ? formatRupiah(harga) : "Gratis";
 
                     // ambil elemen tombol
                     const btnDetail = document.getElementById("btnDetail");
@@ -860,10 +853,6 @@
                       return "Rp " + nilai.toLocaleString("id-ID");
                     }
 
-                    function formatWaktu(waktuDB) {
-                      return waktuDB ? waktuDB.substring(0, 5) + " WIB" : "-";
-                    }
-
                     // ===================== LOAD LIST PELATIHAN (CARD) =====================
                     async function loadPelatihan() {
                       const res = await fetch(API);
@@ -983,10 +972,10 @@
                       document.getElementById("modalKriteria_peserta").innerText = p.kriteria_peserta;
 
                       document.getElementById("modalMulai").innerText =
-                        formatTanggal(p.tanggal_mulai) + " | " + formatWaktu(p.waktu_mulai);
+                        formatTanggal(p.tanggal_mulai);
 
                       document.getElementById("modalSelesai").innerText =
-                        formatTanggal(p.tanggal_selesai) + " | " + formatWaktu(p.waktu_selesai);
+                        formatTanggal(p.tanggal_selesai);
 
                       document.getElementById("modalLokasi").innerText = p.lokasi;
                       document.getElementById("modalPeserta").innerText =

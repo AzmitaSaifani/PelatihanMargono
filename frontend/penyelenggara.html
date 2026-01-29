@@ -215,6 +215,9 @@
               </ul>
             </li>
 
+            <li><a href="kritiksaran.html">Kritik Saran</a></li>
+
+
             <li class="ms-lg-3">
               <a
                 href="daftarpelatihan.html"
@@ -239,7 +242,7 @@
       </div>
 
       <div class="title-wrapper">
-        <h1>PENGENDALI PELATIHAN</h1>
+        <h1>PENYELENGGARA PELATIHAN</h1>
       </div>
     </div><!-- End Page Title -->
 
@@ -248,9 +251,15 @@
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-        <div class="row gy-4">
+        <div class="swiper fasilitator-swiper">
+            <div id="penyelenggaraContainer" class="swiper-wrapper">
+              <!-- slide akan diisi lewat JS -->
+            </div>
 
-          <div id="penyelenggaraContainer" class="row gy-4">
+            <!-- TITIK PAGINATION -->
+            <div class="swiper-pagination mt-4"></div>
+        </div>
+          <div class="row gy-4">
             <script>
               async function loadFasilitator() {
                 const res = await fetch("http://localhost:5000/api/penyelenggara");
@@ -266,7 +275,7 @@
 
 
                   const card = `
-                    <div class="col-xl-3 col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="swiper-slide">
                       <div class="doctor-card">
 
                         <div class="doctor-image">
@@ -274,9 +283,15 @@
 
                           <div class="doctor-overlay">
                             <div class="doctor-social">
-                              <a href="${fasil.linkedin || "#"}" class="social-link"><i class="bi bi-linkedin"></i></a>
-                              <a href="${fasil.twitter || "#"}" class="social-link"><i class="bi bi-twitter"></i></a>
-                              <a href="mailto:${fasil.email}" class="social-link"><i class="bi bi-envelope"></i></a>
+                              <a href="${fasil.linkedin || "#"}" class="social-link">
+                                <i class="bi bi-linkedin"></i>
+                              </a>
+                              <a href="${fasil.twitter || "#"}" class="social-link">
+                                <i class="bi bi-twitter"></i>
+                              </a>
+                              <a href="mailto:${fasil.email || ""}" class="social-link">
+                                <i class="bi bi-envelope"></i>
+                              </a>
                             </div>
                           </div>
                         </div>
@@ -292,15 +307,38 @@
 
                   container.innerHTML += card;
                 });
-              }
 
+              // INIT SWIPER
+              new Swiper(".fasilitator-swiper", {
+                loop: true,
+                spaceBetween: 30,
+
+                pagination: {
+                  el: ".swiper-pagination",
+                  clickable: true,
+                },
+
+                breakpoints: {
+                  0: {
+                    slidesPerView: 1,
+                  },
+                  576: {
+                    slidesPerView: 2,
+                  },
+                  992: {
+                    slidesPerView: 3,
+                  },
+                  1200: {
+                    slidesPerView: 4,
+                  },
+                  },
+                });
+              }
+              
               loadFasilitator();
               </script>
-            </div>
-          </div><!-- End Doctor Card -->
-
+          </div>
       </div>
-
     </section><!-- /Doctors Section -->
 
   </main>

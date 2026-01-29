@@ -140,6 +140,8 @@
               </ul>
             </li>
 
+            <li><a href="kritiksaran.html">Kritik Saran</a></li>
+
             <li class="ms-lg-3">
               <a href="daftarpelatihan.html" class="btn btn-accent nav-cta">
                 Daftar Pelatihan
@@ -166,7 +168,7 @@
       <!-- Departments Section -->
       <section class="institusi-section">
         <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="swiper institusi-swiper">
+          <div class="swiper fasilitator-swiper">
             <div id="institusiContainer" class="swiper-wrapper">
               <!-- slide diisi via JS -->
             </div>
@@ -197,7 +199,7 @@
                           <img
                             src="${foto}"
                             alt="${item.nama}"
-                            class="img-fluid"
+                            class="logo-institusi"
                             loading="lazy"
                           />
                         </a>
@@ -208,45 +210,33 @@
 
                   container.innerHTML += card;
                 });
+                // INIT SWIPER
+                new Swiper(".fasilitator-swiper", {
+                  loop: true,
+                  spaceBetween: 10,
+
+                  pagination: {
+                    el: ".swiper-pagination",
+                    clickable: true,
+                  },
+
+                  breakpoints: {
+                    0: {
+                      slidesPerView: 1,
+                    },
+                    576: {
+                      slidesPerView: 2,
+                    },
+                    992: {
+                      slidesPerView: 3,
+                    },
+                    1200: {
+                      slidesPerView: 4,
+                    },
+                  },
+                });
               }
-
               await loadInstitusi();
-
-              new Swiper(".institusi-swiper", {
-                loop: true,
-                spaceBetween: 30,
-
-                slidesPerView: 6,
-                slidesPerGroup: 6,
-
-                pagination: {
-                  el: ".swiper-pagination",
-                  clickable: true,
-                },
-
-                breakpoints: {
-                  0: {
-                    slidesPerView: 2,
-                    loopedSlides: 2,
-                  },
-                  576: {
-                    slidesPerView: 3,
-                    loopedSlides: 3,
-                  },
-                  768: {
-                    slidesPerView: 4,
-                    loopedSlides: 4,
-                  },
-                  992: {
-                    slidesPerView: 5,
-                    loopedSlides: 5,
-                  },
-                  1200: {
-                    slidesPerView: 6,
-                    loopedSlides: 6,
-                  },
-                },
-              });
             });
           </script>
         </div>

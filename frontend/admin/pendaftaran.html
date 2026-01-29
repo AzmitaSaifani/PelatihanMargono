@@ -138,7 +138,6 @@
     <div class="container py-4">
       <h2 class="fw-bold mb-4">📝 Data Pendaftaran Peserta</h2>
 
-      <!-- TABLE -->
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Pendaftar</div>
 
@@ -200,7 +199,7 @@
           class="table-responsive ms-3 me-3"
           style="max-height: 450px; overflow-y: auto"
         >
-          <table class="table table-bordered table-hover table-sm mb-0">
+          <table class="table table-bordered table-hover table-sm mb-3">
             <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
@@ -452,7 +451,7 @@
 
             tableBody.innerHTML += `
             <tr>
-                  <td>${index + 1}</td>
+                  <td>${start + index + 1}</td>
                   <td>${item.nama_peserta}</td>
                   <td>${item.nik}</td>
                   <td>${item.nip ?? "-"}</td>

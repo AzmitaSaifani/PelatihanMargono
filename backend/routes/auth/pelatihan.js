@@ -6,8 +6,6 @@ import fs from "fs";
 
 const router = express.Router();
 
-const ALLOWED_KATEGORI = ["Nakes", "Non Nakes"];
-
 // === Konfigurasi upload untuk flyer ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,6 +23,19 @@ const upload = multer({ storage });
 
 // === CREATE: Tambah pelatihan ===
 router.post("/", upload.single("flyer_url"), (req, res) => {
+  // ===============================
+  // AMBIL IDENTITAS ADMIN (BENAR)
+  // ===============================
+  const adminId = req.headers["x-admin-id"];
+  const adminEmail = req.headers["x-admin-email"];
+  const adminNama = req.headers["x-admin-nama"];
+
+  if (!adminId) {
+    return res.status(401).json({
+      message: "❌ Admin tidak terautentikasi",
+    });
+  }
+
   let {
     nama_pelatihan,
     jumlah_jpl,
@@ -40,7 +51,6 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     tipe_pelatihan,
     durasi,
     status,
-    created_by,
   } = req.body;
 
   warna = warna || "#3498db";
@@ -104,7 +114,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       tanggal_mulai, tanggal_selesai, kuota, warna, harga,
       kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
@@ -123,7 +133,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
     durasi,
     flyer_url,
     status || "draft",
-    created_by,
+    adminId,
   ];
 
   connection.query(sql, values, (err, result) => {
@@ -135,8 +145,18 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       });
     }
 
+    // ================= ADMIN LOG =================
+    logAdmin({
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
+      aktivitas: "CREATE_PELATIHAN",
+      keterangan: `Menambahkan pelatihan: ${nama_pelatihan}`,
+      req,
+    });
+
     res.status(201).json({
-      message: "✅ Pelatihan berhasil ditambahkan!",
+      message: "✅ Pelatihan berhasil ditambahkan",
       id_pelatihan: result.insertId,
     });
   });
@@ -415,6 +435,14 @@ router.get("/", (req, res) => {
 
 // === UPDATE: Edit pelatihan ===
 router.put("/:id", upload.single("flyer_url"), (req, res) => {
+  const adminId = req.headers["x-admin-id"];
+  const adminEmail = req.headers["x-admin-email"];
+  const adminNama = req.headers["x-admin-nama"];
+
+  if (!adminId) {
+    return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
+  }
+
   const { id } = req.params;
   const {
     nama_pelatihan,
@@ -489,6 +517,16 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
           .status(500)
           .json({ message: "❌ Gagal memperbarui pelatihan" });
       }
+
+      logAdmin({
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
+        aktivitas: "UPDATE_PELATIHAN",
+        keterangan: `Update pelatihan ID ${id}`,
+        req,
+      });
+
       res.status(200).json({ message: "✅ Pelatihan berhasil diperbarui!" });
     });
   });
@@ -519,6 +557,15 @@ router.delete("/:id", (req, res) => {
           .status(500)
           .json({ message: "❌ Gagal menghapus pelatihan" });
       }
+
+      logAdmin({
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
+        aktivitas: "DELETE_PELATIHAN",
+        keterangan: `Hapus pelatihan ID ${id}`,
+        req,
+      });
 
       res.status(200).json({ message: "✅ Pelatihan berhasil dihapus!" });
     });

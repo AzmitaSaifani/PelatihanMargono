@@ -38,9 +38,18 @@
   adminData.lastActive = now;
   localStorage.setItem("admin", JSON.stringify(adminData));
 
-  // 🔥🔥 INI YANG HILANG SEBELUMNYA
   // Sinkronkan field untuk header API
   localStorage.setItem("admin_id", adminData.id_user);
   localStorage.setItem("admin_email", adminData.email);
   localStorage.setItem("admin_nama", adminData.nama_lengkap);
+
+  function logoutAdmin() {
+    if (!confirm("Yakin ingin logout?")) return;
+
+    localStorage.removeItem("admin_id");
+    localStorage.removeItem("admin_email");
+    localStorage.removeItem("admin_nama");
+
+    window.location.href = "/pelatihanmargono/frontend/admin/loginadmin.html";
+  }
 })();
