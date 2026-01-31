@@ -61,6 +61,11 @@
   scroll-behavior: smooth;
 }
 
+.bg-accent {
+  background-color: var(--bs-accent, #28c7a8);
+}
+
+
 /*--------------------------------------------------------------
 # General Styling & Shared Classes
 --------------------------------------------------------------*/
@@ -6690,20 +6695,32 @@ hero-image img {
 .fasilitator-swiper {
   overflow: hidden;
   padding-bottom: 60px;
+  align-items: center;
+  /* display: flex; */
 }
 
 /* ===============================
    SAMAKAN TINGGI SLIDE
 ================================ */
 .fasilitator-swiper .swiper-slide {
-  height: auto;
+  /* height: auto; */
   display: flex;
+  justify-content: center;
+}
+
+.fasilitator-swiper .swiper-wrapper {
+  align-items: stretch;
 }
 
 .doctor-card {
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+
   display: flex;
   flex-direction: column;
-  height: 100%;
+  background: #fff;
+  border-radius: 16px;
 }
 
 /* ===============================
@@ -6712,6 +6729,7 @@ hero-image img {
 .doctor-image {
   height: 280px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .doctor-image img {
@@ -6725,7 +6743,12 @@ hero-image img {
 ================================ */
 .doctor-content {
   min-height: 150px;
+  padding: 20px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* ===============================
@@ -6750,43 +6773,6 @@ hero-image img {
 }
 
 .fasilitator-swiper .swiper-pagination-bullet-active {
-  background: #0d6efd;
-  width: 24px;
-  border-radius: 12px;
-}
-
-.department-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.department-image-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.institusi-swiper .swiper-pagination {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 10px;
-  width: auto;
-  white-space: nowrap;
-}
-
-.institusi-swiper .swiper-pagination-bullet {
-  width: 10px;
-  height: 10px;
-  background: #cfd8dc;
-  opacity: 1;
-  margin: 0 6px;
-  transition: all 0.3s ease;
-}
-
-.institusi-swiper .swiper-pagination-bullet-active {
   background: #0d6efd;
   width: 24px;
   border-radius: 12px;
@@ -6832,8 +6818,44 @@ hero-image img {
 /* LOGO INSTITUSI */
 .logo-institusi {
   width: 160px;
-  height: 100%;
+  height: 160px;
   object-fit: contain;
   /* margin: 0px; */
   display: block;
+}
+
+.detail-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.detail-label {
+  min-width: 90px;
+  font-weight: 600;
+  color: #080808;
+}
+
+.detail-value {
+  color: #222;
+}
+
+.detail-table th {
+  width: 120px;
+  font-weight: 600;
+  color: #283139;
+  padding-left: 0;
+  text-align: left !important;
+  vertical-align: top;
+}
+
+.detail-table td {
+  font-size: 1.05rem;
+  color: #222;
+  text-align: left !important;
+  vertical-align: top;
+  padding-left: 8px;
+  font-size: 1.05rem;
 }
