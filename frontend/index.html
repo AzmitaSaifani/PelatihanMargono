@@ -147,7 +147,7 @@
         <div class="hero-wrapper">
           <div class="hero-image">
             <img
-              src="/pelatihanmargono/backend/uploads/foto/RSMS2.jpg"
+              src="/pelatihanmargono/backend/uploads/foto/rs margono.jpg"
               alt="RSMS"
               class="img-fluid"
             />
@@ -157,7 +157,7 @@
             <div class="container">
               <div class="row">
                 <div
-                  class="col-lg-7 col-md-10"
+                  class="col-lg-8 col-md-10"
                   data-aos="fade-right"
                   data-aos-delay="100"
                 >
@@ -167,8 +167,8 @@
                     </h3>
 
                     <h1 data-aos="fade-up" data-aos-delay="200">
-                      Diklat <br />
-                      RSUD Prof. Dr. Margono Soekarjo <br />
+                      DIKLAT <br />
+                      RSUD Prof. Dr. MARGONO SOEKARJO<br />
                       Purwokerto
                     </h1>
 
@@ -202,19 +202,20 @@
               data-aos="fade-left"
               data-aos-delay="300"
             >
-              <div class="about-content">
-                <h2 style="text-align: center;">PROFIL DIKLAT</h2>
+              <div class="container section-title" data-aos="fade-up">
+                <h2 style="text-align: center; margin-top:30px;">PROFIL DIKLAT</h2>
+              </div>
 
                 <!-- BAGIAN ATAS -->
-                <div class="row g-4 mt-4">
-                  <div class="col-md-12" data-aos="fade-up">
+                <div class="row g-4">
+                  <div class="col-md-6" data-aos="fade-up">
                     <div class="feature-item">
                       <h4 id="profilRingkasAtas">Memuat...</h4>
                     </div>
                   </div>
 
                   <div
-                    class="col-md-12"
+                    class="col-md-6"
                     data-aos="fade-up"
                     data-aos-delay="150"
                   >
@@ -230,7 +231,7 @@
                   <div class="col-lg-6" data-aos="fade-right">
                     <div class="about-image">
                       <img
-                        src="assets/img/health/facilities-1.webp"
+                        src="/pelatihanmargono/backend/uploads/foto/PELATIHAN ACLS.jpeg"
                         alt="RSMS"
                         class="img-fluid rounded-3 mb-4"
                       />
@@ -252,7 +253,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -400,13 +400,14 @@
       <section>
         <div class="container section-title" data-aos="fade-up">
           <h2 style="text-align:center; margin-top:30px;">
-            📅 KALENDER JADWAL PELATIHAN
+            KALENDER JADWAL PELATIHAN
           </h2>
 
           <!-- ===== EXPORT EXCEL KALENDER ===== -->
           <div class="container text-center">
             <a
-              href="/uploads/jadwal_pelatihan/Draft_Kalender_Pelatihan_RSMS_2026.xlsx"
+              id="btnDownloadKalender"
+              href="#"
               class="btn btn-accent"
               style="padding:10px 18px; border-radius:8px;"
               target="_blank"
@@ -421,7 +422,29 @@
 
             <!-- FullCalendar JS -->
             <script>
-              document.addEventListener("DOMContentLoaded", function () {
+              document.addEventListener("DOMContentLoaded", async function () {
+
+                const btnKalender = document.getElementById("btnDownloadKalender");
+                if (btnKalender) {
+                  try {
+                    const res = await fetch("http://localhost:5000/api/kalender/aktif/latest");
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                      btnKalender.innerText = "Kalender Belum Tersedia";
+                      btnKalender.classList.add("disabled");
+                    } else {
+                      btnKalender.href = `http://localhost:5000/uploads/kalender/${data.file_kalender}`;
+                      btnKalender.setAttribute("download", data.file_kalender);
+                      btnKalender.innerText = `Download Kalender Pelatihan ${data.tahun}`;
+                    }
+                  } catch (err) {
+                    console.error("Gagal load kalender:", err);
+                    btnKalender.innerText = "Kalender Tidak Bisa Dimuat";
+                    btnKalender.classList.add("disabled");
+                  }
+                }
+
                 const calendarEl = document.getElementById("calendar");
 
                 // === util aman (tidak kena H-1) ===
@@ -700,7 +723,7 @@
       <!-- MENU PELATIHAN Section -->
         <section id="services" class="services section">
           <section id="featured-departments" class="featured-departments section">
-            <div class="container section-title" data-aos="fade-up">
+            <div class="container section-title mt-0" data-aos="fade-up">
               <h2>MENU PELATIHAN</h2>
 
               <!-- === FILTER KATEGORI === -->
