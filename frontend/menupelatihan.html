@@ -258,135 +258,196 @@
       </div>
       <!-- End Page Title -->
 
-      <!-- Services Section -->
-      <section id="services" class="services section mt-0">
-        <section id="featured-departments" class="featured-departments section">
-          <section class="container" id="kategoriFilter" data-aos="fade-up" data-aos-delay="100">
-            <div class="container section-title" data-aos="fade-up">
-              <div class="services-tabs">
-                  <!-- === FILTER KATEGORI (NAV-TABS) === -->
-                  <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
+      <!-- ================= FILTER MENU PELATIHAN ================= -->
+      <section class="services section mt-0">
+        <div class="container" data-aos="fade-up">
 
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('all', this)">
-                        Semua
-                      </button>
-                    </li>
+          <div class="services-tabs">
+            <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
 
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Nakes', this)">
-                        Nakes
-                      </button>
-                    </li>
+              <li class="nav-item">
+                <button class="nav-link active"
+                  onclick="filterKategori('all', this)">
+                  Semua
+                </button>
+              </li>
 
-                    <li class="nav-item">
-                      <button class="nav-link"
-                        onclick="filterKategori('Non Nakes', this)">
-                        Non-Nakes
-                      </button>
-                    </li>
+              <li class="nav-item">
+                <button class="nav-link"
+                  onclick="filterKategori('Nakes', this)">
+                  Nakes
+                </button>
+              </li>
 
-                  </ul>
+              <li class="nav-item">
+                <button class="nav-link"
+                  onclick="filterKategori('Non Nakes', this)">
+                  Non-Nakes
+                </button>
+              </li>
 
-                  <div class="container" data-aos="fade-up" data-aos-delay="100">
+              <li class="nav-item">
+                <button class="nav-link"
+                  onclick="filterKategori('terlaksana', this)">
+                  Terlaksana
+                </button>
+              </li>
 
-                  <!-- ==== MODAL DETAIL MENU PELATIHAN ==== -->
-              <div class="modal fade" id="modalPelatihan" tabindex="-1">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                  <div class="modal-content">
+            </ul>
+          </div>
 
-                    <div class="modal-header bg-accent text-white">
-                      <h5 class="modal-title">Detail Pelatihan</h5>
-                      <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
+        </div>
+      </section>
 
-                    <div class="modal-body">
+      <!-- ================= LIST MENU PELATIHAN ================= -->
+      <section class="services section">
+        <div class="container section-title mt-0" data-aos="fade-up">
 
-                      <h5 class="fw-bold mb-4 text-center" id="modalTitle"></h5>
+          <div class="row gy-4" id="menupelatihanContainer">
+            <!-- CARD DARI JS -->
+          </div>
 
-                      <div class="row g-4">
+        </div>
+      </section>
 
-                        <!-- KOLOM KIRI: FLYER -->
-                        <div class="col-md-5 text-center">
-                          <div id="modalFlyerWrapper" class="d-none">
-                            <img
-                              id="modalFlyer"
-                              class="img-fluid rounded shadow-sm"
-                              style="max-height:420px; object-fit:contain;"
-                            />
+      <!-- ==== MODAL DETAIL MENU PELATIHAN ==== -->
+                <div class="modal fade" id="modalPelatihan" tabindex="-1">
+                  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+
+                      <div class="modal-header bg-accent text-white">
+                        <h5 class="modal-title">Detail Pelatihan</h5>
+                        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                      </div>
+
+                      <div class="modal-body">
+
+                        <h5 class="fw-bold mb-4 text-center" id="modalTitle"></h5>
+
+                        <div class="row g-4">
+
+                          <!-- KOLOM KIRI: FLYER -->
+                          <div class="col-md-5 text-center">
+                            <div id="modalFlyerWrapper" class="d-none">
+                              <img
+                                id="modalFlyer"
+                                class="img-fluid rounded shadow-sm"
+                                style="max-height:420px; object-fit:contain;"
+                              />
+                            </div>
+                            <div id="modalFlyerEmpty" class="text-muted small d-none">
+                              Flyer belum tersedia
+                            </div>
                           </div>
-                          <div id="modalFlyerEmpty" class="text-muted small d-none">
-                            Flyer belum tersedia
+
+                          <!-- KOLOM KANAN: DETAIL -->
+                          <div class="col-md-7 ps-md-2 mt-3">
+
+                            <table class="table table-sm align-middle detail-table">
+                              <tbody>
+                                <tr>
+                                  <th>Jumlah JPL</th>
+                                  <td><span id="modalJumlah_jpl"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Kategori</th>
+                                  <td><span id="modalKategori"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Kriteria</th>
+                                  <td><span id="modalKriteria_peserta"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Mulai</th>
+                                  <td><span id="modalMulai"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Selesai</th>
+                                  <td><span id="modalSelesai"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Lokasi</th>
+                                  <td><span id="modalLokasi"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Kuota</th>
+                                  <td><span id="modalPeserta"></span></td>
+                                </tr>
+                                <tr>
+                                  <th>Biaya</th>
+                                  <td><span id="modalHarga"></span></td>
+                                </tr>
+                              </tbody>
+                            </table>
+
                           </div>
-                        </div>
-
-                        <!-- KOLOM KANAN: DETAIL -->
-                        <div class="col-md-7 ps-md-2 mt-3">
-
-                          <table class="table table-sm align-middle detail-table">
-                            <tbody>
-                              <tr>
-                                <th>Jumlah JPL</th>
-                                <td><span id="modalJumlah_jpl"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Kategori</th>
-                                <td><span id="modalKategori"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Kriteria</th>
-                                <td><span id="modalKriteria_peserta"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Mulai</th>
-                                <td><span id="modalMulai"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Selesai</th>
-                                <td><span id="modalSelesai"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Lokasi</th>
-                                <td><span id="modalLokasi"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Kuota</th>
-                                <td><span id="modalPeserta"></span></td>
-                              </tr>
-                              <tr>
-                                <th>Biaya</th>
-                                <td><span id="modalHarga"></span></td>
-                              </tr>
-                            </tbody>
-                          </table>
-
                         </div>
                       </div>
-                    </div>
 
-                    <div class="modal-footer">
-                      <a id="btnDetail" class="btn btn-primary">Daftar Pelatihan</a>
-                      <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    </div>
+                      <div class="modal-footer">
+                        <a id="btnDetail" class="btn btn-primary">Daftar Pelatihan</a>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                      </div>
 
+                    </div>
                   </div>
                 </div>
-              </div>
               <!-- ==== END MODAL ==== -->
 
-                    <!-- Modal Zoom Flyer -->
-                    <div id="zoomFlyerModal" class="zoom-modal">
-                      <div class="zoom-modal-content">
-                        <span class="zoom-close" onclick="closeZoom()">&times;</span>
-                        <img id="zoomFlyerImage" class="zoom-image">
+              <hr>
+
+              <!-- Services Section -->
+      <section id="services" class="services section mt-0">
+            <div class="container section-title" data-aos="fade-up">
+              
+                <div class="services-cta" data-aos="fade-up" data-aos-delay="400">
+                  <div class="row">
+                    <div class="col-lg-8 mx-auto text-center">
+                      <div class="cta-content">
+                        <h3>Siapkah Anda Meningkatkan Kompetensi?</h3>
+                        <p>
+                          Daftar pelatihan sekarang dengan klik Daftar Pelatihan
+                        </p>
+                        <div class="cta-buttons">
+                          <a href="daftarpelatihan.html" class="btn-book">Daftar Pelatihan</a>
+                          <a href="contact.html" class="btn-contact">Kontak Kami</a>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+            </div>
+      </section>
+                <!-- ================= MODAL ZOOM FLYER ================= -->
+                  <div class="modal fade" id="modalZoomFlyer" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                      <div class="modal-content modal-flyer-auto">
 
-                    <div class="row gy-4" id="menupelatihanContainer">
-                      
-                      <script>
+                        <!-- HEADER -->
+                        <div class="modal-header bg-accent text-white">
+                          <!-- <h5 class="modal-title">Preview Flyer</h5> -->
+                          <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                          ></button>
+                        </div>
+
+                        <!-- BODY -->
+                        <div class="modal-body text-center p-2">
+                          <img
+                            id="zoomFlyerImage"
+                            class="img-fluid rounded shadow flyer-auto"
+                            alt="Flyer Preview"
+                          />
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- ================= END MODAL ================= -->
+
+              <script>
                       const API = "http://localhost:5000/api/pelatihan";
 
                       // Menyimpan semua pelatihan publish
@@ -469,17 +530,15 @@
 
                                 <div class="department-content">
                                   <div class="department-icon">
-                                    <i class="bi bi-calendar4-event"></i>
                                   </div>
 
-                                  <h3>${p.nama_pelatihan}</h3>
-
-                                  <button
-                                    class="btn btn-primary btn-accent"
+                                  <h3
+                                    class="pelatihan-title"
                                     onclick="openModal(${p.id_pelatihan})"
+                                    style="cursor:pointer;"
                                   >
-                                    Detail Menu Pelatihan
-                                  </button>
+                                    ${p.nama_pelatihan}
+                                  </h3>
                                 </div>
 
                               </div>
@@ -502,12 +561,26 @@
                       function filterKategori(kategori, button) {
                         setActiveTab(button);
 
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        let hasil = [];
+
                         if (kategori === "all") {
-                          renderPelatihan(allPelatihan);
-                        } else {
-                          const hasil = allPelatihan.filter(p => p.kategori === kategori);
-                          renderPelatihan(hasil);
+                          hasil = allPelatihan;
+                        } 
+                        else if (kategori === "terlaksana") {
+                          hasil = allPelatihan.filter(p => {
+                            const tanggalMulai = new Date(p.tanggal_mulai);
+                            tanggalMulai.setHours(0, 0, 0, 0);
+                            return tanggalMulai < today;
+                          });
+                        } 
+                        else {
+                          hasil = allPelatihan.filter(p => p.kategori === kategori);
                         }
+
+                        renderPelatihan(hasil);
                       }
 
                       async function openModal(id) {
@@ -603,47 +676,18 @@
                       }
 
                       function zoomFlyer(flyerUrl) {
-                        document.getElementById("zoomFlyerImage").src =
-                          `http://localhost:5000/uploads/flyer/${flyerUrl}`;
+                        if (!flyerUrl) return;
 
-                        document.getElementById("zoomFlyerModal").style.display = "flex";
-                      }
+                        const img = document.getElementById("zoomFlyerImage");
+                        img.src = `http://localhost:5000/uploads/flyer/${flyerUrl}`;
 
-                      function closeZoom() {
-                        document.getElementById("zoomFlyerModal").style.display = "none";
+                        const modal = bootstrap.Modal.getOrCreateInstance(
+                          document.getElementById("modalZoomFlyer")
+                        );
+
+                        modal.show();
                       }
                   </script>
-
-                      <!-- End Script JS Menu Pelatihan -->
-                  </div>
-
-                </div>
-                <!-- End Department Card -->
-              </div>
-              
-                <div class="services-cta" data-aos="fade-up" data-aos-delay="400">
-                  <div class="row">
-                    <div class="col-lg-8 mx-auto text-center">
-                      <div class="cta-content">
-                        <i class="bi bi-journal-bookmark-fill"></i>
-                        <!-- <i class="fa fa-calendar-check"></i> -->
-                        <h3>Siapkah Anda Meningkatkan Kompetensi?</h3>
-                        <p>
-                          Daftar pelatihan sekarang dengan klik tombol Daftar Pelatihan
-                        </p>
-                        <div class="cta-buttons">
-                          <a href="daftarpelatihan.html" class="btn-book">Daftar Pelatihan</a>
-                          <a href="contact.html" class="btn-contact">Kontak Kami</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            </div>
-          </section>
-        </section>
-      </section>
-      <!-- /Services Section -->
     </main>
 
     <footer id="footer" class="footer position-relative light-background">

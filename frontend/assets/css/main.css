@@ -6828,7 +6828,7 @@ hero-image img {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
-  font-size: 1.05rem;
+  font-size: 80px;
   line-height: 1.5;
 }
 
@@ -6858,4 +6858,34 @@ hero-image img {
   vertical-align: top;
   padding-left: 8px;
   font-size: 1.05rem;
+}
+
+/* ================= FLYER MODAL AUTO SIZE ================= */
+.modal-flyer-auto {
+  width: auto;
+  max-width: 95vw;
+}
+
+.flyer-auto {
+  max-height: 85vh;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Mobile tweak */
+@media (max-width: 576px) {
+  .flyer-auto {
+    max-height: 75vh;
+  }
+}
+
+.pelatihan-title {
+  cursor: pointer;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.pelatihan-title:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
 }

@@ -154,25 +154,93 @@
       </div>
       <!-- End Page Title -->
 
-      <!-- Gallery Section -->
-      <section id="gallery" class="gallery section">
-        <div class="container" data-aos="fade-up" data-aos-delay="100">
-          <div class="isotope-layout" data-layout="masonry">
-            <div
-              class="row g-4 isotope-container"
-              id="galleryContainer"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            ></div>
-            <!-- End Gallery Container -->
+      <!-- ================= FILTER TABS ================= -->
+      <section class="services section mt-0">
+        <div class="container" data-aos="fade-up">
+          <div class="services-tabs">
+            <ul
+              class="nav nav-tabs justify-content-center mb-4"
+              id="galleryTabs"
+            >
+              <li class="nav-item">
+                <button
+                  class="nav-link active"
+                  onclick="filterGallery('all', this)"
+                >
+                  Semua
+                </button>
+              </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  onclick="filterGallery('diskusi', this)"
+                >
+                  Diskusi
+                </button>
+              </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  onclick="filterGallery('sarpras', this)"
+                >
+                  Sarana Prasarana
+                </button>
+              </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  onclick="filterGallery('pelatihan', this)"
+                >
+                  Pelatihan
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
+
+      <!-- ================= GALLERY CONTENT ================= -->
+      <!-- <section class="gallery section"> -->
+        <div class="container mb-4" data-aos="fade-up">
+          <div class="isotope-layout">
+            <div class="row g-4 isotope-container" id="galleryContainer">
+              <!-- ITEM GALLERY DARI JS -->
+            </div>
+          </div>
+        </div>
+      <!-- </section> -->
       <!-- /Gallery Section -->
 
       <script>
         const API_GALLERY = "http://localhost:5000/api/gallery";
+        let isoInstance = null;
 
+        // ===================== TAB ACTIVE =====================
+        function setActiveGalleryTab(button) {
+          document
+            .querySelectorAll("#galleryTabs .nav-link")
+            .forEach((tab) => tab.classList.remove("active"));
+
+          if (button) button.classList.add("active");
+        }
+
+        // ===================== FILTER =====================
+        function filterGallery(kategori, button) {
+          setActiveGalleryTab(button);
+
+          if (!isoInstance) return;
+
+          if (kategori === "all") {
+            isoInstance.arrange({ filter: "*" });
+          } else {
+            isoInstance.arrange({ filter: `.filter-${kategori}` });
+          }
+        }
+
+        // ===================== LOAD GALLERY =====================
         async function loadGallery() {
           const container = document.getElementById("galleryContainer");
           container.innerHTML = "";
@@ -181,9 +249,40 @@
             const res = await fetch(API_GALLERY);
             const data = await res.json();
 
-            data.forEach((item) => {
-              container.innerHTML += `
-              <div class="col-lg-4 col-md-6 gallery-item isotope-item filter-nature">
+            allGallery = data;
+            renderGallery(allGallery);
+          } catch (err) {
+            console.error("Gagal load gallery:", err);
+            container.innerHTML = `
+              <div class="col-12 text-center py-5">
+                <h5 class="text-danger">
+                  Gagal memuat gallery. Silakan coba lagi.
+                </h5>
+              </div>
+            `;
+          }
+        }
+        // ===================== RENDER ITEM =====================
+        function renderGallery(list) {
+          const container = document.getElementById("galleryContainer");
+          container.innerHTML = "";
+
+          if (list.length === 0) {
+            container.innerHTML = `
+              <div class="col-12 text-center py-5">
+                <h5 class="text-muted">
+                  Tidak ada gallery pada kategori ini untuk ditampilkan.
+                </h5>
+              </div>
+            `;
+            return;
+          }
+
+          list.forEach((item) => {
+            container.innerHTML += `
+              <div class="col-lg-4 col-md-6 gallery-item isotope-item filter-${
+                item.kategori
+              }">
 
                 <div class="gallery-card">
 
@@ -201,7 +300,7 @@
                            alt="Gallery Image">
                     </a>
 
-                    <h5 class="simple-gallery-title">
+                    <h5 class="simple-gallery-title mt-2">
                       ${item.keterangan || ""}
                     </h5>
 
@@ -211,20 +310,31 @@
 
               </div>
             `;
+          });
+
+          imagesLoaded(container, function () {
+            if (isoInstance) isoInstance.destroy();
+
+            isoInstance = new Isotope(container, {
+              itemSelector: ".isotope-item",
+              layoutMode: "masonry",
             });
+          });
 
-            // INIT ISOTOPE
-            setTimeout(() => {
-              new Isotope(".isotope-container", {
-                itemSelector: ".isotope-item",
-                layoutMode: "masonry",
-              });
-            }, 200);
+          GLightbox({ selector: ".glightbox" });
+        }
 
-            // INIT GLIGHTBOX
-            GLightbox({ selector: ".glightbox" });
-          } catch (err) {
-            console.error("Gagal load gallery:", err);
+        // ===================== FILTER GALLERY =====================
+        function filterGallery(kategori, button) {
+          setActiveGalleryTab(button);
+
+          if (kategori === "all") {
+            renderGallery(allGallery);
+          } else {
+            const hasil = allGallery.filter(
+              (item) => item.kategori === kategori
+            );
+            renderGallery(hasil);
           }
         }
 
