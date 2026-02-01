@@ -2,11 +2,11 @@ import "dotenv/config";
 // dotenv.config();
 
 import express from "express";
+import session from "express-session";
 import cors from "cors";
 import path from "path";
 import authRoutes from "./routes/index.js";
 import { fileURLToPath } from "url";
-
 
 const app = express();
 
@@ -16,7 +16,12 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,6 +45,22 @@ app.get("/static/admin_check.js", (req, res) => {
 app.get("/", (req, res) => {
   res.send("✅ Server API pelatihan jalan!");
 });
+
+// ✅ SESSION HARUS DI APP LEVEL
+app.use(
+  session({
+    name: "admin-session",
+    secret: "pelatihan-margono-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 2,
+    },
+  })
+);
 
 app.use("/api", authRoutes);
 

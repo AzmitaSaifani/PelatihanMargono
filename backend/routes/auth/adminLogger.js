@@ -1,19 +1,34 @@
 import connection from "../../config/db.js";
 
+// =====================
+// HELPER: NORMALIZE IP
+// =====================
+function normalizeIp(ip) {
+  if (!ip) return null;
+  if (ip === "::1") return "127.0.0.1"; // localhost IPv6
+  if (ip.startsWith("::ffff:")) return ip.replace("::ffff:", ""); // IPv4-mapped IPv6
+  return ip;
+}
+
+// =====================
+// LOG ADMIN
+// =====================
 export function logAdmin({
-  id_user,
-  email,
-  nama_lengkap,
+  id_user = null,
+  email = "-",
+  nama_lengkap = "SYSTEM",
   aktivitas,
-  keterangan,
+  keterangan = null,
   req,
 }) {
-  if (!id_user || !aktivitas) return;
+  if (!aktivitas) return;
 
-  const ip =
-    req.headers["x-forwarded-for"] || req.socket?.remoteAddress || null;
+  const rawIp =
+    req?.headers["x-forwarded-for"] || req?.socket?.remoteAddress || null;
 
-  const userAgent = req.headers["user-agent"] || null;
+  const ip = normalizeIp(rawIp);
+
+  const userAgent = req?.headers["user-agent"] || null;
 
   const sql = `
     INSERT INTO log_admin
@@ -23,13 +38,35 @@ export function logAdmin({
 
   connection.query(
     sql,
-    [id_user, email, nama_lengkap, ip, userAgent, aktivitas, keterangan],
-    (err, result) => {
+    [
+      id_user,
+      email || "-",
+      nama_lengkap || "SYSTEM",
+      ip,
+      userAgent,
+      aktivitas,
+      keterangan,
+    ],
+    (err) => {
       if (err) {
         console.error("❌ Gagal simpan log admin:", err);
-      } else {
-        console.log("✅ LOG ADMIN MASUK DB:", result.insertId);
       }
     }
   );
+}
+
+// =====================
+// LOG ADMIN LOGOUT
+// =====================
+export function logAdminLogout({ id_user, email, nama_lengkap, req }) {
+  if (!id_user) return;
+
+  logAdmin({
+    id_user,
+    email,
+    nama_lengkap,
+    aktivitas: "LOGOUT",
+    keterangan: "Admin logout",
+    req,
+  });
 }

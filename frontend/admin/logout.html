@@ -7,8 +7,21 @@
   </head>
   <body>
     <script>
-      localStorage.removeItem("admin");
-      window.location.href = "loginadmin.html";
+      async function logoutAdmin() {
+        try {
+          await fetch("http://localhost:5000/api/admin/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+        } catch (err) {
+          console.error("Gagal logout:", err);
+        } finally {
+          localStorage.removeItem("admin");
+          window.location.href = "loginadmin.html";
+        }
+      }
+
+      logoutAdmin();
     </script>
   </body>
 </html>

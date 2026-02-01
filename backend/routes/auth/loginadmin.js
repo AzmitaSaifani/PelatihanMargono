@@ -1,3 +1,4 @@
+import { logAdmin } from "../../routes/auth/adminLogger.js";
 import express from "express";
 import bcrypt from "bcryptjs";
 import connection from "../../config/db.js";
@@ -25,10 +26,27 @@ router.post("/", (req, res) => {
   connection.query(sql, [email], async (err, results) => {
     if (err) {
       console.error(err);
+
+      logAdmin({
+        aktivitas: "LOGIN_ERROR",
+        keterangan: "Kesalahan server saat login",
+        req,
+      });
+
       return res.status(500).json({ message: "Kesalahan server" });
     }
 
+    // EMAIL TIDAK DITEMUKAN
     if (results.length === 0) {
+      logAdmin({
+        id_user: null,
+        email,
+        nama_lengkap: "UNKNOWN",
+        aktivitas: "LOGIN_GAGAL",
+        keterangan: "Email tidak ditemukan atau nonaktif",
+        req,
+      });
+
       return res
         .status(404)
         .json({ message: "Email tidak ditemukan atau nonaktif" });
@@ -36,56 +54,69 @@ router.post("/", (req, res) => {
 
     const user = results[0];
 
+    // BUKAN ADMIN
     if (user.level_user !== 1) {
+      logAdmin({
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
+        aktivitas: "LOGIN_DITOLAK",
+        keterangan: "Bukan akun admin",
+        req,
+      });
+
       return res
         .status(403)
         .json({ message: "Akses ditolak! Anda bukan admin." });
     }
 
+    // PASSWORD SALAH
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: "Password salah" });
-    }
-
-    const client = getClientInfo(req);
-
-    // update last_login
-    connection.query(
-      "UPDATE user_tb SET last_login = NOW() WHERE id_user = ?",
-      [user.id_user]
-    );
-
-    // simpan log login
-    connection.query(
-      `
-      INSERT INTO log_admin
-      (id_user, email, nama_lengkap, ip_address, user_agent, aktivitas, keterangan)
-      VALUES (?, ?, ?, ?, ?, 'LOGIN', 'Admin login berhasil')
-      `,
-      [
-        user.id_user,
-        user.email,
-        user.nama_lengkap,
-        client.ip,
-        client.userAgent,
-      ],
-      (err, result) => {
-        if (err) {
-          console.error("❌ Gagal simpan log LOGIN:", err);
-        } else {
-          console.log("✅ LOG LOGIN MASUK:", result.insertId);
-        }
-      }
-    );
-
-    res.json({
-      message: "Login Admin Berhasil!",
-      admin: {
+      logAdmin({
         id_user: user.id_user,
         email: user.email,
         nama_lengkap: user.nama_lengkap,
-        level: user.level_user,
-      },
+        aktivitas: "LOGIN_GAGAL",
+        keterangan: "Password salah",
+        req,
+      });
+
+      return res.status(401).json({ message: "Password salah" });
+    }
+
+    req.session.admin = {
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
+      level: user.level_user,
+    };
+
+    req.session.save(() => {
+      // LOGIN BERHASIL
+      connection.query(
+        "UPDATE user_tb SET last_login = NOW() WHERE id_user = ?",
+        [user.id_user]
+      );
+
+      logAdmin({
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
+        aktivitas: "LOGIN",
+        keterangan: "Admin login berhasil",
+        req,
+      });
+
+      res.json({
+        message: "Login Admin Berhasil!",
+        admin: {
+          id_user: user.id_user,
+          email: user.email,
+          nama_lengkap: user.nama_lengkap,
+          level: user.level_user,
+        },
+      });
     });
   });
 });

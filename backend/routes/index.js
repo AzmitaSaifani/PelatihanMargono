@@ -1,10 +1,20 @@
 import express from "express";
 
+const router = express.Router();
+
+// =====================
+// BODY PARSER
+// =====================
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
+
 // AUTH & USER
 import registerRoute from "./auth/register.js";
 import loginRoute from "./auth/login.js";
+import logAdminRoute from "./auth/logadmin.js";
 import loginAdminRoute from "./auth/loginadmin.js";
 import adminRoutes from "./auth/admin.js";
+import logoutAdminRoute from "./auth/logoutadmin.js";
 
 // CORE DATA
 import pelatihanRoutes from "./auth/pelatihan.js";
@@ -27,15 +37,15 @@ import timKerjaRoutes from "./auth/tim_kerja.js";
 import strukturOrganisasiRoutes from "./auth/struktur_organisasi.js";
 import kritikSaranRoutes from "./auth/kritikSaran.js";
 
-const router = express.Router();
-
 /* ===========================
    AUTH
 =========================== */
 router.use("/register", registerRoute);
 router.use("/login", loginRoute);
+router.use("/log-admin", logAdminRoute);
 router.use("/loginadmin", loginAdminRoute);
 router.use("/admin", adminRoutes);
+router.use("/admin/logout", logoutAdminRoute);
 
 /* ===========================
    DASHBOARD ADMIN

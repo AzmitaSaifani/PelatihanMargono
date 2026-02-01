@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Admin - Histori Akreditasi</title>
+
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      type="image/png"
+      sizes="512x512"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+      sizes="180x180"
+    />
+
+    <title>Admin - Fasilitator</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+      .card {
+        border-radius: 10px;
+      }
+      .thumb-foto {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">🏥 Histori Akreditasi</h2>
+
+      <!-- ================= HISTORI AKREDITASI ================= -->
+      <div class="card mb-4">
+        <div
+          class="card-header bg-dark text-white d-flex justify-content-between"
+        >
+          <span>Histori Akreditasi</span>
+        </div>
+
+        <div
+          class="table-responsive mt-3 ms-3 me-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
+          <table class="table table-bordered">
+            <thead class="thead-telur-asin">
+              <tr>
+                <th>No</th>
+                <th>Periode</th>
+                <th>Kategori</th>
+                <th>No SK</th>
+                <th>Masa Berlaku</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableHistori"></tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER PAGINATION -->
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL EDIT HISTORI ================= -->
+    <div
+      class="modal fade"
+      id="modalEditHistori"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Edit Histori Akreditasi</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formEditHistori">
+              <input type="hidden" id="edit_id_histori" />
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Periode *</label>
+                  <input
+                    id="edit_periode"
+                    name="periode"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Kategori Akreditasi</label>
+                  <input
+                    id="edit_kategori"
+                    name="kategori_akreditasi"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Nomor SK</label>
+                  <input
+                    id="edit_nomor_sk"
+                    name="nomor_sk"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Masa Berlaku</label>
+                  <input
+                    type="text"
+                    id="edit_masa_berlaku"
+                    name="masa_berlaku"
+                    class="form-control"
+                    placeholder="Contoh: 5 Tahun"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button class="btn btn-primary" form="formEditHistori">
+              Simpan Perubahan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+      async function logoutAdmin() {
+        if (!confirm("Yakin logout?")) return;
+        await fetch("http://localhost:5000/api/admin/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        localStorage.clear();
+        window.location.href = "loginadmin.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const API = "http://localhost:5000/api/profil-diklat";
+
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
+        const tableBody = document.getElementById("tableHistori");
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        let institusiId = null;
+
+        // =========================
+        // LOAD DATA
+        // =========================
+        async function loadProfil() {
+          const res = await fetch(API);
+          const data = await res.json();
+
+          const { institusi, histori } = data;
+
+          institusiId = institusi.id;
+
+          allData = Array.isArray(histori) ? histori : [];
+          filteredData = [...allData];
+          currentPage = 1;
+
+          renderTable();
+        }
+
+        // =========================
+        // RENDER TABLE (SAMA FORMAT)
+        // =========================
+        function renderTable() {
+          tableBody.innerHTML = "";
+
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Data tidak ditemukan
+            </td>
+          </tr>
+        `;
+            infoData.innerText = "Showing 0 entries";
+            prevBtn.disabled = nextBtn.disabled = true;
+            return;
+          }
+
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((item, index) => {
+            tableBody.innerHTML += `
+          <tr>
+            <td>${start + index + 1}</td>
+            <td>${item.periode}</td>
+            <td>${item.kategori_akreditasi ?? "-"}</td>
+            <td>${item.nomor_sk ?? "-"}</td>
+            <td>${item.masa_berlaku ?? "-"}</td>
+            <td>
+              <button
+                class="btn btn-warning btn-sm"
+                onclick="openEditHistori(${item.id})"
+              >
+                Edit
+              </button>
+              <button
+                class="btn btn-danger btn-sm"
+                onclick="hapusHistori(${item.id})"
+              >
+                Hapus
+              </button>
+            </td>
+          </tr>
+        `;
+          });
+
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(
+            end,
+            filteredData.length
+          )} of ${filteredData.length} entries`;
+
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
+        }
+
+        // =========================
+        // PAGINATION
+        // =========================
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
+
+        // =========================
+        // EDIT HISTORI
+        // =========================
+        window.openEditHistori = (id) => {
+          const data = allData.find((h) => h.id === id);
+          if (!data) return;
+
+          document.getElementById("edit_id_histori").value = data.id;
+          document.getElementById("edit_periode").value = data.periode;
+          document.getElementById("edit_kategori").value =
+            data.kategori_akreditasi ?? "";
+          document.getElementById("edit_nomor_sk").value = data.nomor_sk ?? "";
+          document.getElementById("edit_masa_berlaku").value =
+            data.masa_berlaku ?? "";
+
+          new bootstrap.Modal(
+            document.getElementById("modalEditHistori")
+          ).show();
+        };
+
+        // =========================
+        // SUBMIT HISTORI
+        // =========================
+        document
+          .getElementById("formEditHistori")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById("edit_id_histori").value;
+
+            const body = {
+              periode: edit_periode.value,
+              kategori_akreditasi: edit_kategori.value,
+              nomor_sk: edit_nomor_sk.value,
+              masa_berlaku: edit_masa_berlaku.value,
+            };
+
+            const res = await fetch(
+              `http://localhost:5000/api/histori-akreditasi/${id}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              }
+            );
+
+            const data = await res.json();
+            alert(data.message);
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalEditHistori")
+            ).hide();
+
+            loadProfil();
+          });
+
+        // =========================
+        // HAPUS HISTORI
+        // =========================
+        window.hapusHistori = async (id) => {
+          if (!confirm("Hapus histori ini?")) return;
+
+          const res = await fetch(
+            `http://localhost:5000/api/histori-akreditasi/${id}`,
+            { method: "DELETE" }
+          );
+
+          const data = await res.json();
+          alert(data.message);
+          loadProfil();
+        };
+
+        loadProfil();
+      });
+    </script>
+
+    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

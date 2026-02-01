@@ -118,6 +118,23 @@
               </ul>
             </li>
 
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html"
+                    >Log Admin</a
+                  >
+                </li>
+              </ul>
+            </li>
+
             <li class="nav-item">
               <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
                 Logout
@@ -263,6 +280,25 @@
 
     <!-- JS -->
     <script>
+      // =========================
+      // LOGOUT ADMIN (GLOBAL)
+      // =========================
+      async function logoutAdmin() {
+        if (!confirm("Apakah Anda yakin ingin logout?")) return;
+
+        try {
+          await fetch("http://localhost:5000/api/admin/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+        } catch (err) {
+          console.error("Gagal logout:", err);
+        } finally {
+          localStorage.clear();
+          window.location.href = "loginadmin.html";
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/pembayaran";
 

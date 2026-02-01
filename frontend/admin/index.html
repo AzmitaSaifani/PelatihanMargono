@@ -126,6 +126,23 @@
               </ul>
             </li>
 
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html"
+                    >Log Admin</a
+                  >
+                </li>
+              </ul>
+            </li>
+
             <li class="nav-item">
               <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
                 Logout
@@ -277,9 +294,21 @@
     <script src="http://localhost:5000/static/admin_check.js"></script>
 
     <script>
-      function logoutAdmin() {
-        if (confirm("Apakah Anda yakin ingin logout?")) {
-          localStorage.removeItem("admin");
+      async function logoutAdmin() {
+        if (!confirm("Apakah Anda yakin ingin logout?")) return;
+
+        try {
+          await fetch("http://localhost:5000/api/admin/logout", {
+            method: "POST",
+            credentials: "include", // ⬅️ WAJIB
+          });
+        } catch (err) {
+          console.error("Gagal logout:", err);
+        } finally {
+          // bersihkan local storage
+          localStorage.clear();
+
+          // redirect ke login
           window.location.href = "loginadmin.html";
         }
       }
@@ -287,7 +316,8 @@
       async function loadDashboardStatistik() {
         try {
           const res = await fetch(
-            "http://localhost:5000/api/dashboard/statistik"
+            "http://localhost:5000/api/dashboard/statistik",
+            { credentials: "include" } // ⬅️ opsional tapi bagus
           );
           const data = await res.json();
 
