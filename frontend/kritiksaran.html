@@ -334,50 +334,39 @@
   </footer>
 
   <!-- ======= JS ======= -->
-  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script>AOS.init();</script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
 
-    const API = "http://localhost:5000/api/kritik-saran";
+      const API = "http://localhost:5000/api/kritik-saran";
 
-    // =====================
-    // ELEMENT
-    // =====================
-    const chkAnonim   = document.getElementById("anonim");
-    const inputNama  = document.getElementById("nama_lengkap");
-    const btnSubmit  = document.getElementById("btnKirimKritik");
-    const form       = document.getElementById("formKritik");
+      // =====================
+      // ELEMENT
+      // =====================
+      const form       = document.getElementById("formKritik");
+      const chkAnonim  = document.getElementById("anonim");
+      const inputNama  = document.getElementById("nama_lengkap");
+      const btnSubmit  = document.getElementById("btnKirimKritik");
 
-    const modalKritikEl = document.getElementById("modalKritik");
-    const modalNamaEl   = document.getElementById("modalNamaWajib");
-    const modalTerimaEl = document.getElementById("modalTerimaKasih");
+      // =====================
+      // MODAL INSTANCE (SAMA POLA DENGAN DAFTAR PELATIHAN)
+      // =====================
+      const modalKritik = new bootstrap.Modal(
+        document.getElementById("modalKritik")
+      );
+      const modalNama = new bootstrap.Modal(
+        document.getElementById("modalNamaWajib")
+      );
+      const modalTerima = new bootstrap.Modal(
+        document.getElementById("modalTerimaKasih")
+      );
 
-    // =====================
-    // MODAL INSTANCE 
-    // =====================
-    const modalKritik = new bootstrap.Modal(modalKritikEl);
-    const modalNama   = new bootstrap.Modal(modalNamaEl);
-    const modalTerima = new bootstrap.Modal(modalTerimaEl, {
-        backdrop: true,
-        keyboard: true
-    });
-
-    let isSubmitSuccess = false;
-
-    modalTerimaEl.addEventListener("hidden.bs.modal", () => {
-        document.body.classList.remove("modal-open");
-        document.body.style.paddingRight = "";
-
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
-    });
-
-    // =====================
-    // LOAD KRITIK
-    // =====================
-    async function loadKritik() {
+      // =====================
+      // LOAD KRITIK
+      // =====================
+      async function loadKritik() {
         const res = await fetch(API);
         const data = await res.json();
 
@@ -385,115 +374,115 @@
         box.innerHTML = "";
 
         if (!data.length) {
-        box.innerHTML = `<p class="text-muted">Belum ada kritik & saran.</p>`;
-        return;
+          box.innerHTML = `<p class="text-muted">Belum ada kritik & saran.</p>`;
+          return;
         }
 
         data.forEach(item => {
-        box.innerHTML += `
+          box.innerHTML += `
             <div class="card mb-3">
-            <div class="card-body">
-                <p><b>Nama Lengkap:</b> ${item.nama_lengkap}</p>
+              <div class="card-body">
+                <p><b>Nama Lengkap:</b> ${item.nama_lengkap ?? "Anonim"}</p>
                 <p><b>No HP:</b> ${item.no_hp}</p>
                 <hr>
                 <p><b>Kritik:</b> ${item.kritik}</p>
                 <p><b>Saran:</b> ${item.saran}</p>
+              </div>
             </div>
-            </div>
-        `;
+          `;
         });
-    }
+      }
 
-    loadKritik();
+      loadKritik();
 
-    // =====================
-    // TOGGLE ANONIM
-    // =====================
-    chkAnonim.addEventListener("change", () => {
-    if (chkAnonim.checked) {
-      inputNama.value = "Anonim";
-      inputNama.disabled = true;
-      inputNama.removeAttribute("required");
-    } else {
-      inputNama.value = "";
-      inputNama.disabled = false;
-      inputNama.setAttribute("required", true);
-    }
-  });
+      // =====================
+      // TOGGLE ANONIM
+      // =====================
+      chkAnonim.addEventListener("change", () => {
+        if (chkAnonim.checked) {
+          inputNama.value = "Anonim";
+          inputNama.disabled = true;
+          inputNama.removeAttribute("required");
+        } else {
+          inputNama.value = "";
+          inputNama.disabled = false;
+          inputNama.setAttribute("required", true);
+        }
+      });
 
-    // =====================
-    // CAPTCHA
-    // =====================
-    let captchaResult = 0;
+      // =====================
+      // CAPTCHA
+      // =====================
+      let captchaResult = 0;
 
-    function generateCaptcha() {
+      function generateCaptcha() {
         const a = Math.floor(Math.random() * 9) + 1;
         const b = Math.floor(Math.random() * 9) + 1;
         captchaResult = a + b;
+        document.getElementById("captchaQuestion").innerText = `${a} + ${b} = ?`;
+      }
 
-        document.getElementById("captchaQuestion").innerText =
-        `${a} + ${b} = ?`;
-    }
+      generateCaptcha();
 
-    generateCaptcha();
-
-    // RESET TOTAL SAAT MODAL KRITIK DITUTUP
-    modalKritikEl.addEventListener("hidden.bs.modal", () => {
-        form.reset();
-        inputNama.disabled = false;
-        inputNama.setAttribute("required", true);
-        document.getElementById("captchaAnswer").value = "";
-        generateCaptcha();
-
-        if (isSubmitSuccess) {
-            setTimeout(() => {
-            modalTerima.show();
-            loadKritik();
-        }, 150);
-
-        isSubmitSuccess = false;
-        }
-    });
-
-    // =====================
-    // SUBMIT
-    // =====================
-    btnSubmit.addEventListener("click", async () => {
+      // =====================
+      // SUBMIT (POLA DAFTAR PELATIHAN)
+      // =====================
+      btnSubmit.addEventListener("click", async () => {
 
         const captchaInput = document.getElementById("captchaAnswer").value;
 
-        if (Number(captchaInput) !== captchaResult) {
-            alert("Jawaban captcha salah. Silakan coba lagi.");
-            generateCaptcha();
-            document.getElementById("captchaAnswer").value = "";
-            return;
+        if (+captchaInput !== captchaResult) {
+          alert("Jawaban captcha salah.");
+          generateCaptcha();
+          return;
         }
 
         if (!chkAnonim.checked && inputNama.value.trim() === "") {
-            modalNama.show();
-            return;
+          modalNama.show();
+          return;
         }
 
         const payload = {
-            nama_lengkap: chkAnonim.checked ? null : inputNama.value.trim(),
-            is_anonim: chkAnonim.checked ? "Y" : "N",
-            no_hp: document.getElementById("no_hp").value,
-            kritik: document.getElementById("kritik").value,
-            saran: document.getElementById("saran").value
+          nama_lengkap: chkAnonim.checked ? null : inputNama.value.trim(),
+          is_anonim: chkAnonim.checked ? "Y" : "N",
+          no_hp: document.getElementById("no_hp").value,
+          kritik: document.getElementById("kritik").value,
+          saran: document.getElementById("saran").value
         };
 
-        await fetch(API, {
+        try {
+          await fetch(API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
-        });
+          });
 
-        isSubmitSuccess = true;
-        modalKritik.hide();
+          // ✔ RESET FORM
+          form.reset();
+          inputNama.disabled = false;
+          inputNama.setAttribute("required", true);
+          generateCaptcha();
+
+          // ✔ TUTUP → BUKA (TANPA EVENT hidden)
+          modalKritik.hide();
+          modalKritik._element.addEventListener(
+            "hidden.bs.modal",
+            () => {
+              modalTerima.show();
+            },
+            { once: true }
+          );
+
+          loadKritik();
+
+        } catch (err) {
+          alert("Gagal mengirim kritik & saran.");
+        }
+      });
+
     });
-
-});
 </script>
+
 
   <!-- ================= MODAL KRITIK & SARAN ================= -->
     <div class="modal fade" id="modalKritik" tabindex="-1">
@@ -572,7 +561,7 @@
 
         <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button class="btn btn-accent" id="btnKirimKritik">
+            <button type="button" class="btn btn-accent" id="btnKirimKritik">
             Kirim
             </button>
         </div>
