@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 // ===========================
 // STATIC FILE: Uploads
 // ===========================
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ===========================
 // STATIC FILE: admin_check.js

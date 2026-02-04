@@ -1,5 +1,5 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
-import express from "express";
+import express, { Router } from "express";
 import connection from "../../config/db.js";
 import multer from "multer";
 import { fileURLToPath } from "url";
@@ -63,7 +63,11 @@ router.post("/", upload.single("file_kalender"), (req, res) => {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
 
-  const { tahun, judul, status } = req.body;
+  let { tahun, judul, status } = req.body;
+  if (Array.isArray(tahun)) {
+    tahun = tahun[0];
+  }
+
   const file = req.file?.filename;
 
   if (!tahun || !judul || !file) {
@@ -72,7 +76,7 @@ router.post("/", upload.single("file_kalender"), (req, res) => {
     });
   }
 
-  const fileKalender  = req.file.filename;
+  const fileKalender = req.file.filename;
 
   const tipe_file = mapTipeFile(file);
 
@@ -102,7 +106,7 @@ router.post("/", upload.single("file_kalender"), (req, res) => {
 
       connection.query(
         updateSql,
-        [judul, fileKalender , tipe_file, status || "aktif", adminId, tahun],
+        [judul, fileKalender, tipe_file, status || "aktif", adminId, tahun],
         (err) => {
           if (err) {
             console.error(err);
@@ -135,7 +139,7 @@ router.post("/", upload.single("file_kalender"), (req, res) => {
 
       connection.query(
         insertSql,
-        [tahun, judul, fileKalender , tipe_file, status || "aktif", adminId],
+        [tahun, judul, fileKalender, tipe_file, status || "aktif", adminId],
         (err, result) => {
           if (err) {
             console.error(err);
@@ -190,6 +194,19 @@ router.get("/", (req, res) => {
     }
     res.json(results);
   });
+});
+
+/* ======================================================
+   EDIT KALENDER
+====================================================== */
+router.put("/:id/status", (req, res) => {
+  const { status } = req.body;
+
+  connection.query(
+    "UPDATE kalender_pelatihan SET status=? WHERE id_kalender=?",
+    [status, req.params.id],
+    () => res.json({ message: "Status diubah" })
+  );
 });
 
 /* ======================================================

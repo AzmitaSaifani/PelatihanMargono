@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      type="image/png"
+      sizes="512x512"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+      sizes="180x180"
+    />
+
+    <title>Admin - Kalender Pelatihan</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+      .card {
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kalender.html"
+                    >Kalender Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kritiksaran.html"
+                    >Kritik dan Saran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">🗓️ Kelola Kalender Pelatihan</h2>
+
+      <div class="card">
+        <div class="card-header bg-dark text-white">
+          Daftar Kalender Pelatihan
+        </div>
+
+        <div
+          class="table-responsive ms-3 me-3 mt-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
+          <table class="table table-bordered table-hover table-sm">
+            <thead class="thead-telur-asin">
+              <tr>
+                <th>No</th>
+                <th>Tahun</th>
+                <th>Judul</th>
+                <th>File</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableKalender"></tbody>
+          </table>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL EDIT KALENDER ================= -->
+    <div class="modal fade" id="modalEditKalender" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <!-- HEADER -->
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">✏️ Edit Kalender Pelatihan</h5>
+            <button
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <!-- BODY -->
+          <div class="modal-body">
+            <form id="formEditKalender" enctype="multipart/form-data">
+              <input type="hidden" id="edit_id_kalender" />
+
+              <div class="mb-3">
+                <label class="form-label">Tahun</label>
+                <input
+                  type="number"
+                  id="edit_tahun"
+                  name="tahun"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Judul Kalender</label>
+                <input
+                  type="text"
+                  id="edit_judul"
+                  name="judul"
+                  class="form-control"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">File Kalender Saat Ini</label>
+                <div>
+                  <button
+                    type="button"
+                    id="preview_file_kalender"
+                    class="btn btn-outline-primary btn-sm"
+                    onclick="openPreviewKalender()"
+                  >
+                    Preview File Lama
+                  </button>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Ganti File Kalender</label>
+                <input type="file" name="file_kalender" class="form-control" />
+              </div>
+            </form>
+          </div>
+
+          <!-- FOOTER -->
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button class="btn btn-primary" form="formEditKalender">
+              Simpan Perubahan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL PREVIEW KALENDER ================= -->
+    <div class="modal fade" id="modalPreviewKalender" tabindex="-1">
+      <div
+        class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+      >
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">📄 Preview Kalender Pelatihan</h5>
+            <button
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body text-center" id="previewContainer">
+            <!-- diisi via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const API = "http://localhost:5000/api/kalender";
+
+        let previewFileUrl = "";
+
+        const ADMIN_HEADERS = {
+          "x-admin-id": localStorage.getItem("admin_id"),
+          "x-admin-email": localStorage.getItem("admin_email"),
+          "x-admin-nama": localStorage.getItem("admin_nama"),
+        };
+
+        const tableBody = document.getElementById("tableKalender");
+        const formEdit = document.getElementById("formEditKalender");
+
+        let allData = [];
+
+        // =====================
+        // LOAD DATA
+        // =====================
+        async function loadKalender() {
+          const res = await fetch(`${API}?admin=1`);
+          allData = await res.json();
+
+          tableBody.innerHTML = "";
+
+          allData.forEach((d, i) => {
+            tableBody.innerHTML += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${d.tahun}</td>
+          <td>${d.judul}</td>
+          <td>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              onclick="previewKalenderFromTable('${d.file_kalender}')"
+            >
+              Lihat File
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-warning btn-sm"
+              onclick="openEditKalender(${d.id_kalender})">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm"
+              onclick="hapusKalender(${d.id_kalender})">
+              Hapus
+            </button>
+          </td>
+        </tr>
+      `;
+          });
+        }
+
+        // =====================
+        // OPEN EDIT MODAL
+        // =====================
+        window.openEditKalender = (id) => {
+          const data = allData.find((d) => d.id_kalender === id);
+          if (!data) return;
+
+          edit_id_kalender.value = data.id_kalender;
+          edit_tahun.value = data.tahun;
+          edit_judul.value = data.judul;
+
+          // SIMPAN URL FILE UNTUK PREVIEW
+          previewFileUrl = `http://localhost:5000/uploads/kalender/${data.file_kalender}`;
+
+          new bootstrap.Modal(
+            document.getElementById("modalEditKalender")
+          ).show();
+        };
+
+        // =====================
+        // SUBMIT EDIT
+        // =====================
+        formEdit.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(formEdit);
+
+          // backend update berdasarkan TAHUN
+          formData.append("tahun", document.getElementById("edit_tahun").value);
+
+          const res = await fetch(API, {
+            method: "POST",
+            headers: ADMIN_HEADERS,
+            body: formData,
+          });
+
+          const data = await res.json();
+          alert(data.message);
+
+          bootstrap.Modal.getInstance(
+            document.getElementById("modalEditKalender")
+          ).hide();
+
+          formEdit.reset();
+          loadKalender();
+        });
+
+        window.previewKalenderFromTable = (filename) => {
+          if (!filename) {
+            alert("File tidak tersedia");
+            return;
+          }
+
+          const fileUrl = `http://localhost:5000/uploads/kalender/${filename}`;
+          const container = document.getElementById("previewContainer");
+          container.innerHTML = "";
+
+          const ext = filename.split(".").pop().toLowerCase();
+
+          if (ext === "pdf") {
+            container.innerHTML = `
+      <iframe
+        src="${fileUrl}"
+        width="100%"
+        height="600px"
+        style="border:none;"
+      ></iframe>
+    `;
+          } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
+            container.innerHTML = `
+      <img
+        src="${fileUrl}"
+        class="img-fluid rounded shadow"
+        alt="Preview Kalender"
+      />
+    `;
+          } else {
+            container.innerHTML = `
+      <p class="text-muted">
+        Preview tidak tersedia untuk file ini.
+        <br />
+        <a href="${fileUrl}" target="_blank">Download File</a>
+      </p>
+    `;
+          }
+
+          new bootstrap.Modal(
+            document.getElementById("modalPreviewKalender")
+          ).show();
+        };
+
+        window.openPreviewKalender = () => {
+          if (!previewFileUrl) {
+            alert("File tidak tersedia");
+            return;
+          }
+
+          const container = document.getElementById("previewContainer");
+          container.innerHTML = "";
+
+          const ext = previewFileUrl.split(".").pop().toLowerCase();
+
+          if (ext === "pdf") {
+            container.innerHTML = `
+      <iframe
+        src="${previewFileUrl}"
+        width="100%"
+        height="600px"
+        style="border:none;"
+      ></iframe>
+    `;
+          } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
+            container.innerHTML = `
+      <img
+        src="${previewFileUrl}"
+        class="img-fluid rounded shadow"
+        alt="Preview Kalender"
+      />
+    `;
+          } else {
+            container.innerHTML = `
+      <p class="text-muted">
+        Preview tidak tersedia untuk file ini.
+        <br />
+        <a href="${previewFileUrl}" target="_blank">Download File</a>
+      </p>
+    `;
+          }
+
+          new bootstrap.Modal(
+            document.getElementById("modalPreviewKalender")
+          ).show();
+        };
+
+        // =====================
+        // DELETE
+        // =====================
+        window.hapusKalender = async (id) => {
+          if (!confirm("Yakin ingin menghapus kalender ini?")) return;
+
+          await fetch(`${API}/${id}`, {
+            method: "DELETE",
+            headers: ADMIN_HEADERS,
+          });
+
+          alert("Kalender berhasil dihapus");
+          loadKalender();
+        };
+
+        loadKalender();
+      });
+    </script>
+
+    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

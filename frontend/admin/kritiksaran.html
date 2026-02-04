@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <!-- Favicons -->
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      type="image/png"
+    />
+
+    <title>Admin - Kritik & Saran</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+      .card {
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kalender.html"
+                    >Kalender Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kritiksaran.html"
+                    >Kritik dan Saran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- ===================== END NAVBAR ===================== -->
+
+    <!-- ================= CONTENT ================= -->
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">💬 Kritik & Saran</h2>
+
+      <div class="card">
+        <div class="card-header bg-dark text-white">Daftar Kritik & Saran</div>
+
+        <!-- SEARCH -->
+        <div class="col-md-4 mt-3 ms-3">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Cari kritik / saran / nama..."
+          />
+        </div>
+
+        <!-- TABLE -->
+        <div
+          class="table-responsive ms-3 me-3 mt-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
+          <table class="table table-bordered table-sm">
+            <thead class="thead-telur-asin">
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>No HP</th>
+                <th>Kritik</th>
+                <th>Saran</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableKritik"></tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER PAGINATION -->
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Previous
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+      async function logoutAdmin() {
+        if (!confirm("Yakin logout?")) return;
+        await fetch("http://localhost:5000/api/admin/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        localStorage.clear();
+        window.location.href = "loginadmin.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const API = "http://localhost:5000/api/kritik-saran/admin";
+
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 5;
+
+        const tableBody = document.getElementById("tableKritik");
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const searchInput = document.getElementById("searchInput");
+
+        async function loadData() {
+          const res = await fetch(API, { credentials: "include" });
+          const json = await res.json();
+
+          allData = Array.isArray(json) ? json : [];
+          applyFilter();
+        }
+
+        function applyFilter() {
+          const keyword = searchInput.value.toLowerCase();
+
+          filteredData = allData.filter(
+            (d) =>
+              d.nama_lengkap?.toLowerCase().includes(keyword) ||
+              d.kritik?.toLowerCase().includes(keyword) ||
+              d.saran?.toLowerCase().includes(keyword)
+          );
+
+          currentPage = 1;
+          renderTable();
+        }
+
+        function renderTable() {
+          tableBody.innerHTML = "";
+
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="7" class="text-center text-muted">
+                  Data tidak ditemukan
+                </td>
+              </tr>`;
+            infoData.innerText = "Showing 0 entries";
+            return;
+          }
+
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((item, index) => {
+            tableBody.innerHTML += `
+              <tr>
+                <td>${start + index + 1}</td>
+                <td>${
+                  item.is_anonim === "Y" ? "Anonim" : item.nama_lengkap
+                }</td>
+                <td>${item.no_hp}</td>
+                <td>${item.kritik}</td>
+                <td>${item.saran}</td>
+                <td>
+                  <span class="badge bg-${
+                    item.status === "AKTIF" ? "success" : "secondary"
+                  }">
+                    ${item.status}
+                  </span>
+                </td>
+                <td>
+                ${
+                  item.status === "AKTIF"
+                    ? `<button class="btn btn-sm btn-warning" onclick="nonaktifkan(${item.id_kritik})">
+                        Nonaktifkan
+                        </button>`
+                    : `<button class="btn btn-sm btn-success" onclick="aktifkan(${item.id_kritik})">
+                        Aktifkan
+                        </button>`
+                }
+                <button
+                    class="btn btn-sm btn-danger"
+                    onclick="hapus(${item.id_kritik})"
+                >
+                    Hapus
+                </button>
+                </td>
+              </tr>
+            `;
+          });
+
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(
+            end,
+            filteredData.length
+          )} of ${filteredData.length} entries`;
+
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
+        }
+
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
+
+        window.aktifkan = async (id) => {
+          const ok = confirm(
+            "Yakin ingin MENGAKTIFKAN kritik ini?\n\nKritik akan ditampilkan ke publik."
+          );
+
+          if (!ok) return;
+
+          await fetch(`http://localhost:5000/api/kritik-saran/${id}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "AKTIF" }),
+          });
+
+          alert("✅ Kritik berhasil diaktifkan");
+          loadData();
+        };
+
+        window.nonaktifkan = async (id) => {
+          const ok = confirm(
+            "Yakin ingin MENONAKTIFKAN kritik ini?\n\nKritik tidak akan tampil di halaman publik."
+          );
+
+          if (!ok) return;
+
+          await fetch(`http://localhost:5000/api/kritik-saran/${id}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "NONAKTIF" }),
+          });
+
+          alert("❌ Kritik berhasil dinonaktifkan");
+          loadData();
+        };
+
+        window.hapus = async (id) => {
+          const ok = confirm(
+            "⚠️ Yakin ingin menghapus kritik & saran ini?\n\nData yang dihapus TIDAK dapat dikembalikan."
+          );
+
+          if (!ok) return;
+
+          await fetch(`http://localhost:5000/api/kritik-saran/${id}`, {
+            method: "DELETE",
+          });
+
+          alert("🗑️ Kritik & saran berhasil dihapus");
+          loadData();
+        };
+
+        searchInput.addEventListener("input", applyFilter);
+
+        loadData();
+      });
+    </script>
+
+    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
