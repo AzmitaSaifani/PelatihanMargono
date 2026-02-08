@@ -6,14 +6,9 @@
     <!-- Favicons -->
     <link
       rel="icon"
-      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
       type="image/png"
       sizes="512x512"
-    />
-    <link
-      rel="apple-touch-icon"
-      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
-      sizes="180x180"
     />
 
     <title>Admin Dashboard - RSMS</title>
@@ -45,7 +40,7 @@
   <body class="bg-light">
     <!-- ================= NAVBAR ================= -->
     <nav
-      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
     >
       <div class="container">
         <a
@@ -53,7 +48,7 @@
           href="index.html"
         >
           <img
-            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            src="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
             alt="Logo RSMS"
             style="height: 36px"
           />
@@ -167,12 +162,12 @@
             </li>
 
             <li class="nav-item dropdown">
+              <i class="bi bi-person-fill"></i>
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
-              >
-                Admin
+                >Admin
               </a>
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
@@ -181,10 +176,24 @@
               </ul>
             </li>
 
-            <li class="nav-item">
-              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
-                Logout
-              </button>
+            <li class="nav-item dropdown">
+              <a
+                id="namaAdmin"
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="#"
+                    onclick="logoutAdmin()"
+                    >Logout</a
+                  >
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -350,6 +359,31 @@
           window.location.href = "loginadmin.html";
         }
       }
+
+      async function loadAdminProfile() {
+        try {
+          const res = await fetch("http://localhost:5000/api/admin/me", {
+            credentials: "include", // ⬅️ WAJIB untuk session
+          });
+
+          if (!res.ok) throw new Error("Unauthorized");
+
+          const json = await res.json();
+
+          if (!json.ok || !json.admin) {
+            document.getElementById("namaAdmin").innerText = "Admin";
+            return;
+          }
+
+          document.getElementById("namaAdmin").innerText =
+            json.admin.nama_lengkap || "Admin";
+        } catch (err) {
+          console.error("Gagal memuat admin login:", err);
+          document.getElementById("namaAdmin").innerText = "Admin";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadAdminProfile);
 
       async function loadDashboardStatistik() {
         try {

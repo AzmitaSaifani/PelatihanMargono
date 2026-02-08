@@ -10,14 +10,9 @@
     <!-- Favicons -->
     <link
       rel="icon"
-      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS2.png"
+      href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
       type="image/png"
       sizes="512x512"
-    />
-    <link
-      rel="apple-touch-icon"
-      href="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
-      sizes="180x180"
     />
 
     <!-- Fonts -->
@@ -69,7 +64,7 @@
           class="logo d-flex align-items-center me-auto me-xl-0"
         >
           <img
-            src="/pelatihanmargono/backend/uploads/foto/LogoRSMS.png"
+            src="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
             alt="Logo RSMS"
             style="height: 40px; margin-right: 8px"
           />
@@ -117,7 +112,7 @@
 
             <li class="dropdown">
               <a href="#">
-                <span>About</span>
+                <span>Tentang Kami</span>
                 <i class="bi bi-chevron-down toggle-dropdown"></i>
               </a>
               <ul>
@@ -777,7 +772,7 @@
                       class="nav-link"
                       onclick="filterKategori('all', this)"
                     >
-                      Semua
+                      Akan Dilaksanakan
                     </button>
                   </li>
 
@@ -802,7 +797,7 @@
                   <li class="nav-item">
                     <button class="nav-link"
                       onclick="filterKategori('terlaksana', this)">
-                      Terlaksana
+                      Sudah Terlaksana
                     </button>
                   </li>
 
@@ -951,6 +946,23 @@
                         return "Rp " + nilai.toLocaleString("id-ID");
                       }
 
+                      function getPelatihanAkanDilaksanakan() {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        return allPelatihan
+                        .filter(p => {
+                          const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                          tanggalMulai.setHours(0, 0, 0, 0);
+                          return tanggalMulai >= today;
+                        })
+                        .sort((a, b) => {
+                          const aDate = new Date(a.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                          const bDate = new Date(b.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                          return aDate - bDate;
+                        });
+                      }
+
                       // ===================== LOAD LIST PELATIHAN (CARD) =====================
                       async function loadPelatihan() {
                         const res = await fetch(API);
@@ -976,7 +988,7 @@
                             return bDate - aDate;
                           });
 
-                        renderPelatihan(allPelatihan);
+                        renderPelatihan(getPelatihanAkanDilaksanakan());
                       }
 
                       // ===================== RENDER CARD PELATIHAN =====================
@@ -988,7 +1000,7 @@
                           container.innerHTML = `
                             <div class="col-12 text-center py-5">
                               <h5 class="text-muted">
-                                Tidak ada pelatihan yang tersedia untuk kategori ini.
+                                Tidak ada pelatihan yang tersedia untuk kategori ini
                               </h5>
                             </div>
                           `;
@@ -1050,19 +1062,35 @@
                         let hasil = [];
 
                         if (kategori === "all") {
-                          hasil = allPelatihan;
-                        } 
-                        else if (kategori === "terlaksana") {
+                          // ❗ ALL tapi hanya yang BELUM terlaksana
                           hasil = allPelatihan.filter(p => {
-                            const tanggalMulai = new Date(p.tanggal_mulai);
+                            const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
                             tanggalMulai.setHours(0, 0, 0, 0);
-                            return tanggalMulai < today;
+                            return tanggalMulai >= today;
                           });
                         } 
-                        else {
-                          hasil = allPelatihan.filter(p => p.kategori === kategori);
+                        else if (kategori === "terlaksana") {
+                          hasil = allPelatihan
+                            .filter(p => {
+                              const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                              tanggalMulai.setHours(0, 0, 0, 0);
+                              return tanggalMulai < today;
+                            })
+                            .sort((a, b) => {
+                              const aDate = new Date(a.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                              const bDate = new Date(b.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                              return bDate - aDate; // TERBARU DULU
+                            })
+                            .slice(0, 9); // Menampilkan maksimal 9 pelatihan
                         }
-
+                        else {
+                          // kategori lain (misal: teknis, manajerial, dll)
+                          hasil = allPelatihan.filter(p => {
+                            const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                            tanggalMulai.setHours(0, 0, 0, 0);
+                            return p.kategori === kategori && tanggalMulai >= today;
+                          });
+                        }
                         renderPelatihan(hasil);
                       }
 
@@ -1111,14 +1139,20 @@
                             flyerEmpty.classList.remove("d-none");
                           }
 
-                        const today = new Date().setHours(0, 0, 0, 0);
-                        const eventDate = new Date(p.tanggal_mulai).setHours(0, 0, 0, 0);
+                        const todayDate = new Date();
+                        todayDate.setHours(0, 0, 0, 0);
+
+                        const eventDate = new Date(p.tanggal_mulai.split("T")[0]);
+                        eventDate.setHours(0, 0, 0, 0);
+
+                        // H-1 (sehari sebelum pelaksanaan)
+                        const hMinusOne = new Date(eventDate);
+                        hMinusOne.setDate(hMinusOne.getDate() - 1);
 
                         let sisaKuota = Number(p.sisa_kuota) || 0;
                         const totalKuota = Number(p.kuota) || 0;
 
-                        if (today > eventDate) {
-                          sisaKuota = 0;
+                        if (todayDate > hMinusOne) {
                           document.getElementById("modalPeserta").innerText =
                             `0 / ${totalKuota}`;
 

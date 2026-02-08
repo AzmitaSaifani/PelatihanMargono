@@ -93,6 +93,11 @@ router.post("/", (req, res) => {
     };
 
     req.session.save(() => {
+      if (err) {
+        console.error("SESSION SAVE ERROR:", err);
+        return res.status(500).json({ message: "Gagal menyimpan session" });
+      }
+
       // LOGIN BERHASIL
       connection.query(
         "UPDATE user_tb SET last_login = NOW() WHERE id_user = ?",

@@ -1,7 +1,7 @@
 import express from "express";
 import db from "../../config/db.js";
 import bcrypt from "bcryptjs";
-import { auth } from "../../middleware/auth.js";
+import { authAdmin, onlySuperAdmin } from "../../middleware/auth.js";
 import { logAdmin } from "./adminLogger.js";
 
 const router = express.Router();
@@ -9,7 +9,7 @@ const router = express.Router();
 /* ======================================================
    GET ALL ADMIN (LEVEL 1 ONLY)
 ====================================================== */
-router.get("/", auth, (req, res) => {
+router.get("/", authAdmin, onlySuperAdmin, (req, res) => {
   const sql = `
     SELECT 
       id_user,
@@ -36,7 +36,7 @@ router.get("/", auth, (req, res) => {
 /* ======================================================
    CREATE ADMIN
 ====================================================== */
-router.post("/", auth, async (req, res) => {
+router.post("/", authAdmin, onlySuperAdmin, async (req, res) => {
   const { email, password, nama_lengkap } = req.body;
 
   if (!email || !password || !nama_lengkap) {
@@ -51,7 +51,7 @@ router.post("/", auth, async (req, res) => {
     const sql = `
       INSERT INTO user_tb
       (email, password, nama_lengkap, level_user, status_user, aktivasi)
-      VALUES (?, ?, ?, 1, 1, 'Y')
+      VALUES (?, ?, ?, 2, 1, 'Y')
     `;
 
     db.query(sql, [email, hashedPassword, nama_lengkap], (err, result) => {
@@ -65,9 +65,9 @@ router.post("/", auth, async (req, res) => {
 
       // ✅ LOG ADMIN
       logAdmin({
-        id_user: req.user.id,
-        email: req.user.email,
-        nama_lengkap: req.user.nama_lengkap,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
         aktivitas: "CREATE ADMIN",
         keterangan: `Menambah admin baru (${email})`,
         req,
@@ -84,7 +84,7 @@ router.post("/", auth, async (req, res) => {
 /* ======================================================
    UPDATE STATUS ADMIN (AKTIF / NONAKTIF)
 ====================================================== */
-router.put("/:id/status", auth, (req, res) => {
+router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
   const { status_user } = req.body;
   const { id } = req.params;
 
@@ -110,9 +110,9 @@ router.put("/:id/status", auth, (req, res) => {
 
     // ✅ LOG ADMIN
     logAdmin({
-      id_user: req.user.id,
-      email: req.user.email,
-      nama_lengkap: req.user.nama_lengkap,
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
       aktivitas: "UPDATE ADMIN STATUS",
       keterangan: `Update status admin ID ${id} menjadi ${status_user}`,
       req,
@@ -123,9 +123,19 @@ router.put("/:id/status", auth, (req, res) => {
 });
 
 /* ======================================================
+   GET ADMIN YANG SEDANG LOGIN
+====================================================== */
+router.get("/me", (req, res) => {
+  res.status(200).json({
+    ok: true,
+    admin: req.session.admin,
+  });
+});
+
+/* ======================================================
    DELETE ADMIN
 ====================================================== */
-router.delete("/:id", auth, (req, res) => {
+router.delete("/:id", authAdmin, onlySuperAdmin, (req, res) => {
   const { id } = req.params;
 
   // ❌ Cegah admin menghapus dirinya sendiri
@@ -152,9 +162,9 @@ router.delete("/:id", auth, (req, res) => {
 
     // ✅ LOG ADMIN
     logAdmin({
-      id_user: req.user.id,
-      email: req.user.email,
-      nama_lengkap: req.user.nama_lengkap,
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
       aktivitas: "DELETE ADMIN",
       keterangan: `Menghapus admin ID ${id}`,
       req,

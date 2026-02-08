@@ -59,12 +59,10 @@ export function logAdmin({
 // LOG ADMIN LOGOUT
 // =====================
 export function logAdminLogout({ id_user, email, nama_lengkap, req }) {
-  if (!id_user) return;
-
   logAdmin({
-    id_user,
-    email,
-    nama_lengkap,
+    id_user: id_user ?? null,
+    email: email ?? "-",
+    nama_lengkap: nama_lengkap ?? "UNKNOWN",
     aktivitas: "LOGOUT",
     keterangan: "Admin logout",
     req,
