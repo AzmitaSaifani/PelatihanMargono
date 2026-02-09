@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -39,7 +39,7 @@
     <!-- NAVBAR -->
     <!-- ================= NAVBAR ================= -->
     <nav
-      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
     >
       <div class="container">
         <a
@@ -136,7 +136,64 @@
                 href="#"
                 data-bs-toggle="dropdown"
               >
-                Admin
+                Profil
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="institusipelatihan.html"
+                    >Institusi Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="timkerja.html">Tim Kerja</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="historiakreditasi.html"
+                    >Histori Akreditasi</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Organisasi
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="jabatan.html"
+                    >Kelola Jabatan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="anggotaorganisasi.html"
+                    >Kelola Anggota</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <i class="bi bi-person-fill"></i>
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
               </a>
               <ul class="dropdown-menu dropdown-menu-dark">
                 <li>
@@ -145,10 +202,24 @@
               </ul>
             </li>
 
-            <li class="nav-item">
-              <button class="btn btn-danger ms-3" onclick="logoutAdmin()">
-                Logout
-              </button>
+            <li class="nav-item dropdown">
+              <a
+                id="namaAdmin"
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="#"
+                    onclick="logoutAdmin()"
+                    >Logout</a
+                  >
+                </li>
+              </ul>
             </li>
           </ul>
         </div>
@@ -501,7 +572,7 @@
             (item) =>
               !keyword ||
               item.nama?.toLowerCase().includes(keyword) ||
-              item.keterangan?.toLowerCase().includes(keyword)
+              item.keterangan?.toLowerCase().includes(keyword),
           );
 
           currentPage = 1;
@@ -561,7 +632,7 @@
 
           infoData.innerText = `Showing ${start + 1} to ${Math.min(
             end,
-            filteredData.length
+            filteredData.length,
           )} of ${filteredData.length} entries`;
 
           prevBtn.disabled = currentPage === 1;
@@ -606,7 +677,7 @@
 
               // tutup modal
               bootstrap.Modal.getInstance(
-                document.getElementById("modalTambahFasilitator")
+                document.getElementById("modalTambahFasilitator"),
               ).hide();
 
               loadFasilitator(); // refresh tabel
@@ -631,12 +702,11 @@
               data.keterangan || "";
             document.getElementById("edit_status").value = data.status;
 
-            document.getElementById(
-              "edit_previewFoto"
-            ).src = `http://localhost:5000/uploads/fasilitator/${data.foto}`;
+            document.getElementById("edit_previewFoto").src =
+              `http://localhost:5000/uploads/fasilitator/${data.foto}`;
 
             new bootstrap.Modal(
-              document.getElementById("modalEditFasilitator")
+              document.getElementById("modalEditFasilitator"),
             ).show();
           } catch (err) {
             alert("Gagal memuat data fasilitator");
@@ -654,7 +724,7 @@
 
             const id = document.getElementById("edit_id").value;
             const formData = new FormData(
-              document.getElementById("formEditFasilitator")
+              document.getElementById("formEditFasilitator"),
             );
 
             const res = await fetch(`${API}/${id}`, {
@@ -667,7 +737,7 @@
 
             if (res.ok) {
               bootstrap.Modal.getInstance(
-                document.getElementById("modalEditFasilitator")
+                document.getElementById("modalEditFasilitator"),
               ).hide();
               loadFasilitator();
             }

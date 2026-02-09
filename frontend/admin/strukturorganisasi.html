@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
+      type="image/png"
+    />
+
+    <title>Admin - Struktur Organisasi DIKLAT</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+
+      /* ================= ORGANIZATION TREE ================= */
+      .org-wrapper {
+        overflow-x: auto;
+        padding: 30px;
+      }
+
+      .org-level {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 70px;
+        position: relative;
+      }
+
+      .org-card {
+        width: 220px;
+        background: #fff;
+        border-radius: 14px;
+        text-align: center;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        position: relative;
+      }
+
+      .org-card img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #5cb85c;
+        margin-bottom: 10px;
+      }
+
+      .org-name {
+        font-weight: bold;
+        font-size: 15px;
+      }
+
+      .org-jabatan {
+        font-size: 13px;
+        color: #666;
+      }
+
+      /* garis komando */
+      .line-command {
+        position: absolute;
+        width: 2px;
+        height: 40px;
+        background: #333;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      /* garis koordinasi */
+      .line-coordinate {
+        position: absolute;
+        top: -25px;
+        left: 0;
+        width: 100%;
+        border-top: 2px dashed #999;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kalender.html"
+                    >Kalender Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kritiksaran.html"
+                    >Kritik dan Saran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Profil
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="institusipelatihan.html"
+                    >Institusi Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="timkerja.html">Tim Kerja</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="historiakreditasi.html"
+                    >Histori Akreditasi</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Organisasi
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="jabatan.html"
+                    >Kelola Jabatan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="anggotaorganisasi.html"
+                    >Kelola Anggota</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <i class="bi bi-person-fill"></i>
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                id="namaAdmin"
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="#"
+                    onclick="logoutAdmin()"
+                    >Logout</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- ================= END NAVBAR ================= -->
+
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">🏢 Struktur Organisasi DIKLAT</h2>
+
+      <div class="card">
+        <div
+          class="card-header bg-dark text-white d-flex justify-content-between"
+        >
+          <span>Struktur Organisasi</span>
+          <button
+            class="btn btn-success btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#modalKelolaStruktur"
+          >
+            + Kelola Anggota
+          </button>
+        </div>
+
+        <div class="card-body org-wrapper" id="orgContainer">
+          <!-- POHON ORGANISASI DIRENDER DI SINI -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL KELOLA STRUKTUR ================= -->
+    <div class="modal fade" id="modalKelolaStruktur">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Kelola Anggota Jabatan</h5>
+            <button
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="formStruktur">
+              <label class="form-label">Jabatan</label>
+              <select id="selectJabatan" class="form-control mb-3"></select>
+
+              <label class="form-label">Anggota</label>
+              <select id="selectAnggota" class="form-control mb-3"></select>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button class="btn btn-primary" onclick="simpanStruktur()">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+      const API_STRUKTUR = "http://localhost:5000/api/jabatan";
+      const API_JABATAN = "http://localhost:5000/api/anggota-jabatan";
+      const API_ANGGOTA = "http://localhost:5000/api/anggota-organisasi";
+
+      /* ================= LOAD STRUKTUR ================= */
+      async function loadStruktur() {
+        const res = await fetch(API_STRUKTUR);
+        const data = await res.json();
+        renderTree(data);
+      }
+
+      /* ================= RENDER POHON ================= */
+      function renderTree(data) {
+        const container = document.getElementById("orgContainer");
+        container.innerHTML = "";
+
+        const groupByLevel = {};
+        data.forEach((item) => {
+          if (!groupByLevel[item.level_jabatan]) {
+            groupByLevel[item.level_jabatan] = [];
+          }
+          groupByLevel[item.level_jabatan].push(item);
+        });
+
+        Object.keys(groupByLevel)
+          .sort((a, b) => a - b)
+          .forEach((level) => {
+            const levelDiv = document.createElement("div");
+            levelDiv.className = "org-level";
+
+            groupByLevel[level].forEach((node) => {
+              const card = document.createElement("div");
+              card.className = "org-card";
+
+              card.innerHTML = `
+          ${node.parent_id ? '<div class="line-command"></div>' : ""}
+          <img src="${
+            node.foto
+              ? "http://localhost:5000/uploads/anggota/" + node.foto
+              : "https://via.placeholder.com/80"
+          }">
+          <div class="org-name">${node.nama_lengkap ?? "-"}</div>
+          <div class="org-jabatan">${node.nama_jabatan}</div>
+        `;
+
+              levelDiv.appendChild(card);
+            });
+
+            container.appendChild(levelDiv);
+          });
+      }
+
+      /* ================= LOAD DROPDOWN ================= */
+      async function loadDropdown() {
+        const jabatan = await (
+          await fetch("http://localhost:5000/api/jabatan")
+        ).json();
+        const anggota = await (
+          await fetch("http://localhost:5000/api/anggota-organisasi")
+        ).json();
+
+        const selectJabatan = document.getElementById("selectJabatan");
+        const selectAnggota = document.getElementById("selectAnggota");
+
+        selectJabatan.innerHTML = jabatan
+          .map(
+            (j) => `<option value="${j.id_jabatan}">${j.nama_jabatan}</option>`,
+          )
+          .join("");
+
+        selectAnggota.innerHTML = anggota
+          .map(
+            (a) => `<option value="${a.id_anggota}">${a.nama_lengkap}</option>`,
+          )
+          .join("");
+      }
+
+      /* ================= SIMPAN STRUKTUR ================= */
+      async function simpanStruktur() {
+        const id_jabatan = selectJabatan.value;
+        const id_anggota = selectAnggota.value;
+
+        const res = await fetch(API_STRUKTUR, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-id": localStorage.getItem("admin_id"),
+            "x-admin-email": localStorage.getItem("admin_email"),
+            "x-admin-nama": localStorage.getItem("admin_nama"),
+          },
+          body: JSON.stringify({
+            id_jabatan,
+            id_anggota,
+            is_utama: 1,
+          }),
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        loadStruktur();
+        bootstrap.Modal.getInstance(
+          document.getElementById("modalKelolaStruktur"),
+        ).hide();
+      }
+
+      /* ================= LOGOUT ================= */
+      async function logoutAdmin() {
+        if (!confirm("Yakin ingin logout?")) return;
+
+        await fetch("http://localhost:5000/api/admin/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        localStorage.clear();
+        window.location.href = "loginadmin.html";
+      }
+
+      /* ================= INIT ================= */
+      document.addEventListener("DOMContentLoaded", () => {
+        loadStruktur();
+        loadDropdown();
+      });
+    </script>
+
+    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

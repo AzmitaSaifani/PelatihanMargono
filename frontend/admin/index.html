@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -157,6 +157,31 @@
                   <a class="dropdown-item" href="strukturorganisasi.html"
                     >Struktur Organisasi</a
                   >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Organisasi
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="jabatan.html"
+                    >Kelola Jabatan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="anggotaorganisasi.html"
+                    >Kelola Anggota</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
                 </li>
               </ul>
             </li>
@@ -389,7 +414,7 @@
         try {
           const res = await fetch(
             "http://localhost:5000/api/dashboard/statistik",
-            { credentials: "include" } // ⬅️ opsional tapi bagus
+            { credentials: "include" }, // ⬅️ opsional tapi bagus
           );
           const data = await res.json();
 

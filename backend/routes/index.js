@@ -37,6 +37,13 @@ import timKerjaRoutes from "./auth/tim_kerja.js";
 import strukturOrganisasiRoutes from "./auth/struktur_organisasi.js";
 import kritikSaranRoutes from "./auth/kritikSaran.js";
 
+/* =====================
+   STRUKTUR ORGANISASI
+===================== */
+import jabatanRoutes from "./auth/jabatan.js";
+import anggotaJabatanRoutes from "./auth/anggota_jabatan.js";
+import anggotaOrganisasiRoutes from "./auth/anggota_organisasi.js";
+
 /* ===========================
    AUTH
 =========================== */
@@ -80,6 +87,13 @@ router.use("/histori-akreditasi", historiAkreditasiRoutes);
 router.use("/sertifikat-akreditasi", sertifikatAkreditasiRoutes);
 router.use("/tim-kerja", timKerjaRoutes);
 router.use("/struktur-organisasi", strukturOrganisasiRoutes);
+
+/* ===========================
+   STRUKTUR ORGANISASI
+=========================== */
+router.use("/jabatan", jabatanRoutes);
+router.use("/anggota-jabatan", anggotaJabatanRoutes);
+router.use("/anggota-organisasi", anggotaOrganisasiRoutes);
 
 /* ===========================
    FEEDBACK

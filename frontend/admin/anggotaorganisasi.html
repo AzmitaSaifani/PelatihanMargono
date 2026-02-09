@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <link
+      rel="icon"
+      href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
+      type="image/png"
+    />
+
+    <title>Admin - Anggota Organisasi</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+
+    <style>
+      body {
+        background: #f5f6fa;
+      }
+      .card {
+        border-radius: 10px;
+      }
+      .thumb-foto {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ================= NAVBAR ================= -->
+    <nav
+      class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kalender.html"
+                    >Kalender Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kritiksaran.html"
+                    >Kritik dan Saran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Profil
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="institusipelatihan.html"
+                    >Institusi Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="timkerja.html">Tim Kerja</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="historiakreditasi.html"
+                    >Histori Akreditasi</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Organisasi
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="jabatan.html"
+                    >Kelola Jabatan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="anggotaorganisasi.html"
+                    >Kelola Anggota</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <i class="bi bi-person-fill"></i>
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                id="namaAdmin"
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="#"
+                    onclick="logoutAdmin()"
+                    >Logout</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="container py-4">
+      <h2 class="fw-bold mb-4">👥 Kelola Anggota Organisasi</h2>
+
+      <div class="card">
+        <div class="card-header bg-dark text-white">Daftar Anggota</div>
+
+        <div class="col-md-4 mt-3 ms-3 mb-2">
+          <input
+            type="text"
+            id="searchAnggota"
+            placeholder="Cari nama / NIP / email..."
+            class="form-control"
+          />
+        </div>
+
+        <div class="col-md-12">
+          <button
+            class="btn btn-primary mt-2 mb-2 ms-3"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTambahAnggota"
+          >
+            + Tambah Anggota
+          </button>
+        </div>
+
+        <div class="table-responsive ms-3 me-3" style="max-height: 450px">
+          <table class="table table-bordered">
+            <thead class="thead-telur-asin">
+              <tr>
+                <th>No</th>
+                <th>Foto</th>
+                <th>Nama</th>
+                <th>NIP</th>
+                <th>Email</th>
+                <th>No HP</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableAnggota"></tbody>
+          </table>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+          <div id="infoData" class="text-muted"></div>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
+              Prev
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL TAMBAH ================= -->
+    <div class="modal fade" id="modalTambahAnggota">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Tambah Anggota</h5>
+            <button
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="formTambah">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nama Lengkap *</label>
+                  <input name="nama_lengkap" class="form-control" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">NIP</label>
+                  <input name="nip" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input name="email" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">No HP</label>
+                  <input name="no_hp" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Foto</label>
+                  <input type="file" name="foto" class="form-control" />
+                  <img
+                    id="previewTambah"
+                    class="mt-2"
+                    style="max-width: 150px"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button class="btn btn-primary" form="formTambah">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL EDIT ================= -->
+    <div class="modal fade" id="modalEditAnggota">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Edit Anggota</h5>
+            <button
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="formEdit">
+              <input type="hidden" id="edit_id" />
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Nama Lengkap</label>
+                  <input
+                    id="edit_nama"
+                    name="nama_lengkap"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">NIP</label>
+                  <input id="edit_nip" name="nip" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input id="edit_email" name="email" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">No HP</label>
+                  <input id="edit_nohp" name="no_hp" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select id="edit_status" name="status" class="form-control">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                  </select>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label">Foto Baru</label>
+                  <input
+                    type="file"
+                    id="edit_foto"
+                    name="foto"
+                    class="form-control"
+                  />
+                  <img id="previewEdit" class="mt-2" style="max-width: 150px" />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+            <button class="btn btn-primary" form="formEdit">Simpan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= SCRIPT ================= -->
+    <script>
+      const API = "http://localhost:5000/api/anggota-organisasi";
+
+      let filteredData = [];
+      let currentPage = 1;
+      const rowsPerPage = 5;
+
+      const tableBody = document.getElementById("tableAnggota");
+      const form = document.getElementById("formTambah");
+
+      const infoData = document.getElementById("infoData");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const searchInput = document.getElementById("searchAnggota");
+
+      async function loadData() {
+        const res = await fetch(API);
+        allData = await res.json();
+        applyFilter();
+      }
+
+      function applyFilter() {
+        const q = searchAnggota.value.toLowerCase();
+        filtered = allData.filter(
+          (a) =>
+            a.nama_lengkap.toLowerCase().includes(q) ||
+            (a.nip || "").includes(q) ||
+            (a.email || "").toLowerCase().includes(q),
+        );
+        page = 1;
+        render();
+      }
+
+      // =========================
+      // LOAD DATA (ADMIN MODE)
+      // =========================
+      async function loadFasilitator() {
+        try {
+          const res = await fetch(`${API}?admin=1`);
+          const json = await res.json();
+
+          allData = Array.isArray(json) ? json : [];
+          applyFilter();
+        } catch (err) {
+          console.error(err);
+          tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-danger">
+            Gagal memuat data fasilitator
+          </td>
+        </tr>`;
+        }
+      }
+
+      // =========================
+      // FILTER + SEARCH
+      // =========================
+      function applyFilter() {
+        const keyword = searchInput.value.toLowerCase().trim();
+
+        filteredData = allData.filter(
+          (item) =>
+            !keyword ||
+            item.nama?.toLowerCase().includes(keyword) ||
+            item.keterangan?.toLowerCase().includes(keyword),
+        );
+
+        currentPage = 1;
+        renderTable();
+      }
+
+      // RENDER TABLE
+      function renderTable() {
+        tableBody.innerHTML = "";
+
+        if (filteredData.length === 0) {
+          tableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted">
+            Data tidak ditemukan
+          </td>
+        </tr>`;
+
+          infoData.innerText = "Showing 0 entries";
+          prevBtn.disabled = nextBtn.disabled = true;
+          return;
+        }
+
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = filteredData.slice(start, end);
+
+        pageData.forEach((item, index) => {
+          tableBody.innerHTML += `
+            <tr>
+              <td>${start + index + 1}</td>
+              <td><img src="http://localhost:5000/uploads/anggota/${item.foto || "default.png"}" class="thumb-foto"></td>
+              <td>${item.nama_lengkap}</td>
+              <td>${item.nip || "-"}</td>
+              <td>${item.email || "-"}</td>
+              <td>${item.no_hp || "-"}</td>
+              <td><span class="badge bg-${item.status == 1 ? "success" : "secondary"}">
+                ${item.status == 1 ? "Aktif" : "Nonaktif"}
+              </span></td>
+              <td>
+                <button class="btn btn-warning btn-sm" onclick="edit(${item.id_anggota})">Edit</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        infoData.innerText = `Showing ${start + 1} to ${Math.min(
+          end,
+          filteredData.length,
+        )} of ${filteredData.length} entries`;
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = end >= filteredData.length;
+      }
+
+      // =========================
+      // PAGINATION
+      // =========================
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      };
+
+      nextBtn.onclick = () => {
+        if (currentPage * rowsPerPage < filteredData.length) {
+          currentPage++;
+          renderTable();
+        }
+      };
+
+      function edit(id) {
+        const a = allData.find((x) => x.id_anggota === id);
+        edit_id.value = a.id_anggota;
+        edit_nama.value = a.nama_lengkap;
+        edit_nip.value = a.nip;
+        edit_email.value = a.email;
+        edit_nohp.value = a.no_hp;
+        edit_status.value = a.status == 1 ? "1" : "0";
+
+        previewEdit.src = `http://localhost:5000/uploads/anggota/${a.foto}`;
+        new bootstrap.Modal(modalEditAnggota).show();
+      }
+
+      formEdit.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const fd = new FormData(formEdit);
+
+        const res = await fetch(`${API}/${edit_id.value}`, {
+          method: "PUT",
+          body: fd,
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        if (res.ok) {
+          loadData();
+          bootstrap.Modal.getInstance(
+            document.getElementById("modalEditAnggota"),
+          ).hide();
+        }
+      };
+
+      searchAnggota.oninput = applyFilter;
+      prevBtn.onclick = () => {
+        page--;
+        render();
+      };
+      nextBtn.onclick = () => {
+        page++;
+        render();
+      };
+
+      loadData();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
