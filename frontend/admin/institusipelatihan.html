@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Favicons -->
+    <title>Admin - Institusi Pelatihan</title>
+
     <link
       rel="icon"
       href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
       type="image/png"
       sizes="512x512"
     />
-
-    <title>Admin - Kelola Jabatan</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -30,7 +29,7 @@
   </head>
 
   <body>
-    <!-- NAVBAR -->
+    <!-- ================= NAVBAR ================= -->
     <nav
       class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
     >
@@ -168,7 +167,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -212,52 +213,41 @@
       </div>
     </nav>
 
-    <!-- CONTENT -->
+    <!-- ================= CONTENT ================= -->
     <div class="container py-4">
-      <h2 class="fw-bold mb-4">🏢 Kelola Jabatan</h2>
+      <h2 class="fw-bold mb-4">🏥 Institusi Pelatihan</h2>
 
       <div class="card">
-        <div class="card-header bg-dark text-white">Daftar Jabatan</div>
-
-        <div class="col-md-4 mt-3 ms-3 mb-3">
-          <input
-            type="text"
-            id="searchFasilitator"
-            placeholder="Cari..."
-            class="form-control"
-          />
-        </div>
-
-        <div class="col-md-12">
+        <div
+          class="card-header bg-dark text-white d-flex justify-content-between"
+        >
+          <span>Data Institusi</span>
           <button
-            class="btn btn-primary mt-3 mb-2 ms-3"
+            class="btn btn-sm btn-primary"
             data-bs-toggle="modal"
-            data-bs-target="#modalTambahJabatan"
+            data-bs-target="#modalTambahInstitusi"
           >
-            + Tambah Jabatan
+            + Tambah
           </button>
         </div>
 
-        <div class="table-responsive ms-3 me-3">
+        <div class="table-responsive mt-3 ms-3 me-3">
           <table class="table table-bordered">
             <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
-                <th>Nama Jabatan</th>
-                <th>Parent</th>
-                <th>Level</th>
-                <th>Relasi</th>
-                <th>Urutan</th>
+                <th>Nama Institusi</th>
+                <th>Deskripsi</th>
+                <th>Kategori RS</th>
+                <th>Tahun Berdiri</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="tableJabatan"></tbody>
+            <tbody id="tableInstitusi"></tbody>
           </table>
         </div>
-        <!-- FOOTER PAGINATION -->
-        <div
-          class="card-footer d-flex justify-content-between align-items-center"
-        >
+
+        <div class="card-footer d-flex justify-content-between">
           <div id="infoData" class="text-muted"></div>
           <div>
             <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
@@ -272,11 +262,11 @@
     </div>
 
     <!-- ================= MODAL TAMBAH ================= -->
-    <div class="modal fade" id="modalTambahJabatan">
-      <div class="modal-dialog">
+    <div class="modal fade" id="modalTambahInstitusi">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Tambah Jabatan</h5>
+            <h5 class="modal-title">Tambah Institusi</h5>
             <button
               class="btn-close btn-close-white"
               data-bs-dismiss="modal"
@@ -284,47 +274,37 @@
           </div>
 
           <div class="modal-body">
-            <form id="formTambahJabatan">
-              <label class="form-label">Nama Jabatan *</label>
-              <input name="nama_jabatan" class="form-control mb-2" required />
+            <form id="formTambahInstitusi">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">Nama Institusi</label>
+                  <input name="nama_institusi" class="form-control" required />
+                </div>
 
-              <label class="form-label">Parent Jabatan</label>
-              <select
-                name="parent_id"
-                id="parentTambah"
-                class="form-control mb-2"
-              >
-                <option value="">-- Tidak Ada --</option>
-              </select>
+                <div class="col-md-12">
+                  <label class="form-label">Deskripsi</label>
+                  <input
+                    name="deskripsi"
+                    class="form-control"
+                    rows="4"
+                    required
+                  />
+                </div>
 
-              <label class="form-label">Level Jabatan</label>
-              <input
-                type="number"
-                name="level_jabatan"
-                class="form-control mb-2"
-                min="1"
-                step="1"
-                value="1"
-              />
+                <div class="col-md-6">
+                  <label class="form-label">Kategori RS</label>
+                  <input name="kategori_rs" class="form-control" />
+                </div>
 
-              <label class="form-label">Jenis Relasi</label>
-              <select name="jenis_relasi" class="form-control mb-2">
-                <option value="komando">Komando</option>
-                <option value="koordinasi">Koordinasi</option>
-              </select>
-
-              <label class="form-label">Urutan</label>
-              <input
-                type="number"
-                name="urutan"
-                class="form-control mb-2"
-                min="0"
-                step="1"
-                value="0"
-              />
-
-              <label class="form-label">Keterangan</label>
-              <textarea name="keterangan" class="form-control"></textarea>
+                <div class="col-md-6">
+                  <label class="form-label">Tahun Berdiri</label>
+                  <input
+                    type="number"
+                    name="tahun_berdiri"
+                    class="form-control"
+                  />
+                </div>
+              </div>
             </form>
           </div>
 
@@ -332,7 +312,7 @@
             <button class="btn btn-secondary" data-bs-dismiss="modal">
               Batal
             </button>
-            <button class="btn btn-primary" form="formTambahJabatan">
+            <button class="btn btn-primary" form="formTambahInstitusi">
               Simpan
             </button>
           </div>
@@ -341,11 +321,11 @@
     </div>
 
     <!-- ================= MODAL EDIT ================= -->
-    <div class="modal fade" id="modalEditJabatan">
-      <div class="modal-dialog">
+    <div class="modal fade" id="modalEditInstitusi">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Edit Jabatan</h5>
+            <h5 class="modal-title">Edit Institusi</h5>
             <button
               class="btn-close btn-close-white"
               data-bs-dismiss="modal"
@@ -353,31 +333,51 @@
           </div>
 
           <div class="modal-body">
-            <form id="formEditJabatan">
+            <form id="formEditInstitusi">
               <input type="hidden" id="edit_id" />
 
-              <label class="form-label">Nama Jabatan *</label>
-              <input id="edit_nama" class="form-control mb-2" required />
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label">Nama Institusi</label>
+                  <input
+                    id="edit_nama"
+                    name="nama_institusi"
+                    class="form-control"
+                  />
+                </div>
 
-              <label class="form-label">Parent Jabatan</label>
-              <select id="edit_parent" class="form-control mb-2">
-                <option value="">-- Tidak Ada --</option>
-              </select>
+                <div class="col-md-12">
+                  <label class="form-label">Deskripsi</label>
+                  <textarea
+                    id="edit_deskripsi"
+                    name="deskripsi"
+                    class="form-control"
+                    rows="4"
+                  ></textarea>
+                </div>
 
-              <label class="form-label">Level</label>
-              <input type="number" id="edit_level" class="form-control mb-2" />
+                <div class="col-md-6">
+                  <label class="form-label">Kategori RS</label>
+                  <input
+                    id="edit_kategori"
+                    name="kategori_rs"
+                    class="form-control"
+                  />
+                </div>
 
-              <label class="form-label">Jenis Relasi</label>
-              <select id="edit_relasi" class="form-control mb-2">
-                <option value="komando">Komando</option>
-                <option value="koordinasi">Koordinasi</option>
-              </select>
-
-              <label class="form-label">Urutan</label>
-              <input type="number" id="edit_urutan" class="form-control mb-2" />
-
-              <label class="form-label">Keterangan</label>
-              <textarea id="edit_keterangan" class="form-control"></textarea>
+                <div class="col-md-6">
+                  <label class="form-label">Tahun Berdiri</label>
+                  <input
+                    type="number"
+                    id="edit_tahun"
+                    name="tahun_berdiri"
+                    class="form-control"
+                    min="0"
+                    step="1"
+                    value="0"
+                  />
+                </div>
+              </div>
             </form>
           </div>
 
@@ -385,7 +385,7 @@
             <button class="btn btn-secondary" data-bs-dismiss="modal">
               Batal
             </button>
-            <button class="btn btn-primary" form="formEditJabatan">
+            <button class="btn btn-primary" form="formEditInstitusi">
               Simpan Perubahan
             </button>
           </div>
@@ -395,58 +395,52 @@
 
     <!-- ================= SCRIPT ================= -->
     <script>
-      const API = "http://localhost:5000/api/jabatan";
+      async function logoutAdmin() {
+        if (!confirm("Yakin logout?")) return;
+        await fetch("http://localhost:5000/api/admin/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        localStorage.clear();
+        window.location.href = "loginadmin.html";
+      }
 
-      const ADMIN_HEADERS = {
-        "Content-Type": "application/json",
-        "x-admin-id": localStorage.getItem("admin_id"),
-        "x-admin-email": localStorage.getItem("admin_email"),
-        "x-admin-nama": localStorage.getItem("admin_nama"),
-      };
+      const API = "http://localhost:5000/api/institusi-pelatihan";
 
-      let dataJabatan = [];
+      let allData = [];
       let filteredData = [];
       let currentPage = 1;
       const rowsPerPage = 5;
 
-      const tableBody = document.getElementById("tableJabatan");
+      const tableBody = document.getElementById("tableInstitusi");
       const infoData = document.getElementById("infoData");
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
-      const searchInput = document.getElementById("searchFasilitator");
 
-      /* ================= LOAD DATA ================= */
-      async function loadJabatan() {
+      async function loadData() {
         const res = await fetch(API);
-        dataJabatan = await res.json();
-        applyFilter();
-        fillParent();
-      }
-
-      /* ================= FILTER ================= */
-      function applyFilter() {
-        const keyword = searchInput.value.toLowerCase();
-
-        filteredData = dataJabatan.filter((j) =>
-          j.nama_jabatan.toLowerCase().includes(keyword),
-        );
-
+        allData = await res.json();
+        filteredData = [...allData];
         currentPage = 1;
         renderTable();
       }
 
-      /* ================= RENDER ================= */
+      // =========================
+      // RENDER TABLE
+      // =========================
       function renderTable() {
         tableBody.innerHTML = "";
 
         if (filteredData.length === 0) {
           tableBody.innerHTML = `
-        <tr>
-          <td colspan="7" class="text-center text-muted">
-            Data tidak ditemukan
-          </td>
-        </tr>`;
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Data tidak ditemukan
+            </td>
+          </tr>
+        `;
           infoData.innerText = "Showing 0 entries";
+          prevBtn.disabled = nextBtn.disabled = true;
           return;
         }
 
@@ -455,26 +449,25 @@
         const pageData = filteredData.slice(start, end);
 
         pageData.forEach((item, index) => {
-          const parent = dataJabatan.find(
-            (p) => p.id_jabatan === item.parent_id,
-          );
-
           tableBody.innerHTML += `
-        <tr>
-          <td>${start + index + 1}</td>
-          <td>${item.nama_jabatan}</td>
-          <td>${parent ? parent.nama_jabatan : "-"}</td>
-          <td>${item.level_jabatan}</td>
-          <td>${item.jenis_relasi}</td>
-          <td>${item.urutan}</td>
-          <td>
+          <tr>
+            <td>${start + index + 1}</td>
+            <td>${item.nama_institusi}</td>
+            <td>${item.deskripsi}</td>
+            <td>${item.kategori_rs ?? "-"}</td>
+            <td>${item.tahun_berdiri ?? "-"}</td>
+            <td>
             <button class="btn btn-warning btn-sm"
-              onclick="editJabatan(${item.id_jabatan})">
-              Edit
+                    onclick="openEdit(${item.id})">
+                Edit
             </button>
-          </td>
+            <button class="btn btn-danger btn-sm"
+                    onclick="hapus(${item.id})">
+                Hapus
+            </button>
+            </td>
         </tr>
-      `;
+        `;
         });
 
         infoData.innerText = `Showing ${start + 1} to ${Math.min(
@@ -486,7 +479,9 @@
         nextBtn.disabled = end >= filteredData.length;
       }
 
-      /* ================= PAGINATION ================= */
+      // =========================
+      // PAGINATION
+      // =========================
       prevBtn.onclick = () => {
         if (currentPage > 1) {
           currentPage--;
@@ -501,93 +496,82 @@
         }
       };
 
-      /* ================= PARENT SELECT ================= */
-      function fillParent() {
-        const selects = [
-          document.getElementById("parentTambah"),
-          document.getElementById("edit_parent"),
-        ];
+      // =========================
+      // EDIT
+      // =========================
+      window.openEdit = (id) => {
+        const data = allData.find((d) => d.id == id);
 
-        selects.forEach((s) => {
-          s.innerHTML = `<option value="">-- Tidak Ada --</option>`;
-          dataJabatan.forEach((j) => {
-            s.innerHTML += `<option value="${j.id_jabatan}">
-          ${j.nama_jabatan}
-        </option>`;
+        edit_id.value = data.id;
+        edit_nama.value = data.nama_institusi;
+        edit_deskripsi.value = data.deskripsi ?? "";
+        edit_kategori.value = data.kategori_rs ?? "";
+        edit_tahun.value = data.tahun_berdiri ?? "";
+
+        new bootstrap.Modal(
+          document.getElementById("modalEditInstitusi"),
+        ).show();
+      };
+
+      document
+        .getElementById("formTambahInstitusi")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const body = Object.fromEntries(new FormData(e.target));
+
+          await fetch(API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
           });
-        });
-      }
 
-      /* ================= TAMBAH ================= */
-      document.getElementById("formTambahJabatan").onsubmit = async (e) => {
-        e.preventDefault();
+          bootstrap.Modal.getInstance(
+            document.getElementById("modalTambahInstitusi"),
+          ).hide();
 
-        const body = Object.fromEntries(new FormData(e.target));
-
-        const res = await fetch(API, {
-          method: "POST",
-          headers: ADMIN_HEADERS,
-          body: JSON.stringify(body),
+          loadData();
         });
 
-        const data = await res.json();
-        alert(data.message);
+      // =========================
+      // SUBMIT EDIT
+      // =========================
+      document
+        .getElementById("formEditInstitusi")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-        bootstrap.Modal.getInstance(
-          document.getElementById("modalTambahJabatan"),
-        ).hide();
+          const id = edit_id.value;
 
-        e.target.reset();
-        loadJabatan();
-      };
+          const body = Object.fromEntries(new FormData(e.target));
 
-      /* ================= EDIT ================= */
-      window.editJabatan = (id) => {
-        const j = dataJabatan.find((x) => x.id_jabatan === id);
+          await fetch(`${API}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
 
-        edit_id.value = j.id_jabatan;
-        edit_nama.value = j.nama_jabatan;
-        edit_parent.value = j.parent_id || "";
-        edit_level.value = j.level_jabatan;
-        edit_relasi.value = j.jenis_relasi;
-        edit_urutan.value = j.urutan;
-        edit_keterangan.value = j.keterangan || "";
+          bootstrap.Modal.getInstance(
+            document.getElementById("modalEditInstitusi"),
+          ).hide();
 
-        new bootstrap.Modal(document.getElementById("modalEditJabatan")).show();
-      };
-
-      document.getElementById("formEditJabatan").onsubmit = async (e) => {
-        e.preventDefault();
-
-        const id = edit_id.value;
-
-        const body = {
-          nama_jabatan: edit_nama.value,
-          parent_id: edit_parent.value || null,
-          level_jabatan: edit_level.value,
-          jenis_relasi: edit_relasi.value,
-          urutan: edit_urutan.value,
-          keterangan: edit_keterangan.value,
-        };
-
-        const res = await fetch(`${API}/${id}`, {
-          method: "PUT",
-          headers: ADMIN_HEADERS,
-          body: JSON.stringify(body),
+          loadData();
         });
 
-        const data = await res.json();
-        alert(data.message);
+      // =========================
+      // HAPUS
+      // =========================
+      window.hapus = async (id) => {
+        if (!confirm("Hapus data ini?")) return;
 
-        bootstrap.Modal.getInstance(
-          document.getElementById("modalEditJabatan"),
-        ).hide();
+        await fetch(`${API}/${id}`, {
+          method: "DELETE",
+        });
 
-        loadJabatan();
+        loadData();
       };
 
-      searchInput.addEventListener("input", applyFilter);
-      document.addEventListener("DOMContentLoaded", loadJabatan);
+      document.addEventListener("DOMContentLoaded", loadData);
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

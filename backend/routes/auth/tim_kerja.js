@@ -1,60 +1,67 @@
-    import express from "express";
-    import connection from "../../config/db.js";
-    import { logAdmin } from "../../routes/auth/adminLogger.js";
+import express from "express";
+import connection from "../../config/db.js";
+import { logAdmin } from "../../routes/auth/adminLogger.js";
 
-    const router = express.Router();
+const router = express.Router();
 
-    // Update
-    router.put("/:id", (req, res) => {
-    const sql = `
-        UPDATE tim_kerja
-        SET jabatan = ?, deskripsi = ?
-        WHERE id = ?
-    `;
+/* =========================
+   GET ALL
+========================= */
+router.get("/", (req, res) => {
+  connection.query("SELECT * FROM tim_kerja ORDER BY id DESC", (err, rows) => {
+    if (err) return res.status(500).json(err);
+    res.json(rows);
+  });
+});
 
-    connection.query(sql, [
-        req.body.jabatan,
-        req.body.deskripsi,
-        req.params.id,
-    ], (err) => {
-        if (err) return res.status(500).json(err);
+/* =========================
+   CREATE
+========================= */
+router.post("/", (req, res) => {
+  const { jabatan } = req.body;
 
-        logAdmin({
-        id_user: req.user.id,
-        email: req.user.email,
-        nama_lengkap: req.user.nama_lengkap,
-        aktivitas: "UPDATE TIM KERJA",
-        keterangan: `Update tim kerja ID ${req.params.id}`,
-        req,
-        });
+  const sql = `
+    INSERT INTO tim_kerja (jabatan)
+    VALUES (?)
+  `;
 
-        res.json({ message: "Tim kerja diperbarui" });
-    });
-    });
+  connection.query(sql, [jabatan], (err) => {
+    if (err) return res.status(500).json(err);
 
-    // Delete
-    router.delete("/:id", (req, res) => {
-    const { id } = req.params;
+    res.json({ message: "Tim kerja berhasil ditambahkan" });
+  });
+});
 
-    connection.query(
-        "DELETE FROM tim_kerja WHERE id = ?",
-        [id],
-        (err, result) => {
-        if (err) return res.status(500).json(err);
+/* =========================
+   UPDATE
+========================= */
+router.put("/:id", (req, res) => {
+  const sql = `
+    UPDATE tim_kerja
+    SET jabatan = ?
+    WHERE id = ?
+  `;
 
-        // ✅ LOG ADMIN (DELETE)
-        logAdmin({
-            id_user: req.user.id,
-            email: req.user.email,
-            nama_lengkap: req.user.nama_lengkap,
-            aktivitas: "DELETE TIM KERJA",
-            keterangan: `Menghapus tim kerja ID ${id}`,
-            req,
-        });
+  connection.query(sql, [req.body.jabatan, req.params.id], (err) => {
+    if (err) return res.status(500).json(err);
 
-        res.json({ message: "Tim kerja berhasil dihapus" });
-        }
-    );
-    });
+    res.json({ message: "Tim kerja diperbarui" });
+  });
+});
 
-    export default router;
+/* =========================
+   DELETE
+========================= */
+router.delete("/:id", (req, res) => {
+  connection.query(
+    "DELETE FROM tim_kerja WHERE id = ?",
+    [req.params.id],
+    (err) => {
+      if (err) return res.status(500).json(err);
+
+      res.json({ message: "Tim kerja berhasil dihapus" });
+    },
+  );
+});
+
+export default router;

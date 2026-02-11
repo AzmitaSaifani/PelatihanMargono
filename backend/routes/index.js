@@ -32,6 +32,7 @@ import kalenderRoute from "./auth/kalender_pelatihan.js";
 import dashboardAdmin from "./auth/dashboard.js";
 import profilDiklatRoutes from "./auth/profil-diklat.js";
 import historiAkreditasiRoutes from "./auth/histori_akreditasi.js";
+import institusiPelatihanRoutes from "./auth/institusi_pelatihan.js";
 import sertifikatAkreditasiRoutes from "./auth/sertifikat_akreditasi.js";
 import timKerjaRoutes from "./auth/tim_kerja.js";
 import strukturOrganisasiRoutes from "./auth/struktur_organisasi.js";
@@ -84,6 +85,7 @@ router.use("/kalender", kalenderRoute);
 =========================== */
 router.use("/profil-diklat", profilDiklatRoutes);
 router.use("/histori-akreditasi", historiAkreditasiRoutes);
+router.use("/institusi-pelatihan", institusiPelatihanRoutes);
 router.use("/sertifikat-akreditasi", sertifikatAkreditasiRoutes);
 router.use("/tim-kerja", timKerjaRoutes);
 router.use("/struktur-organisasi", strukturOrganisasiRoutes);
