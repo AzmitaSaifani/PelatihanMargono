@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -173,7 +173,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -432,7 +434,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Foto Baru (opsional)</label>
+                  <label class="form-label">Foto Baru</label>
                   <input
                     type="file"
                     id="edit_foto"
@@ -554,7 +556,7 @@
             (item) =>
               !keyword ||
               item.nama?.toLowerCase().includes(keyword) ||
-              item.keterangan?.toLowerCase().includes(keyword)
+              item.keterangan?.toLowerCase().includes(keyword),
           );
 
           currentPage = 1;
@@ -620,7 +622,7 @@
           });
           infoData.innerText = `Showing ${start + 1} to ${Math.min(
             end,
-            filteredData.length
+            filteredData.length,
           )} of ${filteredData.length} entries`;
 
           prevBtn.disabled = currentPage === 1;
@@ -665,7 +667,7 @@
 
               // kalau pakai modal
               const modal = bootstrap.Modal.getInstance(
-                document.getElementById("modalTambahPenyelenggara")
+                document.getElementById("modalTambahPenyelenggara"),
               );
               if (modal) modal.hide();
 
@@ -691,12 +693,11 @@
               data.keterangan || "";
             document.getElementById("edit_status").value = data.status;
 
-            document.getElementById(
-              "edit_previewFoto"
-            ).src = `http://localhost:5000/uploads/penyelenggara/${data.foto}`;
+            document.getElementById("edit_previewFoto").src =
+              `http://localhost:5000/uploads/penyelenggara/${data.foto}`;
 
             new bootstrap.Modal(
-              document.getElementById("modalEditPenyelenggara")
+              document.getElementById("modalEditPenyelenggara"),
             ).show();
           } catch (err) {
             alert("Gagal memuat data penyelenggara");
@@ -714,7 +715,7 @@
 
             const id = document.getElementById("edit_id").value;
             const formData = new FormData(
-              document.getElementById("formEditPenyelenggara")
+              document.getElementById("formEditPenyelenggara"),
             );
 
             const res = await fetch(`${API}/${id}`, {
@@ -727,7 +728,7 @@
 
             if (res.ok) {
               bootstrap.Modal.getInstance(
-                document.getElementById("modalEditPenyelenggara")
+                document.getElementById("modalEditPenyelenggara"),
               ).hide();
               loadPenyelenggara();
             }

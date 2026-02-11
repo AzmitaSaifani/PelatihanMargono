@@ -222,13 +222,6 @@
           class="card-header bg-dark text-white d-flex justify-content-between"
         >
           <span>Data Institusi</span>
-          <button
-            class="btn btn-sm btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalTambahInstitusi"
-          >
-            + Tambah
-          </button>
         </div>
 
         <div class="table-responsive mt-3 ms-3 me-3">
@@ -255,65 +248,6 @@
             </button>
             <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
               Next
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= MODAL TAMBAH ================= -->
-    <div class="modal fade" id="modalTambahInstitusi">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Tambah Institusi</h5>
-            <button
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <form id="formTambahInstitusi">
-              <div class="row g-3">
-                <div class="col-md-12">
-                  <label class="form-label">Nama Institusi</label>
-                  <input name="nama_institusi" class="form-control" required />
-                </div>
-
-                <div class="col-md-12">
-                  <label class="form-label">Deskripsi</label>
-                  <input
-                    name="deskripsi"
-                    class="form-control"
-                    rows="4"
-                    required
-                  />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Kategori RS</label>
-                  <input name="kategori_rs" class="form-control" />
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Tahun Berdiri</label>
-                  <input
-                    type="number"
-                    name="tahun_berdiri"
-                    class="form-control"
-                  />
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-              Batal
-            </button>
-            <button class="btn btn-primary" form="formTambahInstitusi">
-              Simpan
             </button>
           </div>
         </div>
@@ -512,26 +446,6 @@
           document.getElementById("modalEditInstitusi"),
         ).show();
       };
-
-      document
-        .getElementById("formTambahInstitusi")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const body = Object.fromEntries(new FormData(e.target));
-
-          await fetch(API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          });
-
-          bootstrap.Modal.getInstance(
-            document.getElementById("modalTambahInstitusi"),
-          ).hide();
-
-          loadData();
-        });
 
       // =========================
       // SUBMIT EDIT

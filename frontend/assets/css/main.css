@@ -14,9 +14,10 @@
 --------------------------------------------------------------*/
 /* Fonts */
 :root {
-  --default-font: "Roboto", system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --default-font:
+    "Roboto", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --heading-font: "Raleway", sans-serif;
   --nav-font: "Lato", sans-serif;
 }
@@ -64,7 +65,6 @@
 .bg-accent {
   background-color: var(--bs-accent, #28c7a8);
 }
-
 
 /*--------------------------------------------------------------
 # General Styling & Shared Classes
@@ -1250,7 +1250,9 @@ hero-image img {
   background-color: var(--surface-color);
   height: 100%;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
 .home-about .feature-item:hover {
@@ -1339,7 +1341,9 @@ hero-image img {
   height: auto;
   filter: grayscale(100%);
   opacity: 0.7;
-  transition: filter 0.3s, opacity 0.3s;
+  transition:
+    filter 0.3s,
+    opacity 0.3s;
 }
 
 .home-about .certifications .certification-item:hover {
@@ -2288,7 +2292,9 @@ hero-image img {
   padding: 25px;
   height: 100%;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border-left: 4px solid var(--accent-color);
 }
 
@@ -4805,7 +4811,9 @@ hero-image img {
   margin-bottom: 20px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
   height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .testimonials .testimonial-item:hover {
@@ -6882,7 +6890,9 @@ hero-image img {
 
 .pelatihan-title {
   cursor: pointer;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
+  transition:
+    color 0.2s ease,
+    text-decoration 0.2s ease;
 }
 
 .pelatihan-title:hover {
