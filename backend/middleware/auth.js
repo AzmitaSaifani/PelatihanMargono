@@ -13,7 +13,7 @@ export const authAdmin = (req, res, next) => {
 
 // ================= ROLE CHECK =================
 export const onlySuperAdmin = (req, res, next) => {
-  if (req.user.level !== 1) {
+  if (req.user.level_user !== 1) {
     return res.status(403).json({
       ok: false,
       message: "Akses khusus Super Admin",

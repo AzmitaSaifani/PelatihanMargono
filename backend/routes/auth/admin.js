@@ -20,7 +20,7 @@ router.get("/", authAdmin, onlySuperAdmin, (req, res) => {
       aktivasi,
       last_login
     FROM user_tb
-    WHERE level_user = 1
+    WHERE level_user IN (1,2)
     ORDER BY id_user DESC
   `;
 
@@ -37,12 +37,22 @@ router.get("/", authAdmin, onlySuperAdmin, (req, res) => {
    CREATE ADMIN
 ====================================================== */
 router.post("/", authAdmin, onlySuperAdmin, async (req, res) => {
-  const { email, password, nama_lengkap } = req.body;
+  const { email, password, nama_lengkap, level_user, status_user } = req.body;
 
   if (!email || !password || !nama_lengkap) {
     return res.status(400).json({
       message: "Email, password, dan nama lengkap wajib diisi",
     });
+  }
+
+  // Validasi level
+  if (![1, 2].includes(Number(level_user))) {
+    return res.status(400).json({ message: "Level tidak valid" });
+  }
+
+  // Validasi status
+  if (![0, 1].includes(Number(status_user))) {
+    return res.status(400).json({ message: "Status tidak valid" });
   }
 
   try {
@@ -51,30 +61,38 @@ router.post("/", authAdmin, onlySuperAdmin, async (req, res) => {
     const sql = `
       INSERT INTO user_tb
       (email, password, nama_lengkap, level_user, status_user, aktivasi)
-      VALUES (?, ?, ?, 2, 1, 'Y')
+      VALUES (?, ?, ?, ?, ?, 'Y')
     `;
 
-    db.query(sql, [email, hashedPassword, nama_lengkap], (err, result) => {
-      if (err) {
-        if (err.code === "ER_DUP_ENTRY") {
-          return res.status(409).json({ message: "Email sudah terdaftar" });
+    db.query(
+      sql,
+      [email, hashedPassword, nama_lengkap, level_user, status_user],
+      (err, result) => {
+        if (err) {
+          if (err.code === "ER_DUP_ENTRY") {
+            return res.status(409).json({ message: "Email sudah terdaftar" });
+          }
+          console.error("CREATE ADMIN ERROR:", err);
+          return res.status(500).json({ message: "Gagal menambahkan admin" });
         }
-        console.error("CREATE ADMIN ERROR:", err);
-        return res.status(500).json({ message: "Gagal menambahkan admin" });
-      }
 
-      // ✅ LOG ADMIN
-      logAdmin({
-        id_user: user.id_user,
-        email: user.email,
-        nama_lengkap: user.nama_lengkap,
-        aktivitas: "CREATE ADMIN",
-        keterangan: `Menambah admin baru (${email})`,
-        req,
-      });
+        const adminId = req.user.id_user;
+        const adminEmail = req.user.email;
+        const adminNama = req.user.nama_lengkap;
 
-      res.status(201).json({ message: "Admin berhasil ditambahkan" });
-    });
+        // ✅ LOG ADMIN (pakai req.user, bukan user undefined)
+        logAdmin({
+          id_user: adminId,
+          email: adminEmail,
+          nama_lengkap: adminNama,
+          aktivitas: "CREATE ADMIN",
+          keterangan: `Menambah admin baru (${email})`,
+          req,
+        });
+
+        res.status(201).json({ message: "Admin berhasil ditambahkan" });
+      },
+    );
   } catch (err) {
     console.error("HASH ERROR:", err);
     res.status(500).json({ message: "Kesalahan server" });
@@ -108,11 +126,15 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
       return res.status(404).json({ message: "Admin tidak ditemukan" });
     }
 
+    const adminId = req.user.id_user;
+    const adminEmail = req.user.email;
+    const adminNama = req.user.nama_lengkap;
+
     // ✅ LOG ADMIN
     logAdmin({
-      id_user: user.id_user,
-      email: user.email,
-      nama_lengkap: user.nama_lengkap,
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
       aktivitas: "UPDATE ADMIN STATUS",
       keterangan: `Update status admin ID ${id} menjadi ${status_user}`,
       req,
@@ -126,7 +148,9 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
    GET ADMIN YANG SEDANG LOGIN
 ====================================================== */
 router.get("/me", (req, res) => {
-  res.status(200).json({
+  console.log("SESSION DI /me:", req.session.admin);
+
+  res.json({
     ok: true,
     admin: req.session.admin,
   });
@@ -160,11 +184,15 @@ router.delete("/:id", authAdmin, onlySuperAdmin, (req, res) => {
       return res.status(404).json({ message: "Admin tidak ditemukan" });
     }
 
+    const adminId = req.user.id_user;
+    const adminEmail = req.user.email;
+    const adminNama = req.user.nama_lengkap;
+
     // ✅ LOG ADMIN
     logAdmin({
-      id_user: user.id_user,
-      email: user.email,
-      nama_lengkap: user.nama_lengkap,
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
       aktivitas: "DELETE ADMIN",
       keterangan: `Menghapus admin ID ${id}`,
       req,

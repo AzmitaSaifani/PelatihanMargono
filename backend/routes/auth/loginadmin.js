@@ -54,8 +54,8 @@ router.post("/", (req, res) => {
 
     const user = results[0];
 
-    // BUKAN ADMIN
-    if (user.level_user !== 1) {
+    // BUKAN ADMIN/SUPERADMIN
+    if (user.level_user !== 1 && user.level_user !== 2) {
       logAdmin({
         id_user: user.id_user,
         email: user.email,
@@ -89,7 +89,7 @@ router.post("/", (req, res) => {
       id_user: user.id_user,
       email: user.email,
       nama_lengkap: user.nama_lengkap,
-      level: user.level_user,
+      level_user: user.level_user,
     };
 
     req.session.save(() => {

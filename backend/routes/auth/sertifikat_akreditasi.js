@@ -116,26 +116,35 @@ router.get("/detail/:id", (req, res) => {
 });
 
 /* =========================================
-   UPDATE SERTIFIKAT
+   UPDATE SERTIFIKAT (ANTI-GAGAL + LOG)
 ========================================= */
 router.put("/:id", upload.single("foto"), (req, res) => {
   const { id } = req.params;
-  const { histori_akreditasi_id, file_name, keterangan, jenis_sertifikat } =
-    req.body;
+  const { keterangan, jenis_sertifikat, histori_akreditasi_id } = req.body;
   const newFile = req.file ? req.file.filename : null;
 
-  // 1. Cari data lama untuk mendapatkan path file lama
-  const getOldFile = "SELECT file_path FROM sertifikat_akreditasi WHERE id = ?";
-  connection.query(getOldFile, [id], (err, results) => {
+  // 1. Ambil data lama dari database
+  const getOldData = "SELECT * FROM sertifikat_akreditasi WHERE id = ?";
+  connection.query(getOldData, [id], (err, results) => {
     if (err || results.length === 0) {
       return res.status(404).json({ message: "Data tidak ditemukan" });
     }
 
-    const oldFilePath = results[0].file_path;
+    const oldData = results[0];
+
+    // 2. Logika Fallback (Mencegah FK Constraint Error)
+    const finalHistoriId =
+      histori_akreditasi_id || oldData.histori_akreditasi_id;
+    const finalKeterangan =
+      keterangan !== undefined ? keterangan : oldData.keterangan;
+    const finalJenis =
+      jenis_sertifikat !== undefined
+        ? jenis_sertifikat
+        : oldData.jenis_sertifikat;
+
     let sql = "";
     let params = [];
 
-    // 2. Jika ada upload foto baru
     if (newFile) {
       const newPath = `uploads/sertifikat/${newFile}`;
       sql = `
@@ -144,58 +153,57 @@ router.put("/:id", upload.single("foto"), (req, res) => {
         WHERE id = ?
       `;
       params = [
-        histori_akreditasi_id,
-        file_name,
+        finalHistoriId,
+        newFile,
         newPath,
-        keterangan,
-        jenis_sertifikat,
+        finalKeterangan,
+        finalJenis,
         id,
       ];
 
-      // Hapus file lama secara fisik
-      if (oldFilePath && fs.existsSync(oldFilePath)) {
-        fs.unlinkSync(oldFilePath);
+      if (oldData.file_path && fs.existsSync(oldData.file_path)) {
+        try {
+          fs.unlinkSync(oldData.file_path);
+        } catch (e) {
+          console.error("Gagal hapus file lama");
+        }
       }
     } else {
-      // Jika tidak ada upload foto baru
       sql = `
         UPDATE sertifikat_akreditasi 
-        SET histori_akreditasi_id = ?, file_name = ?, keterangan = ?, jenis_sertifikat = ?
+        SET histori_akreditasi_id = ?, keterangan = ?, jenis_sertifikat = ?
         WHERE id = ?
       `;
-      params = [
-        histori_akreditasi_id,
-        file_name,
-        keterangan,
-        jenis_sertifikat,
-        id,
-      ];
+      params = [finalHistoriId, finalKeterangan, finalJenis, id];
     }
 
     // 3. Eksekusi Update
     connection.query(sql, params, (err, result) => {
       if (err) {
-        return res
-          .status(500)
-          .json({ message: "Gagal update", error: err.message });
+        console.error("Database Error:", err.sqlMessage);
+        return res.status(500).json({
+          message: "Gagal update database",
+          detail: err.sqlMessage,
+        });
       }
 
-      // Log Admin (Pastikan req.user ada dari middleware auth jika dipakai)
+      // 4. LOG ADMIN (Hanya dijalankan jika query SQL berhasil)
       const {
         id_user = null,
         email = "-",
         nama_lengkap = "UNKNOWN",
       } = req.user || {};
+
       logAdmin({
         id_user,
         email,
         nama_lengkap,
         aktivitas: "AKSI",
-        keterangan: `Update sertifikat ID ${id}`,
+        keterangan: `Update sertifikat ID ${id} (Judul: ${finalKeterangan})`,
         req,
       });
 
-      res.status(200).json({ message: "✅ Sertifikat berhasil diupdate!" });
+      res.status(200).json({ message: "✅ Sertifikat berhasil diperbarui!" });
     });
   });
 });

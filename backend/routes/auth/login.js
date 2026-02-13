@@ -17,15 +17,37 @@ router.post("/", (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Password salah" });
 
-    res.json({
-      message: "Login berhasil",
-      user: {
-        id: user.id_user,
-        nama: user.nama_lengkap,
-        email: user.email,
-        loginTime: Date.now()
+    // SET SESSION
+    req.session.admin = {
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
+      level_user: user.level_user,
+    };
+
+    // UPDATE LAST LOGIN
+    db.query(
+      "UPDATE user_tb SET last_login = NOW() WHERE id_user = ?",
+      [user.id_user],
+      (updateErr) => {
+        if (updateErr) {
+          console.error("Gagal update last_login:", updateErr);
+        }
+
+        // RESPONSE DIKIRIM SETELAH UPDATE
+        req.session.save(() => {
+          res.json({
+            message: "Login berhasil",
+            user: {
+              id: user.id_user,
+              nama: user.nama_lengkap,
+              email: user.email,
+              loginTime: Date.now(),
+            },
+          });
+        });
       },
-    });
+    );
   });
 });
 

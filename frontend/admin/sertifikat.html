@@ -29,12 +29,185 @@
   <body>
     <!-- ================= NAVBAR ================= -->
     <nav
-      class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
     >
       <div class="container">
-        <a class="navbar-brand fw-bold" href="index.html">
-          ADMIN DIKLAT RSMS
+        <a
+          class="navbar-brand fw-bold d-flex align-items-center gap-2"
+          href="index.html"
+        >
+          <img
+            src="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
+            alt="Logo RSMS"
+            style="height: 36px"
+          />
+          <span>ADMIN DIKLAT RSMS</span>
         </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#adminNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Pelatihan
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="pelatihan.html"
+                    >Manajemen Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pendaftaran.html"
+                    >Data Pendaftar</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="pembayaran.html"
+                    >Verifikasi Pembayaran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kalender.html"
+                    >Kalender Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="kritiksaran.html"
+                    >Kritik dan Saran</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="gallery.html">Gallery</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Tim & Mitra
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="fasilitator.html"
+                    >Fasilitator</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="penyelenggara.html"
+                    >Penyelenggara</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="institusi.html">Institusi</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Profil
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="institusipelatihan.html"
+                    >Institusi Pelatihan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="timkerja.html">Tim Kerja</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+              >
+                Organisasi
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="jabatan.html"
+                    >Kelola Jabatan</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="anggotaorganisasi.html"
+                    >Kelola Anggota</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <i class="bi bi-person-fill"></i>
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a class="dropdown-item" href="logadmin.html">Log Admin</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a
+                id="namaAdmin"
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li>
+                  <a
+                    class="dropdown-item text-danger"
+                    href="#"
+                    onclick="logoutAdmin()"
+                    >Logout</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
@@ -47,13 +220,6 @@
           class="card-header bg-dark text-white d-flex justify-content-between"
         >
           <span>Data Sertifikat</span>
-          <button
-            class="btn btn-sm btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalTambah"
-          >
-            + Tambah
-          </button>
         </div>
 
         <div class="table-responsive mt-3 ms-3 me-3">
@@ -80,75 +246,6 @@
             <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
               Next
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= MODAL TAMBAH ================= -->
-    <div class="modal fade" id="modalTambah">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Tambah Sertifikat</h5>
-            <button
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <form id="formTambah">
-              <div class="mb-3">
-                <label class="form-label">ID Histori Akreditasi</label>
-                <input
-                  name="histori_akreditasi_id"
-                  class="form-control"
-                  type="number"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Nama File/Judul</label>
-                <input
-                  name="file_name"
-                  class="form-control"
-                  placeholder="Contoh: Sertifikat Akreditasi 2024"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Keterangan</label>
-                <input name="keterangan" class="form-control" />
-              </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Upload Foto</label>
-                <div class="mb-3">
-                  <input
-                    type="file"
-                    name="foto"
-                    class="form-control"
-                    accept="image/*"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Jenis Sertifikat</label>
-                <input name="jenis_sertifikat" class="form-control" required />
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-              Batal
-            </button>
-            <button class="btn btn-primary" form="formTambah">Simpan</button>
           </div>
         </div>
       </div>
@@ -324,34 +421,6 @@
         }
       };
 
-      /* ================= TAMBAH DATA ================= */
-      document
-        .getElementById("formTambah")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const form = e.target;
-          const formData = new FormData(form);
-
-          try {
-            const res = await fetch(API, {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!res.ok) throw new Error("Gagal simpan data");
-
-            bootstrap.Modal.getInstance(
-              document.getElementById("modalTambah"),
-            ).hide();
-            form.reset();
-            document.getElementById("previewFoto").style.display = "none";
-            loadData();
-          } catch (err) {
-            alert("Gagal menambahkan sertifikat. Pastikan semua field terisi.");
-            console.error(err);
-          }
-        });
-
       /* ================= OPEN EDIT MODAL ================= */
       window.openEdit = async (id) => {
         try {
@@ -419,17 +488,6 @@
       };
 
       /* ================= PREVIEW IMAGE LOGIC ================= */
-      // Preview untuk Modal Tambah
-      document.querySelector('#formTambah input[name="foto"]').onchange =
-        function () {
-          const [file] = this.files;
-          if (file) {
-            const preview = document.getElementById("previewFoto");
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = "block";
-          }
-        };
-
       // Preview untuk Modal Edit
       document.getElementById("edit_foto").onchange = function () {
         const [file] = this.files;

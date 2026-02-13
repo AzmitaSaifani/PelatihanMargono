@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -82,23 +82,22 @@
 
           const data = await res.json();
 
-          if (!res.ok) {
-            alert(data.message);
-            return;
+          alert(data.message);
+
+          if (res.ok) {
+            // ===============================
+            // SIMPAN IDENTITAS ADMIN
+            // ===============================
+            localStorage.setItem("admin_id", data.admin.id_user);
+            localStorage.setItem("admin_email", data.admin.email);
+            localStorage.setItem("admin_nama", data.admin.nama_lengkap);
+
+            // (simpan full object )
+            localStorage.setItem("admin", JSON.stringify(data.admin));
+
+            // Arahkan ke dashboard admin
+            window.location.href = "index.html";
           }
-
-          // ===============================
-          // SIMPAN IDENTITAS ADMIN
-          // ===============================
-          localStorage.setItem("admin_id", data.admin.id_user);
-          localStorage.setItem("admin_email", data.admin.email);
-          localStorage.setItem("admin_nama", data.admin.nama_lengkap);
-
-          // (simpan full object )
-          localStorage.setItem("admin", JSON.stringify(data.admin));
-
-          // Arahkan ke dashboard admin
-          window.location.href = "index.html";
         });
     </script>
   </body>

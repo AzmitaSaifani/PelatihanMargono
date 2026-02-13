@@ -18,7 +18,7 @@
   }
 
   // Jika bukan admin
-  if (adminData.level !== 1) {
+  if (![1, 2].includes(Number(adminData.level))) {
     localStorage.clear();
     window.location.href = "loginadmin.html";
     return;
