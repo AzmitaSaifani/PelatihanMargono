@@ -85,7 +85,7 @@ router.post("/", authAdmin, onlySuperAdmin, async (req, res) => {
           id_user: adminId,
           email: adminEmail,
           nama_lengkap: adminNama,
-          aktivitas: "CREATE ADMIN",
+          aktivitas: "AKSI",
           keterangan: `Menambah admin baru (${email})`,
           req,
         });
@@ -106,6 +106,13 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
   const { status_user } = req.body;
   const { id } = req.params;
 
+  // admin tidak bisa menonaktifkan dirinya sendiri
+  if (Number(id) === Number(req.user.id_user)) {
+    return res.status(400).json({
+      message: "Tidak bisa menonaktifkan akun sendiri",
+    });
+  }
+
   if (![0, 1].includes(Number(status_user))) {
     return res.status(400).json({ message: "Status tidak valid" });
   }
@@ -113,7 +120,7 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
   const sql = `
     UPDATE user_tb
     SET status_user = ?
-    WHERE id_user = ? AND level_user = 1
+    WHERE id_user = ? AND level_user IN (1,2)
   `;
 
   db.query(sql, [status_user, id], (err, result) => {
@@ -135,7 +142,7 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
       id_user: adminId,
       email: adminEmail,
       nama_lengkap: adminNama,
-      aktivitas: "UPDATE ADMIN STATUS",
+      aktivitas: "AKSI",
       keterangan: `Update status admin ID ${id} menjadi ${status_user}`,
       req,
     });
@@ -157,13 +164,25 @@ router.get("/me", (req, res) => {
 });
 
 /* ======================================================
+   GET ROLE ADMIN LOGIN
+====================================================== */
+router.get("/role", authAdmin, (req, res) => {
+  res.json({
+    ok: true,
+    level_user: req.user.level_user,
+    id_user: req.user.id_user,
+    nama_lengkap: req.user.nama_lengkap,
+  });
+});
+
+/* ======================================================
    DELETE ADMIN
 ====================================================== */
 router.delete("/:id", authAdmin, onlySuperAdmin, (req, res) => {
   const { id } = req.params;
 
   // ❌ Cegah admin menghapus dirinya sendiri
-  if (Number(id) === Number(req.user.id)) {
+  if (Number(id) === Number(req.user.id_user)) {
     return res.status(400).json({
       message: "Tidak bisa menghapus akun admin sendiri",
     });
@@ -193,7 +212,7 @@ router.delete("/:id", authAdmin, onlySuperAdmin, (req, res) => {
       id_user: adminId,
       email: adminEmail,
       nama_lengkap: adminNama,
-      aktivitas: "DELETE ADMIN",
+      aktivitas: "AKSI",
       keterangan: `Menghapus admin ID ${id}`,
       req,
     });

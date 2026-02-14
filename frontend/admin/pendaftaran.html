@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -18,21 +18,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../assets/css/main.css" />
-
-    <style>
-      body {
-        background: #f5f6fa;
-      }
-      .card {
-        border-radius: 10px;
-      }
-      .thumb-foto {
-        width: 70px;
-        height: 70px;
-        object-fit: cover;
-        border-radius: 6px;
-      }
-    </style>
   </head>
 
   <body>
@@ -151,6 +136,9 @@
                     >Histori Akreditasi</a
                   >
                 </li>
+                <li>
+                  <a class="dropdown-item" href="sertifikat.html">Sertifikat</a>
+                </li>
               </ul>
             </li>
 
@@ -174,23 +162,25 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
 
             <li class="nav-item dropdown">
-              <i class="bi bi-person-fill"></i>
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
                 >Admin
               </a>
-              <ul class="dropdown-menu dropdown-menu-dark">
+              <ul class="dropdown-menu dropdown-menu-dark" id="menuSuperAdmin">
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
 
@@ -545,12 +535,12 @@
               item.status === "Menunggu Verifikasi Berkas"
                 ? "warning"
                 : item.status === "Verifikasi Berkas Invalid"
-                ? "danger"
-                : item.status === "Menunggu Pembayaran"
-                ? "primary"
-                : item.status === "Diterima"
-                ? "success"
-                : "secondary";
+                  ? "danger"
+                  : item.status === "Menunggu Pembayaran"
+                    ? "primary"
+                    : item.status === "Diterima"
+                      ? "success"
+                      : "secondary";
 
             tableBody.innerHTML += `
             <tr>
@@ -631,7 +621,7 @@
 
           infoData.innerText = `Showing ${start + 1} to ${Math.min(
             end,
-            filteredData.length
+            filteredData.length,
           )} of ${filteredData.length} entries`;
 
           prevBtn.disabled = currentPage === 1;
@@ -685,7 +675,7 @@
           }
 
           new bootstrap.Modal(
-            document.getElementById("modalPreviewFile")
+            document.getElementById("modalPreviewFile"),
           ).show();
         };
 
@@ -757,7 +747,8 @@
       });
     </script>
 
-    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="admin_guard.js"></script>
+    <script src="admin_nav_role.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

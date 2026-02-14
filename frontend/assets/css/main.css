@@ -6798,9 +6798,17 @@ hero-image img {
   background-color: transparent;
 }
 
+/* Memastikan background row tidak menimpa sticky header saat scroll */
+.table-responsive {
+  overflow-y: auto;
+  max-height: 450px;
+}
+
 /* Biar border & hover tetap rapi */
 .table thead th {
   vertical-align: middle;
+  text-align: center; /* Opsional: agar teks di tengah */
+  padding: 10px 5px; /* Memberi ruang agar lebih cantik */
 }
 
 .card-footer button:disabled {
@@ -6898,4 +6906,113 @@ hero-image img {
 .pelatihan-title:hover {
   color: var(--accent-color);
   text-decoration: underline;
+}
+
+.stat-card {
+  border-radius: 14px;
+  padding: 20px;
+  color: #fff;
+  min-height: 130px;
+}
+.stat-title {
+  font-size: 14px;
+  opacity: 0.9;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.card {
+  border-radius: 10px;
+}
+.thumb-foto {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.badge-login {
+  background-color: #198754;
+}
+.badge-logout {
+  background-color: #6c757d;
+}
+.badge-error {
+  background-color: #dc3545;
+}
+.badge-aksi {
+  background-color: #0d6efd;
+}
+
+.login-card {
+  max-width: 420px;
+  margin: auto;
+  margin-top: 80px;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+/* ================= ORGANIZATION TREE ================= */
+.org-wrapper {
+  overflow-x: auto;
+  padding: 30px;
+}
+
+.org-level {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 70px;
+  position: relative;
+}
+
+.org-card {
+  width: 220px;
+  background: #fff;
+  border-radius: 14px;
+  text-align: center;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  position: relative;
+}
+
+.org-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #5cb85c;
+  margin-bottom: 10px;
+}
+
+.org-name {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.org-jabatan {
+  font-size: 13px;
+  color: #666;
+}
+
+/* garis komando */
+.line-command {
+  position: absolute;
+  width: 2px;
+  height: 40px;
+  background: #333;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* garis koordinasi */
+.line-coordinate {
+  position: absolute;
+  top: -25px;
+  left: 0;
+  width: 100%;
+  border-top: 2px dashed #999;
 }

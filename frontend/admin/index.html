@@ -18,23 +18,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../assets/css/main.css" />
-
-    <style>
-      .stat-card {
-        border-radius: 14px;
-        padding: 20px;
-        color: #fff;
-        min-height: 130px;
-      }
-      .stat-title {
-        font-size: 14px;
-        opacity: 0.9;
-      }
-      .stat-value {
-        font-size: 28px;
-        font-weight: bold;
-      }
-    </style>
   </head>
 
   <body class="bg-light">
@@ -153,6 +136,9 @@
                     >Histori Akreditasi</a
                   >
                 </li>
+                <li>
+                  <a class="dropdown-item" href="sertifikat.html">Sertifikat</a>
+                </li>
               </ul>
             </li>
 
@@ -176,23 +162,25 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
 
             <li class="nav-item dropdown">
-              <i class="bi bi-person-fill"></i>
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
                 >Admin
               </a>
-              <ul class="dropdown-menu dropdown-menu-dark">
+              <ul class="dropdown-menu dropdown-menu-dark" id="menuSuperAdmin">
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
 
@@ -356,10 +344,6 @@
       </div>
     </div>
 
-    <!-- ================= JS ================= -->
-    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="http://localhost:5000/static/admin_check.js"></script>
-
     <script>
       async function logoutAdmin() {
         if (!confirm("Apakah Anda yakin ingin logout?")) return;
@@ -367,14 +351,11 @@
         try {
           await fetch("http://localhost:5000/api/admin/logout", {
             method: "POST",
-            credentials: "include", // ⬅️ WAJIB
+            credentials: "include",
           });
         } catch (err) {
           console.error("Gagal logout:", err);
         } finally {
-          // bersihkan local storage
-          localStorage.clear();
-
           // redirect ke login
           window.location.href = "loginadmin.html";
         }
@@ -383,7 +364,7 @@
       async function loadAdminProfile() {
         try {
           const res = await fetch("http://localhost:5000/api/admin/me", {
-            credentials: "include", // ⬅️ WAJIB untuk session
+            credentials: "include", // session
           });
 
           if (!res.ok) throw new Error("Unauthorized");
@@ -409,7 +390,7 @@
         try {
           const res = await fetch(
             "http://localhost:5000/api/dashboard/statistik",
-            { credentials: "include" }, // ⬅️ opsional tapi bagus
+            { credentials: "include" },
           );
           const data = await res.json();
 
@@ -459,5 +440,10 @@
 
       loadDashboardStatistik();
     </script>
+
+    <script src="admin_guard.js"></script>
+    <script src="admin_nav_role.js"></script>
+
+    <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

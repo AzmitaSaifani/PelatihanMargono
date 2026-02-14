@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -18,25 +18,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../assets/css/main.css" />
-
-    <style>
-      body {
-        background: #f5f6fa;
-      }
-      .card {
-        border-radius: 10px;
-      }
-      .thumb-foto {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 6px;
-      }
-    </style>
   </head>
 
   <body>
-    <!-- NAVBAR -->
     <!-- ================= NAVBAR ================= -->
     <nav
       class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
@@ -152,6 +136,9 @@
                     >Histori Akreditasi</a
                   >
                 </li>
+                <li>
+                  <a class="dropdown-item" href="sertifikat.html">Sertifikat</a>
+                </li>
               </ul>
             </li>
 
@@ -175,23 +162,25 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
 
             <li class="nav-item dropdown">
-              <i class="bi bi-person-fill"></i>
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
                 >Admin
               </a>
-              <ul class="dropdown-menu dropdown-menu-dark">
+              <ul class="dropdown-menu dropdown-menu-dark" id="menuSuperAdmin">
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
 
@@ -544,7 +533,7 @@
             (item) =>
               !keyword ||
               item.nama?.toLowerCase().includes(keyword) ||
-              item.link_terkait?.toLowerCase().includes(keyword)
+              item.link_terkait?.toLowerCase().includes(keyword),
           );
 
           currentPage = 1;
@@ -609,7 +598,7 @@
           });
           infoData.innerText = `Showing ${start + 1} to ${Math.min(
             end,
-            filteredData.length
+            filteredData.length,
           )} of ${filteredData.length} entries`;
 
           prevBtn.disabled = currentPage === 1;
@@ -653,7 +642,7 @@
               preview.style.display = "none";
 
               const modal = bootstrap.Modal.getInstance(
-                document.getElementById("modalTambahInstitusi")
+                document.getElementById("modalTambahInstitusi"),
               );
               if (modal) modal.hide();
 
@@ -671,7 +660,7 @@
         window.openEditInstitusi = async (id) => {
           try {
             const res = await fetch(
-              `http://localhost:5000/api/institusi/${id}`
+              `http://localhost:5000/api/institusi/${id}`,
             );
             const data = await res.json();
 
@@ -686,15 +675,14 @@
             document.getElementById("edit_link").value =
               institusi.link_terkait || "";
             document.getElementById("edit_status").value = String(
-              institusi.status
+              institusi.status,
             );
 
-            document.getElementById(
-              "edit_previewFoto"
-            ).src = `http://localhost:5000/uploads/institusi/${institusi.foto}`;
+            document.getElementById("edit_previewFoto").src =
+              `http://localhost:5000/uploads/institusi/${institusi.foto}`;
 
             new bootstrap.Modal(
-              document.getElementById("modalEditInstitusi")
+              document.getElementById("modalEditInstitusi"),
             ).show();
           } catch (err) {
             alert("Gagal memuat data institusi");
@@ -712,7 +700,7 @@
 
             const id = document.getElementById("edit_id").value;
             const formData = new FormData(
-              document.getElementById("formEditInstitusi")
+              document.getElementById("formEditInstitusi"),
             );
 
             const res = await fetch(
@@ -720,7 +708,7 @@
               {
                 method: "PUT",
                 body: formData,
-              }
+              },
             );
 
             const data = await res.json();
@@ -728,7 +716,7 @@
 
             if (res.ok) {
               bootstrap.Modal.getInstance(
-                document.getElementById("modalEditInstitusi")
+                document.getElementById("modalEditInstitusi"),
               ).hide();
               loadInstitusi();
             }
@@ -756,7 +744,8 @@
         loadInstitusi();
       });
     </script>
-    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="admin_guard.js"></script>
+    <script src="admin_nav_role.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

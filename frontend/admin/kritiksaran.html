@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
@@ -17,19 +17,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../assets/css/main.css" />
-
-    <style>
-      body {
-        background: #f5f6fa;
-      }
-      .card {
-        border-radius: 10px;
-      }
-    </style>
   </head>
 
   <body>
-    <!-- ================= NAVBAR ================= -->
     <!-- ================= NAVBAR ================= -->
     <nav
       class="navbar navbar-expand-lg navbar-dark bg-accent bg-dark shadow-sm sticky-top"
@@ -141,9 +131,12 @@
                   <a class="dropdown-item" href="timkerja.html">Tim Kerja</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html"
-                    >Struktur Organisasi</a
+                  <a class="dropdown-item" href="historiakreditasi.html"
+                    >Histori Akreditasi</a
                   >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="sertifikat.html">Sertifikat</a>
                 </li>
               </ul>
             </li>
@@ -168,23 +161,25 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="strukturorganisasi.html">Struktur Organisasi</a>
+                  <a class="dropdown-item" href="strukturorganisasi.html"
+                    >Struktur Organisasi</a
+                  >
                 </li>
               </ul>
             </li>
 
             <li class="nav-item dropdown">
-              <i class="bi bi-person-fill"></i>
               <a
                 class="nav-link dropdown-toggle"
                 href="#"
                 data-bs-toggle="dropdown"
                 >Admin
               </a>
-              <ul class="dropdown-menu dropdown-menu-dark">
+              <ul class="dropdown-menu dropdown-menu-dark" id="menuSuperAdmin">
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
 
@@ -309,7 +304,7 @@
             (d) =>
               d.nama_lengkap?.toLowerCase().includes(keyword) ||
               d.kritik?.toLowerCase().includes(keyword) ||
-              d.saran?.toLowerCase().includes(keyword)
+              d.saran?.toLowerCase().includes(keyword),
           );
 
           currentPage = 1;
@@ -374,7 +369,7 @@
 
           infoData.innerText = `Showing ${start + 1} to ${Math.min(
             end,
-            filteredData.length
+            filteredData.length,
           )} of ${filteredData.length} entries`;
 
           prevBtn.disabled = currentPage === 1;
@@ -397,7 +392,7 @@
 
         window.aktifkan = async (id) => {
           const ok = confirm(
-            "Yakin ingin MENGAKTIFKAN kritik ini?\n\nKritik akan ditampilkan ke publik."
+            "Yakin ingin MENGAKTIFKAN kritik ini?\n\nKritik akan ditampilkan ke publik.",
           );
 
           if (!ok) return;
@@ -414,7 +409,7 @@
 
         window.nonaktifkan = async (id) => {
           const ok = confirm(
-            "Yakin ingin MENONAKTIFKAN kritik ini?\n\nKritik tidak akan tampil di halaman publik."
+            "Yakin ingin MENONAKTIFKAN kritik ini?\n\nKritik tidak akan tampil di halaman publik.",
           );
 
           if (!ok) return;
@@ -431,7 +426,7 @@
 
         window.hapus = async (id) => {
           const ok = confirm(
-            "⚠️ Yakin ingin menghapus kritik & saran ini?\n\nData yang dihapus TIDAK dapat dikembalikan."
+            "⚠️ Yakin ingin menghapus kritik & saran ini?\n\nData yang dihapus TIDAK dapat dikembalikan.",
           );
 
           if (!ok) return;
@@ -450,7 +445,8 @@
       });
     </script>
 
-    <script src="http://localhost:5000/static/admin_check.js"></script>
+    <script src="admin_guard.js"></script>
+    <script src="admin_nav_role.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
