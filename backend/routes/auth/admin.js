@@ -80,7 +80,7 @@ router.post("/", authAdmin, onlySuperAdmin, async (req, res) => {
         const adminEmail = req.user.email;
         const adminNama = req.user.nama_lengkap;
 
-        // ✅ LOG ADMIN (pakai req.user, bukan user undefined)
+        // LOG ADMIN (pakai req.user, bukan user undefined)
         logAdmin({
           id_user: adminId,
           email: adminEmail,
@@ -137,7 +137,7 @@ router.put("/:id/status", authAdmin, onlySuperAdmin, (req, res) => {
     const adminEmail = req.user.email;
     const adminNama = req.user.nama_lengkap;
 
-    // ✅ LOG ADMIN
+    // LOG ADMIN
     logAdmin({
       id_user: adminId,
       email: adminEmail,
@@ -207,7 +207,7 @@ router.delete("/:id", authAdmin, onlySuperAdmin, (req, res) => {
     const adminEmail = req.user.email;
     const adminNama = req.user.nama_lengkap;
 
-    // ✅ LOG ADMIN
+    //  LOG ADMIN
     logAdmin({
       id_user: adminId,
       email: adminEmail,

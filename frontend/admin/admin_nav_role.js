@@ -26,11 +26,8 @@
             </li>
           `,
           );
-          console.log("Menu Superadmin Berhasil Ditambahkan");
         }
       }
-    } else {
-      console.log("Bukan Superadmin, level:", data.admin?.level_user);
     }
   } catch (err) {
     console.error("Role error:", err);

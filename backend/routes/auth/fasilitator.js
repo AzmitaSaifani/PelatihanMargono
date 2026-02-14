@@ -1,5 +1,7 @@
 import express from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
+import { logAdmin } from "./adminLogger.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -22,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // === CREATE: Tambah fasilitator ===
-router.post("/", upload.single("foto"), (req, res) => {
+router.post("/", authAdmin, upload.single("foto"), (req, res) => {
   const { nama, keterangan, author, status } = req.body;
   const foto = req.file ? req.file.filename : null;
 
@@ -32,6 +34,10 @@ router.post("/", upload.single("foto"), (req, res) => {
       .json({ message: "❌ Nama fasilitator wajib diisi." });
   }
 
+  const adminId = req.user.id_user;
+  const adminEmail = req.user.email;
+  const adminNama = req.user.nama_lengkap;
+
   const sql = `
     INSERT INTO fasilitator_tb (foto, nama, keterangan, created_at, updated_at, author, status)
     VALUES (?, ?, ?, NOW(), NOW(), ?, ?)
@@ -40,28 +46,52 @@ router.post("/", upload.single("foto"), (req, res) => {
 
   connection.query(sql, values, (err, result) => {
     if (err) {
-      console.error("❌ Gagal menambahkan fasilitator:", err);
+      console.error("CREATE ERROR:", err);
       return res.status(500).json({
-        message: "❌ Gagal menambahkan fasilitator",
-        error: err.message,
+        message: "Gagal menambahkan fasilitator",
       });
     }
+
+    // LOG HANYA SAAT BERHASIL
+    logAdmin({
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
+      aktivitas: "AKSI",
+      keterangan: `CREATE FASILITATOR [ID:${result.insertId}] ${nama}`,
+      req,
+    });
+
     res.status(201).json({
-      message: "✅ fasilitator berhasil ditambahkan!",
+      message: "Fasilitator berhasil ditambahkan",
       id_fasilitator: result.insertId,
     });
   });
 });
 
+router.get("/public", (req, res) => {
+  const sql = `
+    SELECT * FROM fasilitator_tb
+    WHERE status = '1'
+    ORDER BY id_fasilitator DESC
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Gagal mengambil data" });
+    }
+    res.json(results);
+  });
+});
+
 // === READ: Lihat semua fasilitator ===
-router.get("/", (req, res) => {
-  const { admin } = req.query;
+router.get("/", authAdmin, (req, res) => {
+  let sql;
 
-  // Jika admin = 1 → ambil semua data
-  let sql = "SELECT * FROM fasilitator_tb ORDER BY id_fasilitator DESC";
-
-  // Jika bukan admin → hanya data aktif
-  if (!admin) {
+  // Jika superadmin atau admin → ambil semua
+  if ([1, 2].includes(Number(req.user.level_user))) {
+    sql = "SELECT * FROM fasilitator_tb ORDER BY id_fasilitator DESC";
+  } else {
     sql =
       "SELECT * FROM fasilitator_tb WHERE status = '1' ORDER BY id_fasilitator DESC";
   }
@@ -93,10 +123,14 @@ router.get("/:id", (req, res) => {
 });
 
 // === UPDATE: Edit fasilitator ===
-router.put("/:id", upload.single("foto"), (req, res) => {
+router.put("/:id", authAdmin, upload.single("foto"), (req, res) => {
   const { id } = req.params;
   const { nama, keterangan, author, status } = req.body;
   const fotoBaru = req.file ? req.file.filename : null;
+
+  const adminId = req.user.id_user;
+  const adminEmail = req.user.email;
+  const adminNama = req.user.nama_lengkap;
 
   const getOld = "SELECT foto FROM fasilitator_tb WHERE id_fasilitator = ?";
   connection.query(getOld, [id], (err, results) => {
@@ -107,6 +141,8 @@ router.put("/:id", upload.single("foto"), (req, res) => {
     }
 
     const oldFoto = results[0].foto;
+    const oldNama = results[0].nama;
+
     if (fotoBaru && oldFoto) {
       const oldPath = path.join("uploads/fasilitator", oldFoto);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
@@ -128,19 +164,36 @@ router.put("/:id", upload.single("foto"), (req, res) => {
 
     connection.query(sql, values, (err) => {
       if (err) {
-        console.error("❌ Gagal memperbarui fasilitator:", err);
-        return res
-          .status(500)
-          .json({ message: "❌ Gagal memperbarui fasilitator" });
+        console.error("UPDATE ERROR:", err);
+        return res.status(500).json({
+          message: "Gagal memperbarui fasilitator",
+        });
       }
-      res.status(200).json({ message: "✅ fasilitator berhasil diperbarui!" });
+
+      // LOG SAAT BERHASIL
+      logAdmin({
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
+        aktivitas: "AKSI",
+        keterangan: `UPDATE FASILITATOR [ID:${id}] dari "${oldNama}" menjadi "${nama}"`,
+        req,
+      });
+
+      res.status(200).json({
+        message: "Fasilitator berhasil diperbarui",
+      });
     });
   });
 });
 
 // === DELETE: Hapus fasilitator ===
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
+
+  const adminId = req.user.id_user;
+  const adminEmail = req.user.email;
+  const adminNama = req.user.nama_lengkap;
 
   const getFoto = "SELECT foto FROM fasilitator_tb WHERE id_fasilitator = ?";
   connection.query(getFoto, [id], (err, results) => {
@@ -150,6 +203,7 @@ router.delete("/:id", (req, res) => {
         .json({ message: "❌ fasilitator tidak ditemukan." });
     }
 
+    const oldNama = results[0].nama;
     const foto = results[0].foto;
     if (foto) {
       const filePath = path.join("uploads/fasilitator", foto);
@@ -159,12 +213,25 @@ router.delete("/:id", (req, res) => {
     const deleteSql = "DELETE FROM fasilitator_tb WHERE id_fasilitator = ?";
     connection.query(deleteSql, [id], (err) => {
       if (err) {
-        console.error("❌ Gagal menghapus fasilitator:", err);
-        return res
-          .status(500)
-          .json({ message: "❌ Gagal menghapus fasilitator" });
+        console.error("DELETE ERROR:", err);
+        return res.status(500).json({
+          message: "Gagal menghapus fasilitator",
+        });
       }
-      res.status(200).json({ message: "✅ fasilitator berhasil dihapus!" });
+
+      // LOG SETELAH BERHASIL
+      logAdmin({
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
+        aktivitas: "AKSI",
+        keterangan: `DELETE FASILITATOR [ID:${id}] ${oldNama}`,
+        req,
+      });
+
+      res.json({
+        message: "Fasilitator berhasil dihapus",
+      });
     });
   });
 });

@@ -51,20 +51,6 @@ export function logAdmin({
       if (err) {
         console.error("❌ Gagal simpan log admin:", err);
       }
-    }
+    },
   );
-}
-
-// =====================
-// LOG ADMIN LOGOUT
-// =====================
-export function logAdminLogout({ id_user, email, nama_lengkap, req }) {
-  logAdmin({
-    id_user: id_user ?? null,
-    email: email ?? "-",
-    nama_lengkap: nama_lengkap ?? "UNKNOWN",
-    aktivitas: "LOGOUT",
-    keterangan: "Admin logout",
-    req,
-  });
 }

@@ -479,7 +479,6 @@
         } catch (err) {
           console.error("Gagal logout:", err);
         } finally {
-          localStorage.clear();
           window.location.href = "loginadmin.html";
         }
       }
@@ -528,7 +527,9 @@
         // =========================
         async function loadFasilitator() {
           try {
-            const res = await fetch(`${API}?admin=1`);
+            const res = await fetch(`${API}`, {
+              credentials: "include",
+            });
             const json = await res.json();
 
             allData = Array.isArray(json) ? json : [];
@@ -567,11 +568,11 @@
 
           if (filteredData.length === 0) {
             tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center text-muted">
-            Data tidak ditemukan
-          </td>
-        </tr>`;
+          <tr>
+            <td colspan="6" class="text-center text-muted">
+              Data tidak ditemukan
+            </td>
+          </tr>`;
 
             infoData.innerText = "Showing 0 entries";
             prevBtn.disabled = nextBtn.disabled = true;
@@ -648,6 +649,7 @@
             const res = await fetch(API, {
               method: "POST",
               body: formData,
+              credentials: "include",
             });
 
             const data = await res.json();
@@ -712,6 +714,7 @@
             const res = await fetch(`${API}/${id}`, {
               method: "PUT",
               body: formData,
+              credentials: "include",
             });
 
             const data = await res.json();
@@ -729,11 +732,25 @@
         window.hapusFasilitator = async (id) => {
           if (!confirm("Hapus fasilitator ini?")) return;
 
-          const res = await fetch(`${API}/${id}`, { method: "DELETE" });
-          const data = await res.json();
-          alert(data.message);
+          try {
+            const res = await fetch(`${API}/${id}`, {
+              method: "DELETE",
+              credentials: "include",
+            });
 
-          loadFasilitator();
+            const data = await res.json();
+
+            if (!res.ok) {
+              alert(data.message || "Gagal menghapus fasilitator");
+              return;
+            }
+
+            alert(data.message);
+            loadFasilitator();
+          } catch (err) {
+            console.error("DELETE ERROR:", err);
+            alert("Terjadi kesalahan koneksi ke server");
+          }
         };
 
         // =========================

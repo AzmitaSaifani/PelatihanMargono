@@ -1,29 +1,35 @@
 import express from "express";
-import { logAdminLogout } from "./adminLogger.js";
+import { logAdmin } from "./adminLogger.js";
 
 const router = express.Router();
 
 router.post("/", (req, res) => {
   const admin = req.session?.admin;
 
-  // 🔍 DEBUG (boleh hapus setelah yakin)
-  console.log("SESSION LOGOUT:", req.session);
+  console.log("SESSION LOGOUT:", req.session); // hapus di production
 
   if (admin) {
-    logAdminLogout({
-      id_user: admin?.id_user ?? null,
-      email: admin?.email ?? "-",
-      nama_lengkap: admin?.nama_lengkap ?? "UNKNOWN",
+    const adminId = admin.id_user;
+    const adminEmail = admin.email;
+    const adminNama = admin.nama_lengkap;
+
+    logAdmin({
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
+      aktivitas: "LOGOUT",
+      keterangan: `Admin [ID:${adminId}] ${adminNama} melakukan logout`,
       req,
     });
   }
 
-  // hancurkan session
-  req.session?.destroy?.((err) => {
+  req.session.destroy((err) => {
     if (err) {
       console.error("SESSION DESTROY ERROR:", err);
       return res.status(500).json({ message: "Gagal logout" });
     }
+
+    res.clearCookie("connect.sid");
 
     res.json({ message: "Logout berhasil" });
   });
