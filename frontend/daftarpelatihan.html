@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -435,7 +435,7 @@
                     <div class="col-md-6">
                       <label class="form-label">Status Pegawai:</label>
                       <select
-                        name="status_Pegawai"
+                        name="status_pegawai"
                         class="form-control"
                         required
                       >
@@ -445,6 +445,46 @@
                           ASN Non Kemenkes
                         </option>
                         <option value="Non ASN">Non ASN</option>
+                      </select>
+                    </div>
+
+                    <!-- PANGKAT / GOLONGAN -->
+                    <div class="col-md-6 d-none" id="pangkatContainer">
+                      <label class="form-label">Pangkat / Golongan:</label>
+                      <select
+                        name="pangkat_golongan"
+                        id="pangkatGolongan"
+                        class="form-control"
+                      >
+                        <option value="">Pilih Pangkat/Golongan</option>
+                        <option value="PPPK">PPPK</option>
+                        <option value="PENGATUR-II/c">PENGATUR-II/c</option>
+                        <option value="PENGATUR TINGKAT I-II/d">
+                          PENGATUR TINGKAT I-II/d
+                        </option>
+                        <option value="PENATA MUDA-III/a">
+                          PENATA MUDA-III/a
+                        </option>
+                        <option value="PENATA MUDA TINGKAT I-III/b">
+                          PENATA MUDA TINGKAT I-III/b
+                        </option>
+                        <option value="PENATA-III/c">PENATA-III/c</option>
+                        <option value="PENATA TINGKAT I-III/d">
+                          PENATA TINGKAT I-III/d
+                        </option>
+                        <option value="PEMBINA-IV/a">PEMBINA-IV/a</option>
+                        <option value="PEMBINA TINGKAT I-IV/b">
+                          PEMBINA TINGKAT I-IV/b
+                        </option>
+                        <option value="PEMBINA UTAMA MUDA-IV/c">
+                          PEMBINA UTAMA MUDA-IV/c
+                        </option>
+                        <option value="PEMBINA UTAMA MADYA-IV/d">
+                          PEMBINA UTAMA MADYA-IV/d
+                        </option>
+                        <option value="PEMBINA UTAMA-IV/e">
+                          PEMBINA UTAMA-IV/e
+                        </option>
                       </select>
                     </div>
 
@@ -539,6 +579,23 @@
                       </select>
                     </div>
 
+                    <!-- JABATAN (DINAMIS BERDASARKAN JENIS NAKES) -->
+                    <div class="col-md-6 d-none" id="jabatanContainer">
+                      <label class="form-label">Jabatan:</label>
+                      <select
+                        name="jabatan"
+                        id="jabatanSelect"
+                        class="form-control"
+                      >
+                        <option value="">Pilih Jabatan</option>
+                      </select>
+                      <small class="text-danger"
+                        >*Contoh jika profesi adalah perawat maka untuk ASN
+                        diisi Perawat Ahli Madya/Muda/Pertama, Perawat
+                        Penyelia/Mahir/Terampil. Untuk Non ASN diisi Perawat
+                      </small>
+                    </div>
+
                     <div class="col-md-6">
                       <label class="form-label">Kabupaten Kantor:</label>
                       <input
@@ -581,7 +638,7 @@
                         accept=".jpg, .jpeg, .png"
                       />
                       <small class="text-danger">
-                        Background merah, menggunakan kemeja putih, menghadap
+                        *Background merah, menggunakan kemeja putih, menghadap
                         lurus ke depan. Untuk yang berhijab menggunakan kerudung
                         warna hitam/gelap, dan dasi panjang warna hitam/gelap.
                         Maksimal ukuran 1 Mb (format: JPG/JPEG/PNG).
@@ -604,6 +661,124 @@
           <!-- script Daftar Pelatihan -->
           <script>
             document.addEventListener("DOMContentLoaded", () => {
+              // =====================================================
+              // ELEMENT REFERENCES
+              // =====================================================
+              const form = document.getElementById("formPendaftaran");
+
+              const statusPegawaiSelect = document.querySelector(
+                '[name="status_pegawai"]',
+              );
+              const pangkatContainer =
+                document.getElementById("pangkatContainer");
+              const pangkatSelect = document.getElementById("pangkatGolongan");
+
+              const jenisNakesSelect = document.querySelector(
+                '[name="jenis_nakes"]',
+              );
+              const jabatanContainer =
+                document.getElementById("jabatanContainer");
+              const jabatanSelect = document.getElementById("jabatanSelect");
+
+              const modalKonfirmasi = new bootstrap.Modal(
+                document.getElementById("modalKonfirmasi"),
+              );
+
+              // Pastikan saat pertama load pangkat jabatan tersembunyi
+              pangkatContainer.classList.add("d-none");
+              pangkatSelect.removeAttribute("required");
+
+              // ==========================
+              // SHOW / HIDE PANGKAT ASN
+              // ==========================
+              statusPegawaiSelect.addEventListener("change", function () {
+                const value = this.value;
+
+                // Default: sembunyikan
+                pangkatContainer.classList.add("d-none");
+                pangkatSelect.removeAttribute("required");
+                pangkatSelect.value = "";
+
+                // Hanya tampil kalau ASN
+                if (value === "ASN Kemenkes" || value === "ASN Non Kemenkes") {
+                  pangkatContainer.classList.remove("d-none");
+                  pangkatSelect.setAttribute("required", "required");
+                }
+              });
+
+              // =====================================================
+              // DATA JABATAN PER PROFESI
+              // =====================================================
+              const jabatanOptions = {
+                Dokter: [
+                  "Dokter Ahli Madya",
+                  "Dokter Ahli Muda",
+                  "Dokter Ahli Pertama",
+                  "Dokter",
+                ],
+                Perawat: [
+                  "Perawat Ahli Madya",
+                  "Perawat Ahli Muda",
+                  "Perawat Ahli Pertama",
+                  "Perawat Penyelia",
+                  "Perawat Mahir",
+                  "Perawat Terampil",
+                  "Perawat",
+                ],
+                Bidan: [
+                  "Bidan Ahli Madya",
+                  "Bidan Ahli Muda",
+                  "Bidan Ahli Pertama",
+                  "Bidan Penyelia",
+                  "Bidan Mahir",
+                  "Bidan Terampil",
+                  "Bidan",
+                ],
+                Nutrisionis: [
+                  "Nutrisionis Ahli Madya",
+                  "Nutrisionis Ahli Muda",
+                  "Nutrisionis Ahli Pertama",
+                  "Nutrisionis Terampil Penyelia",
+                  "Nutrisionis Terampil Pelaksana Lanjutan",
+                  "Nutrisionis Terampil Penyelia",
+                  "Nutrisionis",
+                ],
+                Apoteker: [
+                  "Apoteker Ahli Utama",
+                  "Apoteker Ahli Madya",
+                  "Apoteker Ahli Muda",
+                  "Apoteker Ahli Pertama",
+                  "Apoteker",
+                ],
+                "Lain-lain": ["Lain-lain"],
+              };
+
+              // =====================================================
+              // JABATAN DINAMIS
+              // =====================================================
+              jenisNakesSelect.addEventListener("change", function () {
+                const selected = this.value;
+
+                jabatanSelect.innerHTML =
+                  '<option value="">Pilih Jabatan</option>';
+
+                if (jabatanOptions[selected]) {
+                  jabatanContainer.classList.remove("d-none");
+                  jabatanSelect.setAttribute("required", "required");
+
+                  jabatanOptions[selected].forEach((jabatan) => {
+                    const option = document.createElement("option");
+                    option.value = jabatan;
+                    option.textContent = jabatan;
+                    jabatanSelect.appendChild(option);
+                  });
+                } else {
+                  jabatanContainer.classList.add("d-none");
+                  jabatanSelect.removeAttribute("required");
+                  jabatanSelect.value = "";
+                }
+              });
+
               // ==========================================
               // Format tanggal ISO → DD/MM/YYYY
               // ==========================================
@@ -655,21 +830,26 @@
 
               loadPelatihan();
 
-              // ==========================
-              // HANDLE SUBMIT → BUKA MODAL
-              // ==========================
-              const form = document.getElementById("formPendaftaran");
-              const modalKonfirmasi = new bootstrap.Modal(
-                document.getElementById("modalKonfirmasi")
-              );
-
+              // =====================================================
+              // SUBMIT HANDLER
+              // =====================================================
               form.addEventListener("submit", async (e) => {
                 e.preventDefault();
+
+                const jenisNakes = form.querySelector(
+                  '[name="jenis_nakes"]',
+                ).value;
+                const jabatan = form.querySelector('[name="jabatan"]').value;
+
+                if (jenisNakes && !jabatan) {
+                  alert("Silakan pilih jabatan sesuai jenis nakes.");
+                  return;
+                }
 
                 const nik = form.querySelector('[name="nik"]').value;
                 const nip = form.querySelector('[name="nip"]').value;
                 const id_pelatihan = form.querySelector(
-                  '[name="id_pelatihan"]'
+                  '[name="id_pelatihan"]',
                 ).value;
 
                 if (!id_pelatihan) {
@@ -681,7 +861,7 @@
                 // CEK DUPLIKAT
                 // ======================
                 const cek = await fetch(
-                  `http://localhost:5000/api/pendaftaran/check-duplikat?id_pelatihan=${id_pelatihan}&nik=${nik}&nip=${nip}`
+                  `http://localhost:5000/api/pendaftaran/check-duplikat?id_pelatihan=${id_pelatihan}&nik=${nik}&nip=${nip}`,
                 );
                 const cekData = await cek.json();
 
@@ -710,7 +890,7 @@
               function showDuplicateModal(msg) {
                 document.getElementById("duplikatMessage").innerText = msg;
                 const modal = new bootstrap.Modal(
-                  document.getElementById("modalDuplikat")
+                  document.getElementById("modalDuplikat"),
                 );
                 modal.show();
               }
@@ -729,7 +909,7 @@
                       {
                         method: "POST",
                         body: formData,
-                      }
+                      },
                     );
 
                     const data = await res.json();
@@ -738,24 +918,40 @@
                       document.getElementById("modalGagalMessage").innerText =
                         data.message;
                       new bootstrap.Modal(
-                        document.getElementById("modalGagal")
+                        document.getElementById("modalGagal"),
                       ).show();
                       return;
                     }
 
                     new bootstrap.Modal(
-                      document.getElementById("modalBerhasil")
+                      document.getElementById("modalBerhasil"),
                     ).show();
+
                     form.reset();
                     modalKonfirmasi.hide();
+
+                    // Reset dynamic fields
+                    jabatanContainer.classList.add("d-none");
+                    jabatanSelect.removeAttribute("required");
+                    jabatanSelect.innerHTML =
+                      '<option value="">Pilih Jabatan</option>';
+
+                    pangkatContainer.classList.add("d-none");
+                    pangkatSelect.removeAttribute("required");
                   } catch (err) {
                     document.getElementById("modalGagalMessage").innerText =
                       "Terjadi kesalahan jaringan, coba beberapa saat lagi.";
                     new bootstrap.Modal(
-                      document.getElementById("modalGagal")
+                      document.getElementById("modalGagal"),
                     ).show();
                   }
                 });
+
+              // =====================================================
+              // TRIGGER INITIAL STATE
+              // =====================================================
+              jenisNakesSelect.dispatchEvent(new Event("change"));
+              statusPegawaiSelect.dispatchEvent(new Event("change"));
             });
           </script>
         </div>

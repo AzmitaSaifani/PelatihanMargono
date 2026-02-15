@@ -125,7 +125,7 @@ router.get("/:id/cek-upload", (req, res) => {
       });
     }
 
-    // ✅ BOLEH AKSES HALAMAN
+    //  BOLEH AKSES HALAMAN
     res.json({ ok: true });
   });
 });
@@ -175,6 +175,7 @@ router.post(
       jenis_kelamin,
       agama,
       status_pegawai,
+      pangkat_golongan,
       kabupaten_asal,
       alamat_kantor,
       alamat_rumah,
@@ -183,9 +184,30 @@ router.post(
       str,
       provinsi_asal,
       jenis_nakes,
+      jabatan,
       kabupaten_kantor,
       provinsi_kantor,
     } = req.body;
+
+    // ======================
+    // VALIDASI LOGIKA JABATAN
+    // ======================
+
+    if (!jenis_nakes) {
+      jabatan = null;
+    }
+
+    if (jenis_nakes === "Lain-lain") {
+      jabatan = "Lain-lain";
+    }
+
+    // Kalau bukan ASN → pangkat null
+    if (
+      status_pegawai !== "ASN Kemenkes" &&
+      status_pegawai !== "ASN Non Kemenkes"
+    ) {
+      pangkat_golongan = null;
+    }
 
     // VALIDASI
     if (
@@ -261,6 +283,10 @@ router.post(
             });
           }
 
+          if (status_pegawai === "Non ASN") {
+            pangkat_golongan = null;
+          }
+
           // ======================
           // INSERT PENDAFTARAN
           // ======================
@@ -268,10 +294,10 @@ router.post(
           INSERT INTO pendaftaran_tb (
             id_pelatihan, harga_pelatihan,  nik, nip, gelar_depan, nama_peserta, gelar_belakang,
             asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
-            status_pegawai, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, str, provinsi_asal, jenis_nakes, kabupaten_kantor,
+            status_pegawai, pangkat_golongan, kabupaten_asal, alamat_kantor, alamat_rumah, no_wa, email, str, provinsi_asal, jenis_nakes, jabatan, kabupaten_kantor,
             provinsi_kantor, surat_tugas, foto_4x6, status
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
           const values = [
@@ -289,6 +315,7 @@ router.post(
             jenis_kelamin,
             agama,
             status_pegawai,
+            pangkat_golongan,
             kabupaten_asal,
             alamat_kantor,
             alamat_rumah,
@@ -297,6 +324,7 @@ router.post(
             str,
             provinsi_asal,
             jenis_nakes,
+            jabatan,
             kabupaten_kantor,
             provinsi_kantor,
             surat_tugas,
@@ -347,7 +375,7 @@ router.post(
                 };
 
                 const waktuPelaksanaan = `${formatTanggal(
-                  tanggal_mulai
+                  tanggal_mulai,
                 )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
                 // ======================
@@ -437,16 +465,16 @@ router.post(
                   message: "✅ Pendaftaran berhasil",
                   id_pendaftaran: newId,
                 });
-              }
+              },
             );
           });
-        }
+        },
       );
     });
-  }
+  },
 );
 // ======================
-// 🟨 UPDATE PENDAFTARAN
+// UPDATE PENDAFTARAN
 // ======================
 router.put(
   "/:id",
@@ -469,6 +497,7 @@ router.put(
       jenis_kelamin,
       agama,
       status_pegawai,
+      pangkat_golongan,
       kabupaten_asal,
       alamat_kantor,
       alamat_rumah,
@@ -478,6 +507,7 @@ router.put(
       str,
       provinsi_asal,
       jenis_nakes,
+      jabatan,
       kabupaten_kantor,
       provinsi_kantor,
       status,
@@ -513,7 +543,7 @@ router.put(
       UPDATE pendaftaran_tb SET
         nik=?, nip=?, gelar_depan=?, nama_peserta=?, gelar_belakang=?, asal_instansi=?,
         tempat_lahir=?, tanggal_lahir=?, pendidikan=?, jenis_kelamin=?, agama=?,
-        status_pegawai=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?, tanggal_daftar=?, str=?, provinsi_asal=?, jenis_nakes=?, kabupaten_kantor=?,
+        status_pegawai=?, pangkat_golongan=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?, no_wa=?, email=?, tanggal_daftar=?, str=?, provinsi_asal=?, jenis_nakes=?, jabatan=?, kabupaten_kantor=?,
         provinsi_kantor=?, status=?, surat_tugas=?, foto_4x6=?
       WHERE id_pendaftaran=?
     `;
@@ -531,6 +561,7 @@ router.put(
         jenis_kelamin,
         agama,
         status_pegawai,
+        pangkat_golongan,
         kabupaten_asal,
         alamat_kantor,
         alamat_rumah,
@@ -540,6 +571,7 @@ router.put(
         str,
         provinsi_asal,
         jenis_nakes,
+        jabatan,
         kabupaten_kantor,
         provinsi_kantor,
         status,
@@ -561,11 +593,11 @@ router.put(
           .json({ message: "✅ Data pendaftaran berhasil diperbarui!" });
       });
     });
-  }
+  },
 );
 
 // ======================
-// 🟥 DELETE PENDAFTARAN
+//  DELETE PENDAFTARAN
 // ======================
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
@@ -652,7 +684,7 @@ router.put("/:id/accept", (req, res) => {
     };
 
     const waktuPelaksanaan = `${formatTanggal(
-      tanggal_mulai
+      tanggal_mulai,
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
     // 🔐 TOKEN PEMBAYARAN
@@ -685,6 +717,11 @@ router.put("/:id/accept", (req, res) => {
             <p>Yth. <b>${nama_peserta}</b>,</p>
 
             <p>
+              Terima kasih telah mendaftar pelatihan di
+              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
+            </p>
+
+            <p>
               Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b>.
             </p>
 
@@ -706,7 +743,7 @@ router.put("/:id/accept", (req, res) => {
                 <td><b>Biaya</b></td>
                 <td>:</td>
                 <td><b>Rp ${Number(harga_pelatihan).toLocaleString(
-                  "id-ID"
+                  "id-ID",
                 )}</b></td>
               </tr>
             </table>
@@ -865,7 +902,7 @@ router.put("/:id/reject", (req, res) => {
     };
 
     const waktuPelaksanaan = `${formatTanggal(
-      tanggal_mulai
+      tanggal_mulai,
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
     // ======================
@@ -1068,7 +1105,7 @@ router.get("/export/excel", async (req, res) => {
         .promise()
         .query(
           "SELECT nama_pelatihan FROM pelatihan_tb WHERE id_pelatihan = ?",
-          [id_pelatihan]
+          [id_pelatihan],
         );
       if (pel.length) namaPelatihan = pel[0].nama_pelatihan;
     }
@@ -1189,11 +1226,11 @@ router.get("/export/excel", async (req, res) => {
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=Data_Pendaftaran_${Date.now()}.xlsx`
+      `attachment; filename=Data_Pendaftaran_${Date.now()}.xlsx`,
     );
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     await workbook.xlsx.write(res);
