@@ -22,16 +22,32 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|webp/;
+    const ext = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase(),
+    );
+    const mime = allowedTypes.test(file.mimetype);
+
+    if (ext && mime) {
+      cb(null, true);
+    } else {
+      cb(new Error("File harus berupa gambar"));
+    }
+  },
+});
 
 // === CREATE: Tambah pelatihan ===
 router.post("/", upload.single("flyer_url"), (req, res) => {
   // ===============================
   // AMBIL IDENTITAS ADMIN (BENAR)
   // ===============================
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
+  const adminId = req.session.adminId;
+  const adminEmail = req.session.adminEmail;
+  const adminNama = req.session.adminNama;
 
   if (!adminId) {
     return res.status(401).json({
@@ -370,11 +386,11 @@ router.get("/export/excel", async (req, res) => {
     // ======================
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=Data_Pelatihan_${Date.now()}.xlsx`
+      `attachment; filename=Data_Pelatihan_${Date.now()}.xlsx`,
     );
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     await workbook.xlsx.write(res);
@@ -444,9 +460,9 @@ router.get("/", (req, res) => {
 
 // === UPDATE: Edit pelatihan ===
 router.put("/:id", upload.single("flyer_url"), (req, res) => {
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
+  const adminId = req.session.adminId;
+  const adminEmail = req.session.adminEmail;
+  const adminNama = req.session.adminNama;
 
   if (!adminId) {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
@@ -546,9 +562,9 @@ router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
   // ambil header admin
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
+  const adminId = req.session.adminId;
+  const adminEmail = req.session.adminEmail;
+  const adminNama = req.session.adminNama;
 
   if (!adminId) {
     return res.status(401).json({

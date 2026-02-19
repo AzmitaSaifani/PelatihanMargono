@@ -116,11 +116,6 @@
 
             alert(data.message);
 
-            localStorage.setItem("admin_id", data.admin.id_user);
-            localStorage.setItem("admin_email", data.admin.email);
-            localStorage.setItem("admin_nama", data.admin.nama_lengkap);
-            localStorage.setItem("admin", JSON.stringify(data.admin));
-
             window.location.href = "index.html";
           });
       });

@@ -11,6 +11,10 @@
       type="image/png"
       sizes="512x512"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
 
     <title>Admin - Fasilitator</title>
 
@@ -416,19 +420,18 @@
             <td>${item.kategori_akreditasi ?? "-"}</td>
             <td>${item.nomor_sk ?? "-"}</td>
             <td>${item.masa_berlaku ?? "-"}</td>
-            <td>
-              <button
-                class="btn btn-warning btn-sm"
-                onclick="openEditHistori(${item.id})"
-              >
-                Edit
-              </button>
-              <button
-                class="btn btn-danger btn-sm"
-                onclick="hapusHistori(${item.id})"
-              >
-                Hapus
-              </button>
+
+            <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <button class="btn btn-sm text-warning p-0"
+                            onclick="openEditHistori(${item.id})"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Edit">
+                      <i class="bi bi-pencil-square fs-5"></i>
+                    </button>
+                  </div>
+                </td>
             </td>
           </tr>
         `;
@@ -442,6 +445,14 @@
           prevBtn.disabled = currentPage === 1;
           nextBtn.disabled = end >= filteredData.length;
         }
+
+        // INIT TOOLTIP ULANG
+        const tooltipTriggerList = document.querySelectorAll(
+          '[data-bs-toggle="tooltip"]',
+        );
+        tooltipTriggerList.forEach((el) => {
+          new bootstrap.Tooltip(el);
+        });
 
         // =========================
         // PAGINATION

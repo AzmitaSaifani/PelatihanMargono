@@ -8,6 +8,8 @@ import path from "path";
 import authRoutes from "./routes/index.js";
 import { fileURLToPath } from "url";
 import captchaRoute from "./routes/auth/captcha.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
@@ -21,10 +23,29 @@ app.use(
   cors({
     origin: "http://localhost:8080",
     credentials: true,
-  })
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
+
+app.use("/uploads", (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  next();
+});
 
 // ===========================
 // STATIC FILE: Uploads
@@ -51,16 +72,16 @@ app.get("/", (req, res) => {
 app.use(
   session({
     name: "admin-session",
-    secret: "pelatihan-margono-secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: false, //nanti diubah kalo mau deploy, jadi true
       sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 2,
     },
-  })
+  }),
 );
 
 app.use("/api", authRoutes);

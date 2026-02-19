@@ -7016,3 +7016,58 @@ hero-image img {
   width: 100%;
   border-top: 2px dashed #999;
 }
+
+.gallery-card {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-img {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* sudah dikecilkan */
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.gallery-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-content {
+  padding: 12px 14px;
+}
+
+.simple-gallery-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  height: 2.8em; /* 2 baris */
+  overflow: hidden;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.dropdown-menu {
+  min-width: 140px;
+  border-radius: 10px;
+  z-index: 9999 !important;
+}
+
+.btn-link {
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  transform: scale(1.15);
+  transition: 0.2s ease;
+}

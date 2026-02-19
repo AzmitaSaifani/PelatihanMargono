@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Gallery - MediTrust Bootstrap Template</title>
+    <title>Gallery - DIKLAT RSMS</title>
     <meta name="description" content="" />
     <meta name="keywords" content="" />
 
@@ -274,34 +274,25 @@
 
           list.forEach((item) => {
             container.innerHTML += `
-              <div class="col-lg-4 col-md-6 gallery-item isotope-item filter-${
-                item.kategori
-              }">
-
+              <div class="col-lg-4 col-md-6 gallery-item isotope-item filter-${item.kategori}">
                 <div class="gallery-card">
 
                   <div class="gallery-img">
-
-                    <!-- Klik untuk zoom -->
                     <a href="http://localhost:5000/uploads/gallery/${item.foto}"
-                       class="glightbox"
-                       data-gallery="gallery-images">
-                      <img src="http://localhost:5000/uploads/gallery/${
-                        item.foto
-                      }"
-                           class="img-fluid"
-                           style="cursor: zoom-in;"
-                           alt="Gallery Image">
+                      class="glightbox"
+                      data-gallery="gallery-images">
+                      <img src="http://localhost:5000/uploads/gallery/${item.foto}"
+                          alt="Gallery Image">
                     </a>
+                  </div>
 
-                    <h5 class="simple-gallery-title mt-2">
+                  <div class="gallery-content">
+                    <h5 class="simple-gallery-title">
                       ${item.keterangan || ""}
                     </h5>
-
                   </div>
 
                 </div>
-
               </div>
             `;
           });
