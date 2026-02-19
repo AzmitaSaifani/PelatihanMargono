@@ -7,6 +7,7 @@ import cors from "cors";
 import path from "path";
 import authRoutes from "./routes/index.js";
 import { fileURLToPath } from "url";
+import captchaRoute from "./routes/auth/captcha.js";
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use(
 );
 
 app.use("/api", authRoutes);
+app.use("/captcha", captchaRoute);
 
 // ===========================
 const PORT = 5000;

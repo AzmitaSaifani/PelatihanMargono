@@ -6,6 +6,25 @@ const router = express.Router();
 
 router.post("/", (req, res) => {
   const { email, password } = req.body;
+
+  // ===============================
+  // CEK CAPTCHA
+  // ===============================
+  if (!req.session.captchaAnswer) {
+    return res.status(400).json({
+      message: "Captcha tidak ditemukan. Silakan refresh.",
+    });
+  }
+
+  if (parseInt(captcha) !== req.session.captchaAnswer) {
+    return res.status(400).json({
+      message: "Captcha salah.",
+    });
+  }
+
+  // Hapus captcha setelah dipakai
+  req.session.captchaAnswer = null;
+
   const sql = "SELECT * FROM user_tb WHERE email = ? AND status_user = 1";
 
   db.query(sql, [email], async (err, results) => {

@@ -8,6 +8,11 @@ const router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
+// =====================
+// CAPTCHA
+// =====================
+// import captchaRoute from "./auth/captcha.js";
+
 // AUTH & USER
 import registerRoute from "./auth/register.js";
 import loginRoute from "./auth/login.js";
@@ -15,6 +20,7 @@ import logAdminRoute from "./auth/logadmin.js";
 import loginAdminRoute from "./auth/loginadmin.js";
 import adminRoutes from "./auth/admin.js";
 import logoutAdminRoute from "./auth/logoutadmin.js";
+import logEmailRoute from "./auth/logemail.js";
 
 // CORE DATA
 import pelatihanRoutes from "./auth/pelatihan.js";
@@ -45,6 +51,11 @@ import jabatanRoutes from "./auth/jabatan.js";
 import anggotaJabatanRoutes from "./auth/anggota_jabatan.js";
 import anggotaOrganisasiRoutes from "./auth/anggota_organisasi.js";
 
+/* =====================
+   CAPTCHA
+===================== */
+// router.use("/captcha", captchaRoute);
+
 /* ===========================
    AUTH
 =========================== */
@@ -54,6 +65,7 @@ router.use("/log-admin", logAdminRoute);
 router.use("/loginadmin", loginAdminRoute);
 router.use("/admin", adminRoutes);
 router.use("/admin/logout", logoutAdminRoute);
+router.use("/log-email", logEmailRoute);
 
 /* ===========================
    DASHBOARD ADMIN

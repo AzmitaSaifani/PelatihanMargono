@@ -2,13 +2,14 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <title>Admin - Tim Kerja</title>
 
     <link
       rel="icon"
       href="/pelatihanmargono/backend/uploads/foto/LogoWeb.png"
       type="image/png"
     />
+
+    <title>Admin - Log Email</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -207,39 +208,62 @@
         </div>
       </div>
     </nav>
+    <!-- ================= END NAVBAR ================= -->
 
-    <!-- ================= CONTENT ================= -->
     <div class="container py-4">
-      <h2 class="fw-bold mb-4">👥 Tim Kerja</h2>
+      <h2 class="fw-bold mb-4">📧 Log Email</h2>
 
-      <div class="card">
-        <div
-          class="card-header bg-dark text-white d-flex justify-content-between"
-        >
-          <span>Data Tim Kerja</span>
-          <button
-            class="btn btn-sm btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#modalTambah"
-          >
-            + Tambah
-          </button>
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+          Riwayat Pengiriman Email
         </div>
 
-        <div class="table-responsive mt-3 ms-3 me-3">
-          <table class="table table-bordered">
+        <!-- FILTER -->
+        <div class="row g-2 mt-3 ms-2 me-2">
+          <div class="col-md-3">
+            <select id="filterStatus" class="form-select">
+              <option value="">Semua Status</option>
+              <option value="TERKIRIM">Terkirim</option>
+              <option value="GAGAL">Gagal</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <input
+              type="text"
+              id="searchLog"
+              class="form-control"
+              placeholder="Cari nama / email / subject..."
+            />
+          </div>
+        </div>
+
+        <!-- TABLE -->
+        <div
+          class="table-responsive ms-3 me-3 mt-3"
+          style="max-height: 450px; overflow-y: auto"
+        >
+          <table class="table table-bordered table-hover table-sm">
             <thead class="thead-telur-asin">
               <tr>
                 <th>No</th>
-                <th>Jabatan</th>
-                <th>Aksi</th>
+                <th>Waktu</th>
+                <th>Nama Penerima</th>
+                <th>Email</th>
+                <th>Jenis Email</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Error</th>
               </tr>
             </thead>
-            <tbody id="tableTim"></tbody>
+            <tbody id="tableLogEmail"></tbody>
           </table>
         </div>
 
-        <div class="card-footer d-flex justify-content-between">
+        <!-- FOOTER -->
+        <div
+          class="card-footer d-flex justify-content-between align-items-center"
+        >
           <div id="infoData" class="text-muted"></div>
           <div>
             <button class="btn btn-outline-secondary btn-sm" id="prevBtn">
@@ -253,217 +277,156 @@
       </div>
     </div>
 
-    <!-- ================= MODAL TAMBAH ================= -->
-    <div class="modal fade" id="modalTambah">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Tambah Tim Kerja</h5>
-            <button
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <form id="formTambah">
-              <input type="hidden" name="institusi_id" value="1" />
-
-              <div class="mb-3">
-                <label class="form-label">Jabatan</label>
-                <input name="jabatan" class="form-control" required />
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-              Batal
-            </button>
-            <button class="btn btn-primary" form="formTambah">Simpan</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= MODAL EDIT ================= -->
-    <div class="modal fade" id="modalEdit">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Edit Tim Kerja</h5>
-            <button
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <form id="formEdit">
-              <input type="hidden" id="edit_id" />
-
-              <div class="mb-3">
-                <label class="form-label">Jabatan</label>
-                <input id="edit_jabatan" name="jabatan" class="form-control" />
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-              Batal
-            </button>
-            <button class="btn btn-primary" form="formEdit">
-              Simpan Perubahan
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ================= SCRIPT ================= -->
     <script>
+      // ================= LOGOUT =================
       async function logoutAdmin() {
-        if (!confirm("Yakin logout?")) return;
-        await fetch("http://localhost:5000/api/admin/logout", {
-          method: "POST",
-          credentials: "include",
-        });
-        localStorage.clear();
-        window.location.href = "loginadmin.html";
-      }
+        if (!confirm("Yakin ingin logout?")) return;
 
-      const API = "http://localhost:5000/api/tim-kerja";
-
-      let allData = [];
-      let filteredData = [];
-      let currentPage = 1;
-      const rowsPerPage = 5;
-
-      const tableBody = document.getElementById("tableTim");
-      const infoData = document.getElementById("infoData");
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
-
-      async function loadData() {
-        const res = await fetch(API);
-        const json = await res.json();
-
-        allData = Array.isArray(json) ? json : [];
-        filteredData = [...allData];
-        currentPage = 1;
-
-        renderTable();
-      }
-
-      function renderTable() {
-        tableBody.innerHTML = "";
-
-        if (filteredData.length === 0) {
-          tableBody.innerHTML = `
-      <tr>
-        <td colspan="4" class="text-center text-muted">
-          Data tidak ditemukan
-        </td>
-      </tr>
-    `;
-          infoData.innerText = "Showing 0 entries";
-          prevBtn.disabled = nextBtn.disabled = true;
-          return;
-        }
-
-        const start = (currentPage - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-        const pageData = filteredData.slice(start, end);
-
-        pageData.forEach((item, index) => {
-          tableBody.innerHTML += `
-      <tr>
-        <td>${start + index + 1}</td>
-        <td>${item.jabatan}</td>
-        <td>
-          <button class="btn btn-warning btn-sm" onclick="openEdit(${item.id})">Edit</button>
-          <button class="btn btn-danger btn-sm" onclick="hapus(${item.id})">Hapus</button>
-        </td>
-      </tr>
-    `;
-        });
-
-        infoData.innerText = `Showing ${start + 1} to ${Math.min(end, filteredData.length)} of ${filteredData.length} entries`;
-        prevBtn.disabled = currentPage === 1;
-        nextBtn.disabled = end >= filteredData.length;
-      }
-
-      prevBtn.onclick = () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderTable();
-        }
-      };
-
-      nextBtn.onclick = () => {
-        if (currentPage * rowsPerPage < filteredData.length) {
-          currentPage++;
-          renderTable();
-        }
-      };
-
-      window.openEdit = (id) => {
-        const data = allData.find((d) => d.id == id);
-
-        edit_id.value = data.id;
-        edit_jabatan.value = data.jabatan;
-
-        new bootstrap.Modal(document.getElementById("modalEdit")).show();
-      };
-
-      document
-        .getElementById("formTambah")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const body = Object.fromEntries(new FormData(e.target));
-
-          await fetch(API, {
+        try {
+          await fetch("http://localhost:5000/api/admin/logout", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
+            credentials: "include",
+          });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          localStorage.clear();
+          window.location.href = "loginadmin.html";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const API = "http://localhost:5000/api/log-email";
+
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        const tableBody = document.getElementById("tableLogEmail");
+        const filterStatus = document.getElementById("filterStatus");
+        const searchInput = document.getElementById("searchLog");
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        function formatTanggal(waktu) {
+          if (!waktu) return "-";
+
+          const date = new Date(waktu);
+
+          const hari = String(date.getDate()).padStart(2, "0");
+          const bulan = String(date.getMonth() + 1).padStart(2, "0");
+          const tahun = date.getFullYear();
+
+          const jam = String(date.getHours()).padStart(2, "0");
+          const menit = String(date.getMinutes()).padStart(2, "0");
+          const detik = String(date.getSeconds()).padStart(2, "0");
+
+          return `${hari}/${bulan}/${tahun} ${jam}:${menit}:${detik}`;
+        }
+
+        function badgeStatus(status) {
+          if (status === "TERKIRIM")
+            return `<span class="badge bg-success">TERKIRIM</span>`;
+          return `<span class="badge bg-danger">GAGAL</span>`;
+        }
+
+        async function loadLog() {
+          try {
+            const res = await fetch(API, { credentials: "include" });
+            const json = await res.json();
+            allData = Array.isArray(json) ? json : [];
+            applyFilter();
+          } catch (err) {
+            console.error("Gagal ambil data:", err);
+          }
+        }
+
+        function applyFilter() {
+          const status = filterStatus.value;
+          const keyword = searchInput.value.toLowerCase();
+
+          filteredData = allData.filter((d) => {
+            const matchStatus = !status || d.status === status;
+
+            const matchSearch =
+              !keyword ||
+              d.nama_penerima?.toLowerCase().includes(keyword) ||
+              d.email?.toLowerCase().includes(keyword) ||
+              d.subject?.toLowerCase().includes(keyword);
+
+            return matchStatus && matchSearch;
           });
 
-          bootstrap.Modal.getInstance(
-            document.getElementById("modalTambah"),
-          ).hide();
-          loadData();
-        });
+          currentPage = 1;
+          renderTable();
+        }
 
-      document
-        .getElementById("formEdit")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+        function renderTable() {
+          tableBody.innerHTML = "";
 
-          const id = edit_id.value;
-          const body = Object.fromEntries(new FormData(e.target));
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="9" class="text-center text-muted">
+                  Data tidak ditemukan
+                </td>
+              </tr>`;
+            infoData.innerText = "Showing 0 entries";
+            return;
+          }
 
-          await fetch(`${API}/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((item, index) => {
+            tableBody.innerHTML += `
+              <tr>
+                <td>${start + index + 1}</td>
+                <td>${formatTanggal(item.sent_at)}</td>
+                <td>${item.nama_penerima ?? "-"}</td>
+                <td>${item.email ?? "-"}</td>
+                <td>${item.jenis_email ?? "-"}</td>
+                <td>${item.subject ?? "-"}</td>
+                <td>${badgeStatus(item.status)}</td>
+                <td style="max-width:200px; font-size:11px;">
+                  ${item.error_message ?? "-"}
+                </td>
+              </tr>
+            `;
           });
 
-          bootstrap.Modal.getInstance(
-            document.getElementById("modalEdit"),
-          ).hide();
-          loadData();
-        });
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(
+            end,
+            filteredData.length,
+          )} of ${filteredData.length} entries`;
 
-      window.hapus = async (id) => {
-        if (!confirm("Hapus data ini?")) return;
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
+        }
 
-        await fetch(`${API}/${id}`, { method: "DELETE" });
-        loadData();
-      };
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
 
-      document.addEventListener("DOMContentLoaded", loadData);
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
+
+        filterStatus.addEventListener("change", applyFilter);
+        searchInput.addEventListener("input", applyFilter);
+
+        loadLog();
+      });
     </script>
 
     <script src="admin_guard.js"></script>

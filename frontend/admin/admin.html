@@ -187,6 +187,9 @@
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <li>
+                  <a class="dropdown-item" href="logemail.html">Log Email</a>
+                </li>
                 <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
@@ -383,28 +386,20 @@
         // ===============================
         // Format Tangal
         // ===============================
-        function formatTanggal(datetime) {
-          if (!datetime) return "-";
+        function formatTanggal(waktu) {
+          if (!waktu) return "-";
 
-          const date = new Date(datetime);
+          const date = new Date(waktu);
 
-          const tanggal = date.toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-            timeZone: "Asia/Jakarta",
-          });
+          const hari = String(date.getDate()).padStart(2, "0");
+          const bulan = String(date.getMonth() + 1).padStart(2, "0");
+          const tahun = date.getFullYear();
 
-          const jam = date
-            .toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-              timeZone: "Asia/Jakarta",
-            })
-            .replace(".", ":");
+          const jam = String(date.getHours()).padStart(2, "0");
+          const menit = String(date.getMinutes()).padStart(2, "0");
+          const detik = String(date.getSeconds()).padStart(2, "0");
 
-          return `${tanggal}, ${jam} WIB`;
+          return `${hari}/${bulan}/${tahun} ${jam}:${menit}:${detik}`;
         }
 
         // Render Button Aksi Aktif dan Nonaktif

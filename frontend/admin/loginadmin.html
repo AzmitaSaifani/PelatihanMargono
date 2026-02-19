@@ -47,45 +47,83 @@
           <input type="password" id="password" class="form-control" required />
         </div>
 
+        <!-- CAPTCHA -->
+        <div class="mb-3">
+          <label class="form-label">
+            Verifikasi Keamanan:
+            <span id="captchaQuestion" class="fw-bold text-primary"></span>
+          </label>
+          <input
+            type="text"
+            id="captchaInput"
+            class="form-control"
+            placeholder="Masukkan jawaban captcha"
+            required
+          />
+          <small class="text-danger d-none" id="captchaError">
+            Jawaban captcha salah.
+          </small>
+        </div>
+
         <button class="btn btn-dark w-100" type="submit">Login</button>
       </form>
     </div>
 
     <script>
-      document
-        .getElementById("formLoginAdmin")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+      const API_BASE = "http://localhost:5000";
 
-          const email = document.getElementById("email").value;
-          const password = document.getElementById("password").value;
-
-          const res = await fetch("http://localhost:5000/api/loginadmin", {
-            method: "POST",
+      async function loadCaptcha() {
+        try {
+          const res = await fetch(`${API_BASE}/captcha`, {
             credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
           });
 
           const data = await res.json();
+          document.getElementById("captchaQuestion").innerText = data.question;
+          document.getElementById("captchaInput").value = "";
+          document.getElementById("captchaError").classList.add("d-none");
+        } catch (err) {
+          console.error("Gagal load captcha:", err);
+        }
+      }
 
-          alert(data.message);
+      document.addEventListener("DOMContentLoaded", () => {
+        loadCaptcha();
 
-          if (res.ok) {
-            // ===============================
-            // SIMPAN IDENTITAS ADMIN
-            // ===============================
+        document
+          .getElementById("formLoginAdmin")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const captcha = document.getElementById("captchaInput").value;
+
+            const res = await fetch(`${API_BASE}/api/loginadmin`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password, captcha }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              alert(data.message);
+              loadCaptcha(); // regenerate kalau gagal
+              return;
+            }
+
+            alert(data.message);
+
             localStorage.setItem("admin_id", data.admin.id_user);
             localStorage.setItem("admin_email", data.admin.email);
             localStorage.setItem("admin_nama", data.admin.nama_lengkap);
-
-            // (simpan full object )
             localStorage.setItem("admin", JSON.stringify(data.admin));
 
-            // Arahkan ke dashboard admin
             window.location.href = "index.html";
-          }
-        });
+          });
+      });
     </script>
   </body>
 </html>

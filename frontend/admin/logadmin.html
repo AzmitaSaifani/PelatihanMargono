@@ -179,6 +179,9 @@
                 <li>
                   <a class="dropdown-item" href="logadmin.html">Log Admin</a>
                 </li>
+                <li>
+                  <a class="dropdown-item" href="logemail.html">Log Email</a>
+                </li>
                 <!-- item superadmin akan ditambahkan lewat JS -->
               </ul>
             </li>
@@ -320,8 +323,20 @@
           return "badge-aksi";
         }
 
-        function formatTanggal(w) {
-          return new Date(w).toLocaleString("id-ID");
+        function formatTanggal(waktu) {
+          if (!waktu) return "-";
+
+          const date = new Date(waktu);
+
+          const hari = String(date.getDate()).padStart(2, "0");
+          const bulan = String(date.getMonth() + 1).padStart(2, "0");
+          const tahun = date.getFullYear();
+
+          const jam = String(date.getHours()).padStart(2, "0");
+          const menit = String(date.getMinutes()).padStart(2, "0");
+          const detik = String(date.getSeconds()).padStart(2, "0");
+
+          return `${hari}/${bulan}/${tahun} ${jam}:${menit}:${detik}`;
         }
 
         async function loadLog() {
