@@ -32,6 +32,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+
+        scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+
+        imgSrc: ["'self'", "data:", "http://localhost:5000"],
+
+        connectSrc: ["'self'", "http://localhost:5000"],
+
+        frameSrc: ["'self'", "http://localhost:5000"],
+
+        frameAncestors: ["'self'", "http://localhost:8080"],
+      },
+    },
   }),
 );
 

@@ -600,33 +600,68 @@
                   </td>
 
                   <td>
-                    ${
-                      lockedBerkasStatus.includes(item.status)
-                        ? `
-                          <button class="btn btn-secondary btn-sm" disabled>
-                            Verifikasi Berkas
-                          </button>
-                        `
-                        : `
-                          <button class="btn btn-success btn-sm" onclick="verifikasiValid(${item.id_pendaftaran})">
-                            Berkas Valid
-                          </button>
+                    <div class="d-flex justify-content-center align-items-center gap-2">
+                      ${
+                        item.status === "Menunggu Verifikasi Berkas"
+                          ? `
+                            <button class="btn btn-sm text-success p-0"
+                                    onclick="verifikasiValid(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Berkas Valid">
+                              <i class="bi bi-check-square-fill fs-5"></i>
+                            </button>
 
-                          <button class="btn btn-danger btn-sm" onclick="verifikasiInvalid(${item.id_pendaftaran})">
-                            Berkas Tidak Valid
-                          </button>
-                        `
-                    }
+                            <button class="btn btn-sm text-danger p-0"
+                                    onclick="verifikasiInvalid(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Berkas Tidak Valid">
+                              <i class="bi bi-ban fs-5"></i>
+                            </button>
 
-                    <button class="btn btn-sm text-danger p-0"
-                            onclick="hapusPendaftaran(${item.id_pendaftaran})"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Delete">
-                      <i class="bi bi-trash fs-5"></i>
-                    </button>
-                  </td>
+                            <button class="btn btn-sm text-danger p-0"
+                                    onclick="hapusPendaftaran(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Hapus">
+                              <i class="bi bi-trash fs-5"></i>
+                            </button>
+                          `
+                          : item.status === "Verifikasi Berkas Invalid"
+                            ? `
+                            <button class="btn btn-sm text-success p-0"
+                                    onclick="verifikasiValid(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Berkas Valid">
+                              <i class="bi bi-check-square-fill fs-5"></i>
+                            </button>
 
+                            <button class="btn btn-sm text-danger p-0"
+                                    onclick="hapusPendaftaran(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Hapus">
+                              <i class="bi bi-trash fs-5"></i>
+                            </button>
+                          `
+                            : item.status === "Menunggu Pembayaran"
+                              ? `
+                            <button class="btn btn-sm text-danger p-0"
+                                    onclick="hapusPendaftaran(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Hapus">
+                              <i class="bi bi-trash fs-5"></i>
+                            </button>
+                          `
+                              : item.status === "Diterima"
+                                ? `
+                            <button class="btn btn-sm text-danger p-0"
+                                    onclick="hapusPendaftaran(${item.id_pendaftaran})"
+                                    data-bs-toggle="tooltip"
+                                    title="Hapus">
+                              <i class="bi bi-trash fs-5"></i>
+                            </button>
+                          `
+                                : ""
+                      }
+                    </div>
                 </tr>`;
           });
 

@@ -263,22 +263,6 @@
           </div>
         </div>
 
-        <div class="col-md-2 mt-2 ms-3">
-          <input
-            type="text"
-            id="searchPembayaran"
-            placeholder="Cari..."
-            class="form-control"
-          />
-        </div>
-
-        <!-- <div class="col-md-4">
-          <select id="filterPelatihan" class="form-select">
-            <option value="">Semua Pelatihan (Setelah Hari Ini)</option>
-          </select>
-        </div>
-      </div> -->
-
         <div class="table-responsive mt-2 ms-3 me-3" style="max-height: 450px">
           <table class="table table-bordered table-hover table-sm mb-3">
             <thead class="thead-telur-asin">
@@ -549,27 +533,59 @@
                 </td>
 
                 <td>
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    ${
+                      item.status_bayar === "PENDING"
+                        ? `
+                          <button class="btn btn-sm text-success p-0"
+                                  onclick="validasiPembayaran(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Pembayaran Valid">
+                            <i class="bi bi-check-square-fill fs-5"></i>
+                          </button>
 
-                  <button
-                    class="btn btn-success btn-sm"
-                    onclick="validasiPembayaran(${item.id_pembayaran})">
-                    Valid
-                  </button>
+                          <button class="btn btn-sm text-danger p-0"
+                                  onclick="invalidPembayaran(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Pembayaran Invalid">
+                            <i class="bi bi-ban fs-5"></i>
+                          </button>
 
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick="invalidPembayaran(${item.id_pembayaran})">
-                    Invalid
-                  </button>
+                          <button class="btn btn-sm text-danger p-0"
+                                  onclick="hapus(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Hapus">
+                            <i class="bi bi-trash fs-5"></i>
+                          </button>
+                        `
+                        : item.status_bayar === "VALID"
+                        ? `
+                          <button class="btn btn-sm text-danger p-0"
+                                  onclick="hapus(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Hapus">
+                            <i class="bi bi-trash fs-5"></i>
+                          </button>
+                        `
+                        : item.status_bayar === "INVALID"
+                        ? `
+                          <button class="btn btn-sm text-success p-0"
+                                  onclick="validasiPembayaran(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Pembayaran Valid">
+                            <i class="bi bi-check-square-fill fs-5"></i>
+                          </button>
 
-                 <button class="btn btn-sm text-danger p-0"
-                            onclick="hapus(${item.id_pembayaran})"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Delete">
-                      <i class="bi bi-trash fs-5"></i>
-                    </button>
-
+                          <button class="btn btn-sm text-danger p-0"
+                                  onclick="hapus(${item.id_pembayaran})"
+                                  data-bs-toggle="tooltip"
+                                  title="Hapus">
+                            <i class="bi bi-trash fs-5"></i>
+                          </button>
+                        `
+                        : ""
+                    }
+                  </div>
                 </td>
               </tr>
             `;
@@ -584,7 +600,7 @@
           nextBtn.disabled = end >= filteredData.length;
         }
 
-         // INIT TOOLTIP ULANG
+        // INIT TOOLTIP ULANG
         const tooltipTriggerList = document.querySelectorAll(
           '[data-bs-toggle="tooltip"]',
         );
