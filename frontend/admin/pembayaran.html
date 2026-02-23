@@ -371,15 +371,6 @@
         const filterStatus = document.getElementById("filterStatus");
 
         // ================================
-        // HEADER IDENTITAS ADMIN (WAJIB)
-        // ================================
-        const ADMIN_HEADERS = {
-          "x-admin-id": localStorage.getItem("admin_id"),
-          "x-admin-email": localStorage.getItem("admin_email"),
-          "x-admin-nama": localStorage.getItem("admin_nama"),
-        };
-
-        // ================================
         // PRIORITAS STATUS PEMBAYARAN
         // ================================
         const statusPriority = {
@@ -393,7 +384,9 @@
         // =====================================================
         async function loadFilterPelatihan() {
           try {
-            const res = await fetch("http://localhost:5000/api/pelatihan");
+            const res = await fetch("http://localhost:5000/api/pelatihan", {
+              credentials: "include",
+            });
             if (!res.ok) throw new Error("Gagal mengambil data pelatihan");
 
             const data = await res.json();
@@ -418,7 +411,10 @@
         // =====================================================
         async function loadPembayaran() {
           try {
-            const res = await fetch(API);
+            const res = await fetch(API, {
+              credentials: "include",
+            });
+
             if (!res.ok) throw new Error("API error");
 
             const json = await res.json();
@@ -429,7 +425,6 @@
             alert("Gagal memuat data pembayaran");
           }
         }
-
         /* ========== FILTER + SEARCH (SATU PINTU) ========== */
         function applyAllFilter() {
           const keyword = searchInput.value.toLowerCase().trim();
@@ -559,7 +554,7 @@
                           </button>
                         `
                         : item.status_bayar === "VALID"
-                        ? `
+                          ? `
                           <button class="btn btn-sm text-danger p-0"
                                   onclick="hapus(${item.id_pembayaran})"
                                   data-bs-toggle="tooltip"
@@ -567,8 +562,8 @@
                             <i class="bi bi-trash fs-5"></i>
                           </button>
                         `
-                        : item.status_bayar === "INVALID"
-                        ? `
+                          : item.status_bayar === "INVALID"
+                            ? `
                           <button class="btn btn-sm text-success p-0"
                                   onclick="validasiPembayaran(${item.id_pembayaran})"
                                   data-bs-toggle="tooltip"
@@ -583,7 +578,7 @@
                             <i class="bi bi-trash fs-5"></i>
                           </button>
                         `
-                        : ""
+                            : ""
                     }
                   </div>
                 </td>
@@ -653,7 +648,7 @@
 
           const res = await fetch(`${API}/${id}/validate`, {
             method: "PUT",
-            headers: ADMIN_HEADERS,
+            credentials: "include",
           });
 
           const data = await res.json();
@@ -669,7 +664,7 @@
 
           const res = await fetch(`${API}/${id}/invalid`, {
             method: "PUT",
-            headers: ADMIN_HEADERS,
+            credentials: "include",
           });
 
           const data = await res.json();
@@ -710,7 +705,10 @@
         // DELETE
         window.hapus = async (id) => {
           if (!confirm("Hapus pembayaran ini?")) return;
-          const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+          const res = await fetch(`${API}/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
           const data = await res.json();
           alert(data.message);
           loadPembayaran();

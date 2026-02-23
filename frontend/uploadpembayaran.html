@@ -459,7 +459,7 @@
 
               // ================= LOAD PELATIHAN =================
               async function loadPelatihan() {
-                const res = await fetch("http://localhost:5000/api/pelatihan");
+                const res = await fetch("http://localhost:5000/api/pelatihan/public");
 
                 const text = await res.text();
 
@@ -494,7 +494,6 @@
               // ================= SUBMIT FORM =================
               form.addEventListener("submit", (e) => {
                 e.preventDefault();
-                console.log("SUBMIT DETECTED");
 
                 const file = document.querySelector("input[name='bukti_transfer']").files[0];
 
@@ -527,13 +526,11 @@
               const formData = new FormData(form);
 
               try {
-                const res = await fetch("http://localhost:5000/api/pembayaran", {
+                const res = await fetch("http://localhost:5000/api/pembayaran/public", {
                   method: "POST",
+                  credentials: "include",
                   body: formData
                 });
-
-                const text = await res.text();
-                console.log("UPLOAD RESPONSE:", res.status, text);
 
                 let data = {};
                 try {

@@ -544,6 +544,7 @@
           const res = await fetch(API, {
             method: "POST",
             body: formData,
+            credentials: "include",
           });
 
           const data = await res.json();
@@ -567,7 +568,9 @@
         // =========================
         async function loadGallery() {
           try {
-            const res = await fetch(`${API}?admin=1`);
+            const res = await fetch(`${API}`, {
+              credentials: "include",
+            });
             const json = await res.json();
 
             allData = Array.isArray(json) ? json : [];
@@ -714,7 +717,9 @@
         // =========================
         window.openEditGallery = async (id) => {
           try {
-            const res = await fetch(`${API}/${id}`);
+            const res = await fetch(`${API}/${id}`, {
+              credentials: "include",
+            });
             const data = await res.json();
 
             document.getElementById("edit_id").value = data.id;
@@ -751,6 +756,7 @@
             const res = await fetch(`${API}/${id}`, {
               method: "PUT",
               body: formData,
+              credentials: "include",
             });
 
             const data = await res.json();
@@ -768,8 +774,9 @@
         window.hapusGallery = async (id) => {
           if (!confirm("Hapus foto ini?")) return;
 
-          const res = await fetch(`${API}/${id}?admin=1`, {
+          const res = await fetch(`${API}/${id}`, {
             method: "DELETE",
+            credentials: "include",
           });
 
           const data = await res.json();

@@ -1,6 +1,7 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import express from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -41,19 +42,16 @@ const upload = multer({
 });
 
 // === CREATE: Tambah pelatihan ===
-router.post("/", upload.single("flyer_url"), (req, res) => {
-  // ===============================
-  // AMBIL IDENTITAS ADMIN (BENAR)
-  // ===============================
-  const adminId = req.session.adminId;
-  const adminEmail = req.session.adminEmail;
-  const adminNama = req.session.adminNama;
+router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
+  const admin = req.session.admin;
 
-  if (!adminId) {
-    return res.status(401).json({
-      message: "❌ Admin tidak terautentikasi",
-    });
+  if (!admin) {
+    return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
+
+  const adminId = admin.id_user;
+  const adminEmail = admin.email;
+  const adminNama = admin.nama_lengkap;
 
   let {
     nama_pelatihan,
@@ -166,8 +164,6 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
 
     console.log("ADMIN HEADER:", {
       adminId,
-      adminEmail,
-      adminNama,
     });
 
     // ================= ADMIN LOG =================
@@ -176,7 +172,7 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
       email: adminEmail,
       nama_lengkap: adminNama,
       aktivitas: "AKSI",
-      keterangan: `Menambahkan pelatihan [ID:${result.insertId}] ${nama_pelatihan}`,
+      keterangan: `Menambahkan pelatihan [ID:${result.insertId}]`,
       req,
     });
 
@@ -187,8 +183,23 @@ router.post("/", upload.single("flyer_url"), (req, res) => {
   });
 });
 
+router.get("/public", (req, res) => {
+  const sql = `
+    SELECT * FROM pelatihan_tb
+    WHERE status = 'publish'
+    ORDER BY id_pelatihan DESC
+  `;
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Gagal mengambil data" });
+    }
+    res.json(results);
+  });
+});
+
 // === GET: Detail pelatihan by ID ===
-router.get("/:id", (req, res) => {
+router.get("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const sql = `SELECT * FROM pelatihan_tb WHERE id_pelatihan = ?`;
@@ -214,7 +225,7 @@ router.get("/:id", (req, res) => {
 // ======================
 import ExcelJS from "exceljs";
 
-router.get("/export/excel", async (req, res) => {
+router.get("/export/excel", authAdmin, async (req, res) => {
   try {
     const { status, kategori, tahun } = req.query;
 
@@ -402,7 +413,7 @@ router.get("/export/excel", async (req, res) => {
 });
 
 // === READ: Lihat semua pelatihan ===
-router.get("/", (req, res) => {
+router.get("/", authAdmin, (req, res) => {
   const sql = `
   SELECT 
     p.id_pelatihan,
@@ -459,14 +470,16 @@ router.get("/", (req, res) => {
 });
 
 // === UPDATE: Edit pelatihan ===
-router.put("/:id", upload.single("flyer_url"), (req, res) => {
-  const adminId = req.session.adminId;
-  const adminEmail = req.session.adminEmail;
-  const adminNama = req.session.adminNama;
+router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
+  const admin = req.session.admin;
 
-  if (!adminId) {
+  if (!admin) {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
+
+  const adminId = admin.id_user;
+  const adminEmail = admin.email;
+  const adminNama = admin.nama_lengkap;
 
   const { id } = req.params;
   const {
@@ -558,19 +571,18 @@ router.put("/:id", upload.single("flyer_url"), (req, res) => {
 });
 
 // === DELETE: Hapus pelatihan ===
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  // ambil header admin
-  const adminId = req.session.adminId;
-  const adminEmail = req.session.adminEmail;
-  const adminNama = req.session.adminNama;
+  const admin = req.session.admin;
 
-  if (!adminId) {
-    return res.status(401).json({
-      message: "❌ Admin tidak terautentikasi",
-    });
+  if (!admin) {
+    return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
+
+  const adminId = admin.id_user;
+  const adminEmail = admin.email;
+  const adminNama = admin.nama_lengkap;
 
   // Ambil nama file dulu biar bisa dihapus dari folder
   const getFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;

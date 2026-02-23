@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -198,18 +198,18 @@
 
       <!-- ================= GALLERY CONTENT ================= -->
       <!-- <section class="gallery section"> -->
-        <div class="container mb-4" data-aos="fade-up">
-          <div class="isotope-layout">
-            <div class="row g-4 isotope-container" id="galleryContainer">
-              <!-- ITEM GALLERY DARI JS -->
-            </div>
+      <div class="container mb-4" data-aos="fade-up">
+        <div class="isotope-layout">
+          <div class="row g-4 isotope-container" id="galleryContainer">
+            <!-- ITEM GALLERY DARI JS -->
           </div>
         </div>
+      </div>
       <!-- </section> -->
       <!-- /Gallery Section -->
 
       <script>
-        const API_GALLERY = "http://localhost:5000/api/gallery";
+        const API_GALLERY = "http://localhost:5000/api/gallery/public";
         let isoInstance = null;
 
         // ===================== TAB ACTIVE =====================
@@ -317,7 +317,7 @@
             renderGallery(allGallery);
           } else {
             const hasil = allGallery.filter(
-              (item) => item.kategori === kategori
+              (item) => item.kategori === kategori,
             );
             renderGallery(hasil);
           }

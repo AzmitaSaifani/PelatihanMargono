@@ -108,8 +108,10 @@ router.get("/", authAdmin, (req, res) => {
   });
 });
 
+
+
 // === READ: Detail 1 fasilitator ===
-router.get("/:id", (req, res) => {
+router.get("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
   const sql = "SELECT * FROM fasilitator_tb WHERE id_fasilitator = ?";
   connection.query(sql, [id], (err, results) => {

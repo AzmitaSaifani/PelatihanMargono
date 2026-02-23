@@ -747,15 +747,6 @@
         const nextBtn = document.getElementById("nextBtn");
         const searchInput = document.getElementById("searchInput");
 
-        // ================================
-        // HEADER IDENTITAS ADMIN (WAJIB)
-        // ================================
-        const ADMIN_HEADERS = {
-          "x-admin-id": localStorage.getItem("admin_id"),
-          "x-admin-email": localStorage.getItem("admin_email"),
-          "x-admin-nama": localStorage.getItem("admin_nama"),
-        };
-
         // =========================
         // FORMAT TANGGAL & WAKTU
         // =========================
@@ -788,7 +779,12 @@
         // =========================
         async function loadPelatihan() {
           try {
-            const res = await fetch(API);
+            const res = await fetch(API, {
+              credentials: "include",
+            });
+
+            if (!res.ok) throw new Error("Unauthorized");
+
             const json = await res.json();
 
             allData = Array.isArray(json) ? json : [];
@@ -964,8 +960,8 @@
             // jika ingin set created_by admin tertentu → misal 1
             const res = await fetch(API, {
               method: "POST",
-              headers: ADMIN_HEADERS,
               body: formData,
+              credentials: "include",
             });
 
             const data = await res.json();
@@ -1021,23 +1017,49 @@
         // ==========================================
         // EXPORT EXCEL (FILTERED) ✅
         // ==========================================
-        window.exportExcelPelatihan = () => {
-          const params = new URLSearchParams();
+        window.exportExcelPelatihan = async  () => {
+          try {
+            const params = new URLSearchParams();
 
-          if (filterStatus?.value) params.append("status", filterStatus.value);
-          if (filterKategori?.value)
-            params.append("kategori", filterKategori.value);
-          if (filterTahun?.value) params.append("tahun", filterTahun.value);
+            if (filterStatus?.value) params.append("status", filterStatus.value);
+            if (filterKategori?.value) params.append("kategori", filterKategori.value);
+            if (filterTahun?.value) params.append("tahun", filterTahun.value);
 
-          const url = `${API}/export/excel?${params.toString()}`;
-          window.open(url, "_blank");
+            const res = await fetch(`${API}/export/excel?${params.toString()}`, {
+              credentials: "include",
+            });
+
+            if (!res.ok) {
+              alert("Gagal export data");
+              return;
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "data_pelatihan.xlsx";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            window.URL.revokeObjectURL(url);
+
+          } catch (err) {
+            console.error(err);
+          }
         };
 
         /* =========================
             EDIT (MODAL)
           ========================= */
         window.openEditPelatihan = async (id) => {
-          const res = await fetch(`${API}/${id}`);
+          try {
+            const res = await fetch(`${API}/${id}`, {
+              credentials: "include",
+            });
+
           if (!res.ok) {
             throw new Error("Gagal mengambil data pelatihan");
           }
@@ -1066,7 +1088,12 @@
           new bootstrap.Modal(
             document.getElementById("modalEditPelatihan")
           ).show();
-        };
+
+          } catch (err) {
+          console.error(err);
+          alert("Gagal mengambil data pelatihan");
+        }
+      };
 
         /* =========================
             SUBMIT EDIT
@@ -1080,8 +1107,8 @@
 
             const res = await fetch(`${API}/${id}`, {
               method: "PUT",
-              headers: ADMIN_HEADERS,
               body: formData,
+              credentials: "include",
             });
 
             const result = await res.json();
@@ -1101,32 +1128,24 @@
         window.hapusPelatihan = async (id) => {
           if (!confirm("Yakin ingin menghapus pelatihan ini?")) return;
 
-          const res = await fetch(`${API}/${id}`, { 
-            method: "DELETE",
-            headers: ADMIN_HEADERS, });
-            
-          const data = await res.json();
+          try {
+            const res = await fetch(`${API}/${id}`, {
+              method: "DELETE",
+              credentials: "include",
+            });
 
-          alert(data.message);
-          loadPelatihan();
+            const data = await res.json();
+            alert(data.message);
+
+            loadPelatihan();
+          } catch (err) {
+            console.error(err);
+            alert("Terjadi kesalahan saat menghapus");
+          }
         };
 
         loadPelatihan();
       });
-
-      // logout admin
-      function logoutAdmin() {
-        if (!confirm("Yakin ingin logout?")) return;
-
-        // Hapus data admin
-        localStorage.removeItem("admin_id");
-        localStorage.removeItem("admin_email");
-        localStorage.removeItem("admin_nama");
-
-        // Redirect ke halaman login admin
-        window.location.href =
-          "/pelatihanmargono/frontend/admin/loginadmin.html";
-      }
     </script>
 
     <script src="admin_guard.js"></script>

@@ -486,7 +486,9 @@
         // =====================================================
         async function loadFilterPelatihan() {
           try {
-            const res = await fetch("http://localhost:5000/api/pelatihan");
+            const res = await fetch("http://localhost:5000/api/pelatihan", {
+              credentials: "include",
+            });
             if (!res.ok) throw new Error("Gagal mengambil data pelatihan");
 
             const data = await res.json();

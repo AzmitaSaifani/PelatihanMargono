@@ -1,5 +1,7 @@
 import express from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
+import { logAdmin } from "./adminLogger.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -26,7 +28,7 @@ const upload = multer({ storage });
 // ======================================================
 // ===============   CREATE GALLERY   ===================
 // ======================================================
-router.post("/", upload.single("foto"), (req, res) => {
+router.post("/", authAdmin, upload.single("foto"), (req, res) => {
   const { keterangan, kategori, status } = req.body;
   const foto = req.file ? req.file.filename : null;
 
@@ -64,15 +66,11 @@ router.post("/", upload.single("foto"), (req, res) => {
 // ======================================================
 // ===============   READ ALL GALLERY   =================
 // ======================================================
-router.get("/", (req, res) => {
+router.get("/", authAdmin, (req, res) => {
   const { admin, kategori } = req.query;
 
   let where = [];
   let params = [];
-
-  if (!admin) {
-    where.push("status = '1'");
-  }
 
   if (kategori) {
     where.push("kategori = ?");
@@ -96,9 +94,39 @@ router.get("/", (req, res) => {
 });
 
 // ======================================================
+// ===============   READ PUBLIC   ======================
+// ======================================================
+router.get("/public", (req, res) => {
+  const { kategori } = req.query;
+
+  let where = ["status = '1'"];
+  let params = [];
+
+  if (kategori) {
+    where.push("kategori = ?");
+    params.push(kategori);
+  }
+
+  const sql = `
+    SELECT * FROM gallery_tb
+    WHERE ${where.join(" AND ")}
+    ORDER BY id DESC
+  `;
+
+  connection.query(sql, params, (err, results) => {
+    if (err) {
+      return res.status(500).json({
+        message: "❌ Gagal mengambil gallery",
+      });
+    }
+    res.json(results);
+  });
+});
+
+// ======================================================
 // ===============   READ DETAIL GALLERY   ==============
 // ======================================================
-router.get("/:id", (req, res) => {
+router.get("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const sql = "SELECT * FROM gallery_tb WHERE id = ?";
@@ -113,7 +141,7 @@ router.get("/:id", (req, res) => {
 // ======================================================
 // ===============   UPDATE GALLERY   ===================
 // ======================================================
-router.put("/:id", upload.single("foto"), (req, res) => {
+router.put("/:id", authAdmin, upload.single("foto"), (req, res) => {
   const { id } = req.params;
   const { keterangan, status, kategori } = req.body;
   const fotoBaru = req.file ? req.file.filename : null;
@@ -167,7 +195,7 @@ router.put("/:id", upload.single("foto"), (req, res) => {
 // ======================================================
 // ===============   DELETE GALLERY   ===================
 // ======================================================
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const getFoto = "SELECT foto FROM gallery_tb WHERE id = ?";

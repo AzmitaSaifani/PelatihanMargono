@@ -4,6 +4,7 @@ import { logEmail } from "../../utils/emailLogger.js";
 import { decryptId } from "../../routes/auth//token.js";
 import express from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -25,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* CREATE PEMBAYARAN + EMAIL PENDING */
-router.post("/", upload.single("bukti_transfer"), (req, res) => {
+router.post("/", authAdmin, upload.single("bukti_transfer"), (req, res) => {
   const { token } = req.body;
 
   if (!token) {
@@ -216,13 +217,13 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
           id_pembayaran: result.insertId,
           status: "PENDING",
         });
-      }
+      },
     );
   });
 });
 
 /* GET ALL */
-router.get("/", (req, res) => {
+router.get("/", authAdmin, (req, res) => {
   const sql = `
       SELECT 
       bayar.id_pembayaran,
@@ -265,10 +266,61 @@ router.get("/", (req, res) => {
   });
 });
 
+// ==========================
+// PUBLIC UPLOAD PEMBAYARAN
+// ==========================
+router.post("/public", upload.single("bukti_transfer"), (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({
+      message: "Token wajib dikirim",
+    });
+  }
+
+  let id_pendaftaran;
+  try {
+    id_pendaftaran = decryptId(token);
+  } catch {
+    return res.status(403).json({
+      message: "Token tidak valid",
+    });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({
+      message: "Bukti pembayaran wajib diupload",
+    });
+  }
+
+  const bukti_transfer = req.file.filename;
+
+  const sql = `
+    INSERT INTO pembayaran_tb
+    (id_pendaftaran, bukti_transfer, status, uploaded_at)
+    VALUES (?, ?, 'PENDING', NOW())
+  `;
+
+  connection.query(sql, [id_pendaftaran, bukti_transfer], (err, result) => {
+    if (err) {
+      console.error("UPLOAD ERROR:", err);
+      return res.status(500).json({
+        message: "Gagal menyimpan pembayaran",
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Bukti pembayaran berhasil diupload",
+      status: "PENDING",
+    });
+  });
+});
+
 // ========================================================
 // VALIDATE PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA
 // ========================================================
-router.put("/:id/validate", (req, res) => {
+router.put("/:id/validate", authAdmin, (req, res) => {
   const { id } = req.params;
 
   // 1. Ambil data pembayaran + peserta
@@ -478,7 +530,7 @@ router.put("/:id/validate", (req, res) => {
 // ========================================================
 // INVALID PEMBAYARAN → UPDATE STATUS + EMAIL PESERTA
 // ========================================================
-router.put("/:id/invalid", (req, res) => {
+router.put("/:id/invalid", authAdmin, (req, res) => {
   const { id } = req.params;
 
   // 1. Ambil data peserta
@@ -668,7 +720,7 @@ router.put("/:id/invalid", (req, res) => {
 });
 
 /* SET PEMBAYARAN MENJADI PENDING */
-router.put("/:id/pending", (req, res) => {
+router.put("/:id/pending", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const sql = `
@@ -688,7 +740,7 @@ router.put("/:id/pending", (req, res) => {
 });
 
 /* DELETE PEMBAYARAN */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authAdmin, (req, res) => {
   connection.query(
     "SELECT bukti_transfer FROM pembayaran_tb WHERE id_pembayaran=?",
     [req.params.id],
@@ -702,9 +754,9 @@ router.delete("/:id", (req, res) => {
       connection.query(
         "DELETE FROM pembayaran_tb WHERE id_pembayaran=?",
         [req.params.id],
-        () => res.json({ message: "Pembayaran dihapus!" })
+        () => res.json({ message: "Pembayaran dihapus!" }),
       );
-    }
+    },
   );
 });
 
@@ -713,7 +765,7 @@ router.delete("/:id", (req, res) => {
 // ======================
 import ExcelJS from "exceljs";
 
-router.get("/export/excel", async (req, res) => {
+router.get("/export/excel", authAdmin, async (req, res) => {
   try {
     const { id_pelatihan, status_bayar, tanggal_mulai, tanggal_selesai } =
       req.query;
@@ -816,11 +868,11 @@ router.get("/export/excel", async (req, res) => {
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=Data_Pembayaran_${Date.now()}.xlsx`
+      `attachment; filename=Data_Pembayaran_${Date.now()}.xlsx`,
     );
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     await workbook.xlsx.write(res);

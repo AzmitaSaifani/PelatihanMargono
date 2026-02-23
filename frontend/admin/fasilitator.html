@@ -704,7 +704,9 @@
         // =========================
         window.openEditFasilitator = async (id) => {
           try {
-            const res = await fetch(`${API}/${id}`);
+            const res = await fetch(`${API}/${id}`, {
+              credentials: "include",
+            });
             const data = await res.json();
 
             document.getElementById("edit_id").value = data.id_fasilitator;
