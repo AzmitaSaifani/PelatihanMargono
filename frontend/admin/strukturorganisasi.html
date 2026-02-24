@@ -269,7 +269,7 @@
 
     <!-- ================= SCRIPT ================= -->
     <script>
-      const API_STRUKTUR = "http://localhost:5000/api/jabatan";
+      const API_STRUKTUR = "http://localhost:5000/api/struktur-organisasi";
       const API_JABATAN = "http://localhost:5000/api/anggota-jabatan";
       const API_ANGGOTA = "http://localhost:5000/api/anggota-organisasi";
 
@@ -308,8 +308,9 @@
           <img src="${
             node.foto
               ? "http://localhost:5000/uploads/anggota/" + node.foto
-              : "https://via.placeholder.com/80"
-          }">
+              : "http://localhost:5000/uploads/default-user.JPG"
+          }"
+          class="org-foto">
           <div class="org-name">${node.nama_lengkap ?? "-"}</div>
           <div class="org-jabatan">${node.nama_jabatan}</div>
         `;
@@ -351,7 +352,7 @@
         const id_jabatan = selectJabatan.value;
         const id_anggota = selectAnggota.value;
 
-        const res = await fetch(API_STRUKTUR, {
+        const res = await fetch(API_JABATAN, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

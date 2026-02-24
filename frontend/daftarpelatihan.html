@@ -306,13 +306,16 @@
                         placeholder="(NIP bagi ASN atau NRP) Tanpa Spasi"
                         inputmode="numeric"
                         maxlength="18"
+                        minlength="18"
+                        pattern="\d{18}"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         required
                       />
 
                       <small class="text-danger">
-                        *Pastikan NIP yang Anda daftarkan belum pernah digunakan
-                        untuk mendaftar pada pelatihan yang sama.
+                        *Pastikan NIP berjumlah 18 Digit dan hanya dapat
+                        digunakan untuk mendaftar satu kali pada setiap
+                        pelatihan yang sama.
                       </small>
                     </div>
 
@@ -342,14 +345,17 @@
                         class="form-control"
                         placeholder="Nomor Induk Kependudukan / KTP (16 Digit)"
                         maxlength="16"
+                        minlength="16"
+                        pattern="\d{16}"
                         inputmode="numeric"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         required
                       />
 
                       <small class="text-danger">
-                        *NIK hanya dapat digunakan untuk mendaftar satu kali
-                        pada setiap pelatihan yang sama.
+                        *Pastikan NIK berjumlah 16 digit dan hanya dapat
+                        digunakan untuk mendaftar satu kali pada setiap
+                        pelatihan yang sama.
                       </small>
                     </div>
                     <div class="col-md-6">
@@ -794,9 +800,9 @@
               // LOAD MENU PELATIHAN + FILTER TANGGAL + STATUS PUBLISH
               // ======================
               async function loadPelatihan() {
-                console.log("Mengambil data pelatihan...");
-
-                const res = await fetch("http://localhost:5000/api/pelatihan");
+                const res = await fetch(
+                  "http://localhost:5000/api/pelatihan/public",
+                );
                 if (!res.ok) {
                   console.error("Response error:", res.status);
                   return;
@@ -836,6 +842,24 @@
               form.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
+                // VALIDASI PANGKAT
+                if (
+                  !pangkatContainer.classList.contains("d-none") &&
+                  !pangkatSelect.value
+                ) {
+                  alert("Silakan pilih pangkat/golongan.");
+                  return;
+                }
+
+                // VALIDASI JABATAN
+                if (
+                  !jabatanContainer.classList.contains("d-none") &&
+                  !jabatanSelect.value
+                ) {
+                  alert("Silakan pilih jabatan.");
+                  return;
+                }
+
                 const jenisNakes = form.querySelector(
                   '[name="jenis_nakes"]',
                 ).value;
@@ -847,7 +871,17 @@
                 }
 
                 const nik = form.querySelector('[name="nik"]').value;
+                if (nik.length !== 16) {
+                  alert("NIK harus terdiri dari 16 digit angka.");
+                  return;
+                }
+
                 const nip = form.querySelector('[name="nip"]').value;
+                if (nip.length !== 18) {
+                  alert("nip harus terdiri dari 18 digit angka.");
+                  return;
+                }
+
                 const id_pelatihan = form.querySelector(
                   '[name="id_pelatihan"]',
                 ).value;
@@ -905,7 +939,7 @@
 
                   try {
                     const res = await fetch(
-                      "http://localhost:5000/api/pendaftaran",
+                      "http://localhost:5000/api/pendaftaran/public",
                       {
                         method: "POST",
                         body: formData,

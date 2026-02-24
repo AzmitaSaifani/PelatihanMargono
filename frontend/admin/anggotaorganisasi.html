@@ -428,6 +428,7 @@
 
       const tableBody = document.getElementById("tableAnggota");
       const form = document.getElementById("formTambah");
+      const formEdit = document.getElementById("formEdit");
 
       const infoData = document.getElementById("infoData");
       const prevBtn = document.getElementById("prevBtn");
@@ -490,18 +491,17 @@
         renderTable();
       }
 
-      // RENDER TABLE
+      /* ================= RENDER TABLE ================= */
       function renderTable() {
         tableBody.innerHTML = "";
 
         if (filteredData.length === 0) {
           tableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center text-muted">
-            Data tidak ditemukan
-          </td>
-        </tr>`;
-
+      <tr>
+        <td colspan="8" class="text-center text-muted">
+          Data tidak ditemukan
+        </td>
+      </tr>`;
           infoData.innerText = "Showing 0 entries";
           prevBtn.disabled = nextBtn.disabled = true;
           return;
@@ -574,6 +574,38 @@
         }
       };
 
+      /* ================= SEARCH ================= */
+      searchInput.oninput = applyFilter;
+
+      /* ================= TAMBAH ANGGOTA ================= */
+      formTambah.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const fd = new FormData(formTambah);
+
+        const res = await fetch(API, {
+          method: "POST",
+          body: fd,
+          headers: {
+            "x-admin-id": localStorage.getItem("admin_id"),
+            "x-admin-email": localStorage.getItem("admin_email"),
+            "x-admin-nama": localStorage.getItem("admin_nama"),
+          },
+        });
+
+        const data = await res.json();
+        alert(data.message);
+
+        if (res.ok) {
+          formTambah.reset();
+          loadData();
+          bootstrap.Modal.getInstance(
+            document.getElementById("modalTambahAnggota"),
+          ).hide();
+        }
+      };
+
+      /* ================= EDIT ANGGOTA ================= */
       function edit(id) {
         const a = allData.find((x) => x.id_anggota === id);
         edit_id.value = a.id_anggota;
@@ -587,6 +619,7 @@
         new bootstrap.Modal(modalEditAnggota).show();
       }
 
+      /* ================= UPDATE ANGGOTA ================= */
       formEdit.onsubmit = async (e) => {
         e.preventDefault();
 
@@ -608,17 +641,8 @@
         }
       };
 
-      searchAnggota.oninput = applyFilter;
-      prevBtn.onclick = () => {
-        page--;
-        render();
-      };
-      nextBtn.onclick = () => {
-        page++;
-        render();
-      };
-
-      loadData();
+      /* ================= INIT ================= */
+      document.addEventListener("DOMContentLoaded", loadData);
     </script>
 
     <script src="admin_guard.js"></script>

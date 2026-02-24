@@ -5,6 +5,7 @@ import { logEmail } from "../../utils/emailLogger.js";
 import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -97,7 +98,7 @@ router.get("/check-duplikat", (req, res) => {
 // ======================
 // GET Semua Pendaftaran (ADMIN)
 // ======================
-router.get("/:id/cek-upload", (req, res) => {
+router.get("/:id/cek-upload", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const sql = `
@@ -155,7 +156,7 @@ router.get("/", (req, res) => {
 
 // Route Pendaftaran
 router.post(
-  "/",
+  "/public",
   upload.fields([
     { name: "surat_tugas", maxCount: 1 },
     { name: "foto_4x6", maxCount: 1 },
@@ -478,6 +479,7 @@ router.post(
 // ======================
 router.put(
   "/:id",
+  authAdmin,
   upload.fields([
     { name: "surat_tugas", maxCount: 1 },
     { name: "foto_4x6", maxCount: 1 },
@@ -599,7 +601,7 @@ router.put(
 // ======================
 //  DELETE PENDAFTARAN
 // ======================
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
   // Cek dulu apakah datanya ada
@@ -635,7 +637,7 @@ router.delete("/:id", (req, res) => {
 // ========================================================
 // STATUS: BERKAS VALID → MENUNGGU PEMBAYARAN + EMAIL
 // ========================================================
-router.put("/:id/accept", (req, res) => {
+router.put("/:id/accept", authAdmin, (req, res) => {
   const { id } = req.params;
 
   const getPesertaSQL = `
@@ -793,10 +795,15 @@ router.put("/:id/accept", (req, res) => {
         error_message: emailStatus === "GAGAL" ? errorMessage : null,
       });
 
+      console.log("ADMIN HEADER:", {
+        adminId,
+      });
+
+      // ================= ADMIN LOG =================
       logAdmin({
-        id_user: req.headers["x-admin-id"],
-        email: req.headers["x-admin-email"],
-        nama_lengkap: req.headers["x-admin-nama"],
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
         aktivitas: "AKSI",
         keterangan: `Verifikasi berkas VALID untuk ID ${id} (${nama_peserta})`,
         req,
@@ -854,7 +861,7 @@ router.get("/validate-token/:token", (req, res) => {
 // ========================================================
 //  STATUS: REJECT (VERIFIKASI BERKAS INVALID + EMAIL)
 // ========================================================
-router.put("/:id/reject", (req, res) => {
+router.put("/:id/reject", authAdmin, (req, res) => {
   const { id } = req.params;
 
   // 1. Ambil data peserta (email & nama)
@@ -1009,10 +1016,15 @@ router.put("/:id/reject", (req, res) => {
           status: "TERKIRIM",
         });
 
+        console.log("ADMIN HEADER:", {
+          adminId,
+        });
+
+        // ================= ADMIN LOG =================
         logAdmin({
-          id_user: req.headers["x-admin-id"],
-          email: req.headers["x-admin-email"],
-          nama_lengkap: req.headers["x-admin-nama"],
+          id_user: adminId,
+          email: adminEmail,
+          nama_lengkap: adminNama,
           aktivitas: "AKSI",
           keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
           req,
@@ -1032,7 +1044,7 @@ router.put("/:id/reject", (req, res) => {
 // EXPORT EXCEL
 // ======================
 
-router.get("/export/excel", async (req, res) => {
+router.get("/export/excel", authAdmin, async (req, res) => {
   try {
     const {
       id_pelatihan,

@@ -129,15 +129,21 @@ router.put("/:id", (req, res) => {
 ========================= */
 router.get("/", (req, res) => {
   const sql = `
-    SELECT id_jabatan, nama_jabatan, parent_id,
-           level_jabatan, jenis_relasi, urutan
-    FROM jabatan
-    ORDER BY level_jabatan ASC, urutan ASC
+    SELECT 
+      j.*,
+      ao.nama_lengkap,
+      ao.foto
+    FROM jabatan j
+    LEFT JOIN anggota_jabatan aj 
+      ON j.id_jabatan = aj.id_jabatan
+    LEFT JOIN anggota_organisasi ao 
+      ON aj.id_anggota = ao.id_anggota
+    ORDER BY j.level_jabatan ASC, j.urutan ASC
   `;
 
   connection.query(sql, (err, rows) => {
     if (err) {
-      return res.status(500).json({ message: "Gagal ambil struktur jabatan" });
+      return res.status(500).json({ message: "Gagal ambil jabatan" });
     }
     res.json(rows);
   });
