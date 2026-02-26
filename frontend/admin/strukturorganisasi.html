@@ -285,9 +285,9 @@
         const container = document.getElementById("orgContainer");
         container.innerHTML = "";
 
-        const root = data.find((d) => d.level_jabatan === 1);
-        const level2 = data.filter((d) => d.level_jabatan === 2);
-        const level3 = data.filter((d) => d.level_jabatan === 3);
+        const root = data.find((d) => d.level_jabatan === 1 && d.nama_lengkap);
+        const level2 = data.filter((d) => d.level_jabatan === 2 && d.nama_lengkap);
+        const level3 = data.filter((d) => d.level_jabatan === 3 && d.nama_lengkap);
 
         const pendidikan = level2.find((d) =>
           d.nama_jabatan.toLowerCase().includes("pendidikan"),
@@ -313,7 +313,7 @@
                 <div class="org-children-line"></div>
                 <div class="org-children">
                   ${level3
-                    .filter(l3 => l3.parent_id === pendidikan?.id_jabatan)
+                    .filter((l3) => l3.parent_id === pendidikan?.id_jabatan)
                     .map(createCard)
                     .join("")}
                 </div>
@@ -328,7 +328,7 @@
                 <div class="org-children-line"></div>
                 <div class="org-children">
                   ${level3
-                    .filter(l3 => l3.parent_id === pelatihan?.id_jabatan)
+                    .filter((l3) => l3.parent_id === pelatihan?.id_jabatan)
                     .map(createCard)
                     .join("")}
                 </div>
@@ -340,15 +340,26 @@
       }
 
       function createCard(node) {
-        if (!node) return "";
+        if (!node || !node.nama_lengkap) return "";
 
         return `
-          <div class="org-card">
+          <div class="org-card position-relative">
+
+            ${
+              node.nama_lengkap
+                ? `<button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                      onclick="hapusStruktur(${node.id_jabatan})">
+                      ×
+                  </button>`
+                : ""
+            }
+
             <img src="${
               node.foto
                 ? "http://localhost:5000/uploads/anggota/" + node.foto
                 : "http://localhost:5000/uploads/default-user.JPG"
             }">
+
             <div class="org-name">${node.nama_lengkap ?? "-"}</div>
             <div class="org-jabatan">${node.nama_jabatan}</div>
           </div>
@@ -407,6 +418,31 @@
         bootstrap.Modal.getInstance(
           document.getElementById("modalKelolaStruktur"),
         ).hide();
+      }
+
+      // Delete
+      async function hapusStruktur(id_jabatan) {
+        if (!confirm("Yakin ingin menghapus anggota dari jabatan ini?")) return;
+
+        try {
+          const res = await fetch(`${API_JABATAN}/${id_jabatan}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "x-admin-id": localStorage.getItem("admin_id"),
+              "x-admin-email": localStorage.getItem("admin_email"),
+              "x-admin-nama": localStorage.getItem("admin_nama"),
+            },
+          });
+
+          const data = await res.json();
+          alert(data.message);
+
+          loadStruktur();
+        } catch (err) {
+          console.error(err);
+          alert("Gagal menghapus struktur");
+        }
       }
 
       /* ================= LOGOUT ================= */

@@ -279,9 +279,9 @@
           return;
         }
 
-        const root = data.find(d => d.level_jabatan === 1);
-        const level2 = data.filter(d => d.level_jabatan === 2);
-        const level3 = data.filter(d => d.level_jabatan === 3);
+        const root = data.find(d => d.level_jabatan === 1 && d.nama_lengkap);
+        const level2 = data.filter(d => d.level_jabatan === 2 && d.nama_lengkap);
+        const level3 = data.filter(d => d.level_jabatan === 3 && d.nama_lengkap);
 
         const pendidikan = level2.find(d =>
           d.nama_jabatan.toLowerCase().includes("pendidikan")

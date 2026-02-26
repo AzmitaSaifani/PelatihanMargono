@@ -10,15 +10,16 @@ const router = express.Router();
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
-      j.*,
-      ao.nama_lengkap,
-      ao.foto
-    FROM jabatan j
-    LEFT JOIN anggota_jabatan aj 
-      ON j.id_jabatan = aj.id_jabatan
-    LEFT JOIN anggota_organisasi ao 
-      ON aj.id_anggota = ao.id_anggota
-    ORDER BY j.level_jabatan ASC, j.urutan ASC
+    j.*,
+    ao.nama_lengkap,
+    ao.foto
+  FROM jabatan j
+  JOIN anggota_jabatan aj 
+    ON j.id_jabatan = aj.id_jabatan
+  JOIN anggota_organisasi ao 
+    ON aj.id_anggota = ao.id_anggota
+    AND ao.status = 1
+  ORDER BY j.level_jabatan ASC, j.urutan ASC
   `;
 
   connection.query(sql, (err, rows) => {

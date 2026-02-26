@@ -16,13 +16,8 @@ router.post("/", (req, res) => {
     return res.status(401).json({ message: "Admin tidak terautentikasi" });
   }
 
-  const {
-    nama_jabatan,
-    parent_id,
-    level_jabatan,
-    urutan,
-    keterangan,
-  } = req.body;
+  const { nama_jabatan, parent_id, level_jabatan, urutan, keterangan } =
+    req.body;
 
   if (!nama_jabatan) {
     return res.status(400).json({ message: "Nama jabatan wajib diisi" });
@@ -75,13 +70,8 @@ router.put("/:id", (req, res) => {
   const adminNama = req.headers["x-admin-nama"];
 
   const { id } = req.params;
-  const {
-    nama_jabatan,
-    parent_id,
-    level_jabatan,
-    urutan,
-    keterangan,
-  } = req.body;
+  const { nama_jabatan, parent_id, level_jabatan, urutan, keterangan } =
+    req.body;
 
   const sql = `
     UPDATE jabatan
@@ -91,14 +81,7 @@ router.put("/:id", (req, res) => {
 
   connection.query(
     sql,
-    [
-      nama_jabatan,
-      parent_id || null,
-      level_jabatan,
-      urutan,
-      keterangan,
-      id,
-    ],
+    [nama_jabatan, parent_id || null, level_jabatan, urutan, keterangan, id],
     (err) => {
       if (err) {
         console.error("Gagal update jabatan:", err);
@@ -125,15 +108,16 @@ router.put("/:id", (req, res) => {
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
-      j.*,
-      ao.nama_lengkap,
-      ao.foto
-    FROM jabatan j
-    LEFT JOIN anggota_jabatan aj 
-      ON j.id_jabatan = aj.id_jabatan
-    LEFT JOIN anggota_organisasi ao 
-      ON aj.id_anggota = ao.id_anggota
-    ORDER BY j.level_jabatan ASC, j.urutan ASC
+    j.*,
+    ao.nama_lengkap,
+    ao.foto
+  FROM jabatan j
+  LEFT JOIN anggota_jabatan aj 
+    ON j.id_jabatan = aj.id_jabatan
+  LEFT JOIN anggota_organisasi ao 
+    ON aj.id_anggota = ao.id_anggota
+    AND ao.status = 1
+  ORDER BY j.level_jabatan ASC, j.urutan ASC
   `;
 
   connection.query(sql, (err, rows) => {
@@ -141,6 +125,38 @@ router.get("/", (req, res) => {
       return res.status(500).json({ message: "Gagal ambil jabatan" });
     }
     res.json(rows);
+  });
+});
+
+// ================= DELETE JABATAN =================
+router.delete("/:id", (req, res) => {
+  const adminId = req.headers["x-admin-id"];
+  const adminEmail = req.headers["x-admin-email"];
+  const adminNama = req.headers["x-admin-nama"];
+
+  if (!adminId) {
+    return res.status(401).json({ message: "Admin tidak terautentikasi" });
+  }
+
+  const { id } = req.params;
+
+  const sql = "DELETE FROM jabatan WHERE id_jabatan = ?";
+
+  connection.query(sql, [id], (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Gagal menghapus jabatan" });
+    }
+
+    logAdmin({
+      id_user: adminId,
+      email: adminEmail,
+      nama_lengkap: adminNama,
+      aktivitas: "HAPUS",
+      keterangan: `Hapus jabatan ID ${id}`,
+      req,
+    });
+
+    res.json({ message: "Jabatan berhasil dihapus" });
   });
 });
 

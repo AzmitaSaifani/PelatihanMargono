@@ -71,29 +71,38 @@ router.post("/", upload.single("foto"), (req, res) => {
 ========================= */
 router.put("/:id", upload.single("foto"), (req, res) => {
   const { id } = req.params;
-  let  { nama_lengkap, nip, email, no_hp, status } = req.body;
+  let { nama_lengkap, nip, email, no_hp, status } = req.body;
 
-  status = status === "0" ? 0 : 1;
-
+  status = status !== undefined ? parseInt(status) : undefined;
   const foto = req.file ? req.file.filename : null;
 
   const sql = `
     UPDATE anggota_organisasi
-    SET nama_lengkap=?, nip=?, email=?, no_hp=?,
-        foto=COALESCE(?, foto), status=?
+    SET 
+      nama_lengkap=?,
+      nip=?,
+      email=?,
+      no_hp=?,
+      foto=COALESCE(?, foto)
+      ${status !== undefined ? ", status=?" : ""}
     WHERE id_anggota=?
   `;
 
-  connection.query(
-    sql,
-    [nama_lengkap, nip, email, no_hp, foto, status, id],
-    (err) => {
-      if (err) {
-        return res.status(500).json({ message: "Gagal update anggota" });
-      }
-      res.json({ message: "Anggota berhasil diperbarui" });
-    },
-  );
+  const params = [nama_lengkap, nip, email, no_hp, foto];
+
+  if (status !== undefined) {
+    params.push(status);
+  }
+
+  params.push(id);
+
+  connection.query(sql, params, (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Gagal update anggota" });
+    }
+
+    res.json({ message: "Anggota berhasil diperbarui" });
+  });
 });
 
 /* =========================
