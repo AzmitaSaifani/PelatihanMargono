@@ -20,7 +20,6 @@ router.post("/", (req, res) => {
     nama_jabatan,
     parent_id,
     level_jabatan,
-    jenis_relasi,
     urutan,
     keterangan,
   } = req.body;
@@ -31,8 +30,8 @@ router.post("/", (req, res) => {
 
   const sql = `
     INSERT INTO jabatan
-    (nama_jabatan, parent_id, level_jabatan, jenis_relasi, urutan, keterangan)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (nama_jabatan, parent_id, level_jabatan, urutan, keterangan)
+    VALUES (?, ?, ?, ?, ?)
   `;
 
   connection.query(
@@ -41,7 +40,6 @@ router.post("/", (req, res) => {
       nama_jabatan,
       parent_id || null,
       level_jabatan || 1,
-      jenis_relasi || "komando",
       urutan || 0,
       keterangan || null,
     ],
@@ -81,15 +79,13 @@ router.put("/:id", (req, res) => {
     nama_jabatan,
     parent_id,
     level_jabatan,
-    jenis_relasi,
     urutan,
     keterangan,
   } = req.body;
 
   const sql = `
     UPDATE jabatan
-    SET nama_jabatan=?, parent_id=?, level_jabatan=?,
-        jenis_relasi=?, urutan=?, keterangan=?
+    SET nama_jabatan=?, parent_id=?, level_jabatan=?, urutan=?, keterangan=?
     WHERE id_jabatan=?
   `;
 
@@ -99,7 +95,6 @@ router.put("/:id", (req, res) => {
       nama_jabatan,
       parent_id || null,
       level_jabatan,
-      jenis_relasi,
       urutan,
       keterangan,
       id,

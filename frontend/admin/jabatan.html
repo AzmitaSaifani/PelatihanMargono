@@ -11,7 +11,7 @@
       sizes="512x512"
     />
 
-    <title>Admin - Kelola Jabatan</title>
+    <title>Kelola Jabatan - Admin DIKLAT RSMS</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -249,7 +249,6 @@
                 <th>Nama Jabatan</th>
                 <th>Parent</th>
                 <th>Level</th>
-                <th>Relasi</th>
                 <th>Urutan</th>
                 <th>Aksi</th>
               </tr>
@@ -310,12 +309,6 @@
                 value="1"
               />
 
-              <label class="form-label">Jenis Relasi</label>
-              <select name="jenis_relasi" class="form-control mb-2">
-                <option value="komando">Komando</option>
-                <option value="koordinasi">Koordinasi</option>
-              </select>
-
               <label class="form-label">Urutan</label>
               <input
                 type="number"
@@ -369,12 +362,6 @@
 
               <label class="form-label">Level</label>
               <input type="number" id="edit_level" class="form-control mb-2" />
-
-              <label class="form-label">Jenis Relasi</label>
-              <select id="edit_relasi" class="form-control mb-2">
-                <option value="komando">Komando</option>
-                <option value="koordinasi">Koordinasi</option>
-              </select>
 
               <label class="form-label">Urutan</label>
               <input type="number" id="edit_urutan" class="form-control mb-2" />
@@ -468,7 +455,6 @@
           <td>${item.nama_jabatan}</td>
           <td>${parent ? parent.nama_jabatan : "-"}</td>
           <td>${item.level_jabatan}</td>
-          <td>${item.jenis_relasi}</td>
           <td>${item.urutan}</td>
           <td class="text-center">
                   <div class="d-flex justify-content-center align-items-center gap-2">
@@ -563,7 +549,6 @@
         edit_nama.value = j.nama_jabatan;
         edit_parent.value = j.parent_id || "";
         edit_level.value = j.level_jabatan;
-        edit_relasi.value = j.jenis_relasi;
         edit_urutan.value = j.urutan;
         edit_keterangan.value = j.keterangan || "";
 
@@ -579,7 +564,6 @@
           nama_jabatan: edit_nama.value,
           parent_id: edit_parent.value || null,
           level_jabatan: edit_level.value,
-          jenis_relasi: edit_relasi.value,
           urutan: edit_urutan.value,
           keterangan: edit_keterangan.value,
         };
