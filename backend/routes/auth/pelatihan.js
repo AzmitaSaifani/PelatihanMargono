@@ -185,16 +185,65 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
 
 router.get("/public", (req, res) => {
   const sql = `
-    SELECT * FROM pelatihan_tb
-    WHERE status = 'publish'
-    ORDER BY id_pelatihan DESC
+  SELECT 
+    p.id_pelatihan,
+    p.nama_pelatihan,
+    p.jumlah_jpl,
+    p.lokasi,
+    p.alamat_lengkap,
+    p.tanggal_mulai,
+    p.tanggal_selesai,
+    p.kuota,
+    p.warna,
+    p.harga,
+    p.kategori,
+    p.kriteria_peserta,
+    p.tipe_pelatihan,
+    p.durasi,
+    p.flyer_url,
+    p.status,
+    p.created_by,
+    p.created_at,
+    p.updated_at,
+
+    /* jumlah peserta yang status = Diterima */
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'Diterima'
+    ) AS jumlah_Diterima,
+
+    /* sisa kuota (kuota - peserta Diterima) */
+    p.kuota -
+    (
+      SELECT COUNT(*) 
+      FROM pendaftaran_tb d 
+      WHERE d.id_pelatihan = p.id_pelatihan
+      AND d.status = 'Diterima'
+    ) AS sisa_kuota
+
+    FROM pelatihan_tb p
+
+    ORDER BY 
+    CASE 
+      WHEN p.status = 'publish' THEN 1
+      WHEN p.status = 'draft' THEN 2
+      WHEN p.status = 'selesai' THEN 3
+      WHEN p.status = 'batal' THEN 4
+    END,
+    p.tanggal_mulai ASC
   `;
 
-  connection.query(sql, (err, results) => {
+  connection.query(sql, (err, result) => {
     if (err) {
-      return res.status(500).json({ message: "Gagal mengambil data" });
+      console.error("❌ Gagal mengambil data pelatihan:", err);
+      return res.status(500).json({
+        message: "Gagal mengambil data pelatihan",
+        error: err.message,
+      });
     }
-    res.json(results);
+    res.status(200).json(result);
   });
 });
 
@@ -271,7 +320,15 @@ router.get("/export/excel", authAdmin, async (req, res) => {
         p.created_at
       FROM pelatihan_tb p
       ${whereSQL}
-      ORDER BY p.tanggal_mulai ASC
+
+      ORDER BY 
+      CASE 
+        WHEN p.status = 'publish' THEN 1
+        WHEN p.status = 'draft' THEN 2
+        WHEN p.status = 'selesai' THEN 3
+        WHEN p.status = 'batal' THEN 4
+      END,
+      p.tanggal_mulai ASC
     `;
 
     const [rows] = await connection.promise().query(sql, params);
@@ -414,7 +471,22 @@ router.get("/export/excel", authAdmin, async (req, res) => {
 
 // === READ: Lihat semua pelatihan ===
 router.get("/", authAdmin, (req, res) => {
-  const sql = `
+  // =========================
+  // AUTO UPDATE STATUS SELESAI
+  // =========================
+  const autoUpdate = `
+    UPDATE pelatihan_tb
+    SET status = 'selesai'
+    WHERE status = 'publish'
+    AND tanggal_selesai < CURDATE()
+  `;
+
+  connection.query(autoUpdate, (err) => {
+    if (err) {
+      console.error("Gagal auto update status:", err);
+    }
+
+    const sql = `
   SELECT 
     p.id_pelatihan,
     p.nama_pelatihan,
@@ -454,21 +526,29 @@ router.get("/", authAdmin, (req, res) => {
     ) AS sisa_kuota
 
     FROM pelatihan_tb p
-    ORDER BY p.tanggal_mulai ASC
+
+    ORDER BY 
+    CASE 
+      WHEN p.status = 'publish' THEN 1
+      WHEN p.status = 'draft' THEN 2
+      WHEN p.status = 'selesai' THEN 3
+      WHEN p.status = 'batal' THEN 4
+    END,
+    p.tanggal_mulai ASC
   `;
 
-  connection.query(sql, (err, result) => {
-    if (err) {
-      console.error("❌ Gagal mengambil data pelatihan:", err);
-      return res.status(500).json({
-        message: "Gagal mengambil data pelatihan",
-        error: err.message,
-      });
-    }
-    res.status(200).json(result);
+    connection.query(sql, (err, result) => {
+      if (err) {
+        console.error("❌ Gagal mengambil data pelatihan:", err);
+        return res.status(500).json({
+          message: "Gagal mengambil data pelatihan",
+          error: err.message,
+        });
+      }
+      res.status(200).json(result);
+    });
   });
 });
-
 // === UPDATE: Edit pelatihan ===
 router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
   const admin = req.session.admin;
