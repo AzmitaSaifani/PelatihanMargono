@@ -29,6 +29,31 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// session
+app.use(
+  session({
+    name: "admin-session",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: false, //nanti diubah kalo mau deploy, jadi true
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 2,
+    },
+  }),
+);
+
+app.use("/captcha", captchaRoute);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
+app.use(limiter);
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -52,12 +77,6 @@ app.use(
   }),
 );
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-
-app.use(limiter);
 
 app.use("/uploads", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://localhost:8080");
@@ -85,24 +104,7 @@ app.get("/", (req, res) => {
   res.send("✅ Server API pelatihan jalan!");
 });
 
-// ✅ SESSION HARUS DI APP LEVEL
-app.use(
-  session({
-    name: "admin-session",
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: false, //nanti diubah kalo mau deploy, jadi true
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 2,
-    },
-  }),
-);
-
 app.use("/api", authRoutes);
-app.use("/captcha", captchaRoute);
 
 // ===========================
 const PORT = 5000;
