@@ -69,7 +69,7 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html" class="active">Home</a></li>
 
             <li class="dropdown">
               <a href="#">
@@ -77,11 +77,11 @@
                 <i class="bi bi-chevron-down toggle-dropdown"></i>
               </a>
               <ul>
-                <li><a href="menupelatihan.html">Menu Pelatihan</a></li>
-                <li><a href="kalender.html">Kalender Pelatihan</a></li>
-                <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
+                <li><a href="menupelatihan.html">Program Pelatihan</a></li>
+                <li><a href="kalender.html">Kalender</a></li>
+                <li><a href="daftarpelatihan.html">Pendaftaran Pelatihan</a></li>
                 <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
-                <li><a href="gallery.html" class="active">Gallery</a></li>
+                <li><a href="gallery.html">Dokumentasi</a></li>
               </ul>
             </li>
 
@@ -96,15 +96,12 @@
                     Profesional Fasilitor dan Instuktur Tersertifikasi
                   </a>
                 </li>
-                <!-- <li>
-                <a href="instruktur.html">Instuktur Tersertifikasi</a>
-              </li> -->
                 <li>
                   <a href="penyelenggara.html">
                     Tim Penyelenggara Pelatihan Tersertifikasi
                   </a>
                 </li>
-                <li><a href="intitusi.html">Institusi Kerjasama</a></li>
+                <li><a href="intitusi.html">Lembaga Mitra</a></li>
               </ul>
             </li>
 
@@ -126,7 +123,7 @@
 
             <li class="ms-lg-3">
               <a href="daftarpelatihan.html" class="btn btn-accent nav-cta">
-                Daftar Pelatihan
+                Pendaftaran Pelatihan
               </a>
             </li>
           </ul>
@@ -168,6 +165,15 @@
               <li class="nav-item">
                 <button
                   class="nav-link"
+                  onclick="filterGallery('pelatihan', this)"
+                >
+                  Pelatihan
+                </button>
+              </li>
+
+              <li class="nav-item">
+                <button
+                  class="nav-link"
                   onclick="filterGallery('diskusi', this)"
                 >
                   Diskusi
@@ -180,15 +186,6 @@
                   onclick="filterGallery('sarpras', this)"
                 >
                   Sarana Prasarana
-                </button>
-              </li>
-
-              <li class="nav-item">
-                <button
-                  class="nav-link"
-                  onclick="filterGallery('pelatihan', this)"
-                >
-                  Pelatihan
                 </button>
               </li>
             </ul>

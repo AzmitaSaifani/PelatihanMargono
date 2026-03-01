@@ -82,11 +82,11 @@
                 <i class="bi bi-chevron-down toggle-dropdown"></i>
               </a>
               <ul>
-                <li><a href="menupelatihan.html">Menu Pelatihan</a></li>
-                <li><a href="kalender.html">Kalender Pelatihan</a></li>
-                <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
+                <li><a href="menupelatihan.html">Program Pelatihan</a></li>
+                <li><a href="kalender.html">Kalender</a></li>
+                <li><a href="daftarpelatihan.html">Pendaftaran Pelatihan</a></li>
                 <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="gallery.html">Dokumentasi</a></li>
               </ul>
             </li>
 
@@ -106,7 +106,7 @@
                     Tim Penyelenggara Pelatihan Tersertifikasi
                   </a>
                 </li>
-                <li><a href="intitusi.html">Institusi Kerjasama</a></li>
+                <li><a href="intitusi.html">Lembaga Mitra</a></li>
               </ul>
             </li>
 
@@ -128,7 +128,7 @@
 
             <li class="ms-lg-3">
               <a href="daftarpelatihan.html" class="btn btn-accent nav-cta">
-                Daftar Pelatihan
+                Pendaftaran Pelatihan
               </a>
             </li>
           </ul>
@@ -145,7 +145,7 @@
         <div class="hero-wrapper">
           <div class="hero-image">
             <img
-              src="/pelatihanmargono/backend/uploads/foto/rs margono.jpg"
+              src="/pelatihanmargono/backend/uploads/foto/RSMS3.jpeg"
               alt="RSMS"
               class="img-fluid"
             />
@@ -176,11 +176,11 @@
                       data-aos-delay="300"
                     >
                       <a href="daftarpelatihan.html" class="btn btn-primary">
-                        Daftar Pelatihan
+                        Pendaftaran Pelatihan
                       </a>
 
                       <a href="menupelatihan.html" class="btn btn-outline">
-                        Menu Pelatihan
+                        Daftar Program Pelatihan
                       </a>
                     </div>
                   </div>
@@ -239,16 +239,6 @@
                   <!-- DESKRIPSI DINAMIS -->
                   <div class="col-lg-6" data-aos="fade-left">
                     <div id="profilDiklatContent"></div>
-
-                    <!-- CTA -->
-                    <div class="cta-wrapper mt-4">
-                      <a href="profil.html" class="btn btn-primary">
-                        Profil Diklat 
-                      </a>
-                      <a href="profil.html#tim-diklat" class="btn btn-outline">
-                        Tim Diklat
-                      </a>
-                    </div>
                   </div>
                 </div>
             </div>
@@ -295,9 +285,7 @@
               ========================= */
             let sertifikatHtml = `
               <div class="feature-item mb-4">
-                <p class="lead">
-                  <strong>Sertifikat Akreditasi</strong>
-                </p>
+                <h4 class="lead fw-bold"><strong>Sertifikat Akreditasi:</strong></h4>
                 <div class="row g-3">
             `;
 
@@ -326,7 +314,7 @@
               ========================= */
             let timHtml = `
               <div class="feature-item mb-4">
-                <p class="lead"><strong>Tim Diklat</strong></p>
+                <h4 class="lead fw-bold"><strong>Tim Diklat:</strong></h4>
                 <ul class="ps-3">
             `;
 
@@ -344,6 +332,7 @@
               RENDER KE HALAMAN
               ========================= */
             document.getElementById("profilDiklatContent").innerHTML = `
+
               ${sertifikatHtml}
               ${timHtml}
             `;
@@ -379,11 +368,25 @@
                 modal.style.display = "none";
               }
             });
+
+            /* =========================
+            STRUKTUR ORGANISASI
+            ========================= */
+          const strukturRes = await fetch(
+            "http://localhost:5000/api/struktur-organisasi"
+          );
+          const struktur = await strukturRes.json();
+
+          if (struktur && document.getElementById("btnStrukturOrganisasi")) {
+            document.getElementById("btnStrukturOrganisasi").href =
+              struktur.file_url;
+          }
+
           } catch (err) {
             console.error("Gagal load profil diklat:", err);
           }
         });
-      </script>
+        </script>
 
       <!-- MODAL ZOOM GAMBAR SERTIFIKAT -->
       <div id="imageModal" class="img-modal">
@@ -434,7 +437,7 @@
                     } else {
                       btnKalender.href = `http://localhost:5000/uploads/kalender/${data.file_kalender}`;
                       btnKalender.setAttribute("download", data.file_kalender);
-                      btnKalender.innerText = `Download Kalender Pelatihan ${data.tahun}`;
+                      btnKalender.innerText = `Download Jadwal Pelatihan ${data.tahun}`;
                     }
                   } catch (err) {
                     console.error("Gagal load kalender:", err);
@@ -761,7 +764,7 @@
       <!-- MENU PELATIHAN Section -->
         <section class="services section">
             <div class="container section-title mt-0" data-aos="fade-up">
-              <h2>MENU PELATIHAN</h2>
+              <h2>PROGRAM PELATIHAN</h2>
 
               <!-- === FILTER KATEGORI === -->
               <div class="services-tabs">
@@ -1260,7 +1263,7 @@
           <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="contact.html">Kontak</a></li>
-            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="gallery.html">Dokumentasi</a></li>
           </ul>
         </div>
 

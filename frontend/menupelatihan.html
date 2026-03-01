@@ -181,48 +181,52 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html" class="active">Home</a></li>
+
             <li class="dropdown">
-              <a href="#"
-                ><span>Pelatihan</span>
-                <i class="bi bi-chevron-down toggle-dropdown"></i
-              ></a>
+              <a href="#">
+                <span>Pelatihan</span>
+                <i class="bi bi-chevron-down toggle-dropdown"></i>
+              </a>
               <ul>
-                <li><a href="menupelatihan.html" class="active">Menu Pelatihan</a></li>
-                <li><a href="kalender.html">Kalender Pelatihan</a></li>
-                <li><a href="daftarpelatihan.html">Daftar Pelatihan</a></li>
+                <li><a href="menupelatihan.html">Program Pelatihan</a></li>
+                <li><a href="kalender.html">Kalender</a></li>
+                <li><a href="daftarpelatihan.html">Pendaftaran Pelatihan</a></li>
                 <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="gallery.html">Dokumentasi</a></li>
               </ul>
             </li>
+
             <li class="dropdown">
-              <a href="#"
-                ><span>Tim & Mitra Pelatihan</span>
-                <i class="bi bi-chevron-down toggle-dropdown"></i
-              ></a>
+              <a href="#">
+                <span>Tim & Mitra Pelatihan</span>
+                <i class="bi bi-chevron-down toggle-dropdown"></i>
+              </a>
               <ul>
                 <li>
-                  <a href="fasilitator.html">Profesional Fasilitor dan Instuktur Tersertifikasi</a>
+                  <a href="fasilitator.html">
+                    Profesional Fasilitor dan Instuktur Tersertifikasi
+                  </a>
                 </li>
-                <!-- <li>
-                  <a href="instruktur.html">Instuktur Tersertifikasi</a>
-                </li> -->
                 <li>
-                  <a href="penyelenggara.html"
-                    >Tim Penyelenggara Pelatihan Tersertifikasi</a
-                  >
+                  <a href="penyelenggara.html">
+                    Tim Penyelenggara Pelatihan Tersertifikasi
+                  </a>
                 </li>
-                <li><a href="intitusi.html">Institusi Kerjasama</a></li>
+                <li><a href="intitusi.html">Lembaga Mitra</a></li>
               </ul>
             </li>
+
             <li class="dropdown">
-              <a href="#"
-                ><span>Tentang Kami</span>
-                <i class="bi bi-chevron-down toggle-dropdown"></i
-              ></a>
+              <a href="#">
+                <span>Tentang Kami</span>
+                <i class="bi bi-chevron-down toggle-dropdown"></i>
+              </a>
               <ul>
                 <li><a href="profil.html">Profil Diklat</a></li>
-                <li><a href="struktur_organisasi.html">Struktur Organisasi</a></li>
+                <li>
+                  <a href="struktur_organisasi.html">Struktur Organisasi</a>
+                </li>
                 <li><a href="contact.html">Kontak</a></li>
               </ul>
             </li>
@@ -230,15 +234,12 @@
             <li><a href="kritiksaran.html">Kritik Saran</a></li>
 
             <li class="ms-lg-3">
-              <a
-                href="daftarpelatihan.html"
-                class="btn btn-accent nav-cta"
-              >
-                Daftar Pelatihan
+              <a href="daftarpelatihan.html" class="btn btn-accent nav-cta">
+                Pendaftaran Pelatihan
               </a>
             </li>
-
           </ul>
+
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
@@ -252,7 +253,7 @@
         </div>
 
         <div class="title-wrapper">
-          <h1>MENU PELATIHAN</h1>
+          <h1>PROGRAM PELATIHAN</h1>
         </div>
       </div>
       <!-- End Page Title -->
@@ -262,38 +263,44 @@
         <div class="container" data-aos="fade-up">
 
           <div class="services-tabs">
-            <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
+                <!-- === FILTER KATEGORI (NAV-TABS) === -->
+                <ul class="nav nav-tabs justify-content-center mb-4" id="kategoriTabs">
+                  <li class="nav-item">
+                    <button
+                      class="nav-link"
+                      onclick="filterKategori('all', this)"
+                    >
+                      Akan Dilaksanakan
+                    </button>
+                  </li>
 
-              <li class="nav-item">
-                <button class="nav-link active"
-                  onclick="filterKategori('all', this)">
-                  Semua
-                </button>
-              </li>
+                  <li class="nav-item">
+                    <button
+                      class="nav-link"
+                      onclick="filterKategori('Nakes', this)"
+                    >
+                      Nakes
+                    </button>
+                  </li>
 
-              <li class="nav-item">
-                <button class="nav-link"
-                  onclick="filterKategori('Nakes', this)">
-                  Nakes
-                </button>
-              </li>
+                  <li class="nav-item">
+                    <button
+                      class="nav-link"
+                      onclick="filterKategori('Non Nakes', this)"
+                    >
+                      Non-Nakes
+                    </button>
+                  </li>
 
-              <li class="nav-item">
-                <button class="nav-link"
-                  onclick="filterKategori('Non Nakes', this)">
-                  Non-Nakes
-                </button>
-              </li>
+                  <li class="nav-item">
+                    <button class="nav-link"
+                      onclick="filterKategori('terlaksana', this)">
+                      Sudah Terlaksana
+                    </button>
+                  </li>
 
-              <li class="nav-item">
-                <button class="nav-link"
-                  onclick="filterKategori('terlaksana', this)">
-                  Terlaksana
-                </button>
-              </li>
-
-            </ul>
-          </div>
+                </ul>
+              </div>
 
         </div>
       </section>
@@ -467,6 +474,23 @@
                         return "Rp " + nilai.toLocaleString("id-ID");
                       }
 
+                      function getPelatihanAkanDilaksanakan() {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        return allPelatihan
+                        .filter(p => {
+                          const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                          tanggalMulai.setHours(0, 0, 0, 0);
+                          return tanggalMulai >= today;
+                        })
+                        .sort((a, b) => {
+                          const aDate = new Date(a.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                          const bDate = new Date(b.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                          return aDate - bDate;
+                        });
+                      }
+
                       // ===================== LOAD LIST PELATIHAN (CARD) =====================
                       async function loadPelatihan() {
                         const res = await fetch(API);
@@ -492,7 +516,7 @@
                             return bDate - aDate;
                           });
 
-                        renderPelatihan(allPelatihan);
+                        renderPelatihan(getPelatihanAkanDilaksanakan());
                       }
 
                       // ===================== RENDER CARD PELATIHAN =====================
@@ -504,7 +528,7 @@
                           container.innerHTML = `
                             <div class="col-12 text-center py-5">
                               <h5 class="text-muted">
-                                Tidak ada pelatihan yang tersedia untuk kategori ini.
+                                Tidak ada pelatihan yang tersedia untuk kategori ini
                               </h5>
                             </div>
                           `;
@@ -566,19 +590,35 @@
                         let hasil = [];
 
                         if (kategori === "all") {
-                          hasil = allPelatihan;
-                        } 
-                        else if (kategori === "terlaksana") {
+                          // ❗ ALL tapi hanya yang BELUM terlaksana
                           hasil = allPelatihan.filter(p => {
-                            const tanggalMulai = new Date(p.tanggal_mulai);
+                            const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
                             tanggalMulai.setHours(0, 0, 0, 0);
-                            return tanggalMulai < today;
+                            return tanggalMulai >= today;
                           });
                         } 
-                        else {
-                          hasil = allPelatihan.filter(p => p.kategori === kategori);
+                        else if (kategori === "terlaksana") {
+                          hasil = allPelatihan
+                            .filter(p => {
+                              const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                              tanggalMulai.setHours(0, 0, 0, 0);
+                              return tanggalMulai < today;
+                            })
+                            .sort((a, b) => {
+                              const aDate = new Date(a.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                              const bDate = new Date(b.tanggal_mulai.split("T")[0]).setHours(0, 0, 0, 0);
+                              return bDate - aDate; // TERBARU DULU
+                            })
+                            .slice(0, 9); // Menampilkan maksimal 9 pelatihan
                         }
-
+                        else {
+                          // kategori lain (misal: teknis, manajerial, dll)
+                          hasil = allPelatihan.filter(p => {
+                            const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
+                            tanggalMulai.setHours(0, 0, 0, 0);
+                            return p.kategori === kategori && tanggalMulai >= today;
+                          });
+                        }
                         renderPelatihan(hasil);
                       }
 
@@ -627,14 +667,20 @@
                             flyerEmpty.classList.remove("d-none");
                           }
 
-                        const today = new Date().setHours(0, 0, 0, 0);
-                        const eventDate = new Date(p.tanggal_mulai).setHours(0, 0, 0, 0);
+                        const todayDate = new Date();
+                        todayDate.setHours(0, 0, 0, 0);
+
+                        const eventDate = new Date(p.tanggal_mulai.split("T")[0]);
+                        eventDate.setHours(0, 0, 0, 0);
+
+                        // H-1 (sehari sebelum pelaksanaan)
+                        const hMinusOne = new Date(eventDate);
+                        hMinusOne.setDate(hMinusOne.getDate() - 1);
 
                         let sisaKuota = Number(p.sisa_kuota) || 0;
                         const totalKuota = Number(p.kuota) || 0;
 
-                        if (today > eventDate) {
-                          sisaKuota = 0;
+                        if (todayDate > hMinusOne) {
                           document.getElementById("modalPeserta").innerText =
                             `0 / ${totalKuota}`;
 
