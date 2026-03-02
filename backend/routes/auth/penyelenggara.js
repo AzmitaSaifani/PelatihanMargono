@@ -19,7 +19,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 3 * 1024 * 1024, // 3MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("FORMAT_FILE_INVALID"));
+    }
+
+    cb(null, true);
+  },
+});
 
 // === CREATE: Tambah penyelenggara ===
 router.post("/", upload.single("foto"), (req, res) => {
@@ -27,7 +41,9 @@ router.post("/", upload.single("foto"), (req, res) => {
   const foto = req.file ? req.file.filename : null;
 
   if (!nama) {
-    return res.status(400).json({ message: "❌ Nama penyelenggara wajib diisi." });
+    return res
+      .status(400)
+      .json({ message: "❌ Nama penyelenggara wajib diisi." });
   }
 
   const sql = `
@@ -60,7 +76,8 @@ router.get("/", (req, res) => {
 
   // Jika bukan admin → hanya data aktif
   if (!admin) {
-    sql = "SELECT * FROM penyelenggara_tb WHERE status = '1' ORDER BY id_penyelenggara DESC";
+    sql =
+      "SELECT * FROM penyelenggara_tb WHERE status = '1' ORDER BY id_penyelenggara DESC";
   }
 
   connection.query(sql, (err, results) => {
@@ -81,7 +98,9 @@ router.get("/:id", (req, res) => {
   const sql = "SELECT * FROM penyelenggara_tb WHERE id_penyelenggara = ?";
   connection.query(sql, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Penyelenggara tidak ditemukan." });
+      return res
+        .status(404)
+        .json({ message: "❌ Penyelenggara tidak ditemukan." });
     }
     res.status(200).json(results[0]);
   });
@@ -96,7 +115,9 @@ router.put("/:id", upload.single("foto"), (req, res) => {
   const getOld = "SELECT foto FROM penyelenggara_tb WHERE id_penyelenggara = ?";
   connection.query(getOld, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Penyelenggara tidak ditemukan." });
+      return res
+        .status(404)
+        .json({ message: "❌ Penyelenggara tidak ditemukan." });
     }
 
     const oldFoto = results[0].foto;
@@ -110,14 +131,25 @@ router.put("/:id", upload.single("foto"), (req, res) => {
       SET foto=?, nama=?, keterangan=?, updated_at=NOW(), author=?, status=?
       WHERE id_penyelenggara=?
     `;
-    const values = [fotoBaru || oldFoto, nama, keterangan, author || "admin", status || "1", id];
+    const values = [
+      fotoBaru || oldFoto,
+      nama,
+      keterangan,
+      author || "admin",
+      status || "1",
+      id,
+    ];
 
     connection.query(sql, values, (err) => {
       if (err) {
         console.error("❌ Gagal memperbarui penyelenggara:", err);
-        return res.status(500).json({ message: "❌ Gagal memperbarui penyelenggara" });
+        return res
+          .status(500)
+          .json({ message: "❌ Gagal memperbarui penyelenggara" });
       }
-      res.status(200).json({ message: "✅ Penyelenggara berhasil diperbarui!" });
+      res
+        .status(200)
+        .json({ message: "✅ Penyelenggara berhasil diperbarui!" });
     });
   });
 });
@@ -126,10 +158,13 @@ router.put("/:id", upload.single("foto"), (req, res) => {
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
-  const getFoto = "SELECT foto FROM penyelenggara_tb WHERE id_penyelenggara = ?";
+  const getFoto =
+    "SELECT foto FROM penyelenggara_tb WHERE id_penyelenggara = ?";
   connection.query(getFoto, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Penyelenggara tidak ditemukan." });
+      return res
+        .status(404)
+        .json({ message: "❌ Penyelenggara tidak ditemukan." });
     }
 
     const foto = results[0].foto;
@@ -142,7 +177,9 @@ router.delete("/:id", (req, res) => {
     connection.query(deleteSql, [id], (err) => {
       if (err) {
         console.error("❌ Gagal menghapus penyelenggara:", err);
-        return res.status(500).json({ message: "❌ Gagal menghapus penyelenggara" });
+        return res
+          .status(500)
+          .json({ message: "❌ Gagal menghapus penyelenggara" });
       }
       res.status(200).json({ message: "✅ Penyelenggara berhasil dihapus!" });
     });

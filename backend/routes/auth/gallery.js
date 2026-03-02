@@ -1,7 +1,6 @@
 import express from "express";
 import connection from "../../config/db.js";
 import { authAdmin } from "../../middleware/auth.js";
-import { logAdmin } from "./adminLogger.js";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -23,7 +22,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 3 * 1024 * 1024, // 3MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("FORMAT_FILE_INVALID"));
+    }
+
+    cb(null, true);
+  },
+});
 
 // ======================================================
 // ===============   CREATE GALLERY   ===================
@@ -66,7 +79,7 @@ router.post("/", authAdmin, upload.single("foto"), (req, res) => {
 // ======================================================
 // ===============   READ ALL GALLERY   =================
 // ======================================================
-router.get("/", authAdmin, (req, res) => {
+router.get("/", (req, res) => {
   const { admin, kategori } = req.query;
 
   let where = [];
@@ -90,36 +103,6 @@ router.get("/", authAdmin, (req, res) => {
     }
 
     res.status(200).json(results);
-  });
-});
-
-// ======================================================
-// ===============   READ PUBLIC   ======================
-// ======================================================
-router.get("/public", (req, res) => {
-  const { kategori } = req.query;
-
-  let where = ["status = '1'"];
-  let params = [];
-
-  if (kategori) {
-    where.push("kategori = ?");
-    params.push(kategori);
-  }
-
-  const sql = `
-    SELECT * FROM gallery_tb
-    WHERE ${where.join(" AND ")}
-    ORDER BY id DESC
-  `;
-
-  connection.query(sql, params, (err, results) => {
-    if (err) {
-      return res.status(500).json({
-        message: "❌ Gagal mengambil gallery",
-      });
-    }
-    res.json(results);
   });
 });
 
@@ -221,6 +204,26 @@ router.delete("/:id", authAdmin, (req, res) => {
       res.status(200).json({ message: "✅ Gallery berhasil dihapus!" });
     });
   });
+});
+
+router.use((err, req, res, next) => {
+  // FILE TERLALU BESAR
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({
+        message: "Ukuran file maksimal 3MB",
+      });
+    }
+  }
+
+  // FORMAT SALAH
+  if (err.message === "FORMAT_FILE_INVALID") {
+    return res.status(400).json({
+      message: "Format file harus JPG atau PNG",
+    });
+  }
+
+  next(err);
 });
 
 export default router;

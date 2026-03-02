@@ -112,7 +112,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html">Lembaga Mitra</a>
+                  <a class="dropdown-item" href="institusi.html"
+                    >Lembaga Mitra</a
+                  >
                 </li>
               </ul>
             </li>
@@ -140,7 +142,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="sertifikat.html">Sertifikat Akreditasi</a>
+                  <a class="dropdown-item" href="sertifikat.html"
+                    >Sertifikat Akreditasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -424,7 +428,7 @@
 
       let filteredData = [];
       let currentPage = 1;
-      const rowsPerPage = 5;
+      const rowsPerPage = 10;
 
       const tableBody = document.getElementById("tableAnggota");
       const form = document.getElementById("formTambah");
@@ -583,25 +587,51 @@
 
         const fd = new FormData(formTambah);
 
-        const res = await fetch(API, {
-          method: "POST",
-          body: fd,
-          headers: {
-            "x-admin-id": localStorage.getItem("admin_id"),
-            "x-admin-email": localStorage.getItem("admin_email"),
-            "x-admin-nama": localStorage.getItem("admin_nama"),
-          },
-        });
+        try {
+          const res = await fetch(API, {
+            method: "POST",
+            body: fd,
+            headers: {
+              "x-admin-id": localStorage.getItem("admin_id"),
+              "x-admin-email": localStorage.getItem("admin_email"),
+              "x-admin-nama": localStorage.getItem("admin_nama"),
+            },
+          });
 
-        const data = await res.json();
-        alert(data.message);
+          const text = await res.text();
 
-        if (res.ok) {
+          // ================= ERROR =================
+          if (!res.ok) {
+            // 🔥 DETEKSI MULTER LIMIT
+            if (text.toLowerCase().includes("file too large")) {
+              alert("File terlalu besar. Maksimal 3MB.");
+              return;
+            }
+
+            // kalau bukan multer
+            let data = {};
+            try {
+              data = JSON.parse(text);
+            } catch {
+              alert("Upload gagal");
+              return;
+            }
+
+            alert(data.message || "Upload gagal");
+            return;
+          }
+
+          // ================= SUCCESS =================
+          alert("Anggota berhasil ditambahkan!");
+
           formTambah.reset();
           loadData();
+
           bootstrap.Modal.getInstance(
             document.getElementById("modalTambahAnggota"),
           ).hide();
+        } catch (err) {
+          alert("Tidak dapat terhubung ke server");
         }
       };
 
@@ -625,19 +655,47 @@
 
         const fd = new FormData(formEdit);
 
-        const res = await fetch(`${API}/${edit_id.value}`, {
-          method: "PUT",
-          body: fd,
-        });
+        try {
+          const res = await fetch(`${API}/${edit_id.value}`, {
+            method: "PUT",
+            body: fd,
+          });
 
-        const data = await res.json();
-        alert(data.message);
+          const text = await res.text();
 
-        if (res.ok) {
-          loadData();
+          // ================= ERROR =================
+          if (!res.ok) {
+            // DETEKSI FILE TERLALU BESAR (MULTER)
+            if (text.toLowerCase().includes("file too large")) {
+              alert("File terlalu besar. Maksimal 3MB.");
+              return;
+            }
+
+            let data = {};
+            try {
+              data = JSON.parse(text);
+            } catch {
+              alert("Upload gagal");
+              return;
+            }
+
+            alert(data.message || "Upload gagal");
+            return;
+          }
+
+          // ================= SUCCESS =================
+          alert("Anggota berhasil diperbarui!");
+
+          formEdit.reset();
+          previewEdit.style.display = "none";
+
           bootstrap.Modal.getInstance(
             document.getElementById("modalEditAnggota"),
           ).hide();
+
+          loadData();
+        } catch (err) {
+          alert("Tidak dapat terhubung ke server");
         }
       };
 

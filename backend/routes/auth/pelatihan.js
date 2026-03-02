@@ -67,6 +67,7 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
     kriteria_peserta,
     tipe_pelatihan,
     durasi,
+    link_grup,
     status,
   } = req.body;
 
@@ -129,9 +130,9 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
     INSERT INTO pelatihan_tb (
       nama_pelatihan, jumlah_jpl, lokasi, alamat_lengkap,
       tanggal_mulai, tanggal_selesai, kuota, warna, harga,
-      kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, status, created_by, created_at
+      kategori, kriteria_peserta, tipe_pelatihan, durasi, flyer_url, link_grup, status, created_by, created_at
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   const values = [
@@ -149,6 +150,7 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
     tipe_pelatihan,
     durasi,
     flyer_url,
+    link_grup,
     status || "draft",
     adminId,
   ];
@@ -201,6 +203,7 @@ router.get("/public", (req, res) => {
     p.tipe_pelatihan,
     p.durasi,
     p.flyer_url,
+    p.link_grup,
     p.status,
     p.created_by,
     p.created_at,
@@ -503,6 +506,7 @@ router.get("/", authAdmin, (req, res) => {
     p.tipe_pelatihan,
     p.durasi,
     p.flyer_url,
+    p.link_grup,
     p.status,
     p.created_by,
     p.created_at,
@@ -576,6 +580,7 @@ router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
     kriteria_peserta,
     tipe_pelatihan,
     durasi,
+    link_grup,
     status,
     updated_by,
   } = req.body;
@@ -605,7 +610,7 @@ router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
       UPDATE pelatihan_tb
       SET nama_pelatihan=?, jumlah_jpl=?, lokasi=?, alamat_lengkap=?,
           tanggal_mulai=?, tanggal_selesai=?, kuota=?, warna=?, harga=?,
-          kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, status=?, updated_at=NOW()
+          kategori=?, kriteria_peserta=?, tipe_pelatihan=?, durasi=?, flyer_url=?, link_grup=?, status=?, updated_at=NOW()
       WHERE id_pelatihan=?
     `;
 
@@ -624,6 +629,7 @@ router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
       tipe_pelatihan,
       durasi,
       flyer_url || oldFlyer,
+      link_grup,
       status,
       id,
     ];

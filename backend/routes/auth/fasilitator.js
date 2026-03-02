@@ -21,7 +21,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 3 * 1024 * 1024, // 3MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error("FORMAT_FILE_INVALID"));
+    }
+
+    cb(null, true);
+  },
+});
 
 // === CREATE: Tambah fasilitator ===
 router.post("/", authAdmin, upload.single("foto"), (req, res) => {
@@ -107,8 +121,6 @@ router.get("/", authAdmin, (req, res) => {
     res.status(200).json(results);
   });
 });
-
-
 
 // === READ: Detail 1 fasilitator ===
 router.get("/:id", authAdmin, (req, res) => {

@@ -797,7 +797,7 @@
               // ======================
               async function loadPelatihan() {
                 const res = await fetch(
-                  "http://localhost:5000/api/pelatihan/public",
+                  "http://localhost:5000/api/pelatihan",
                 );
                 if (!res.ok) {
                   console.error("Response error:", res.status);
@@ -935,7 +935,7 @@
 
                   try {
                     const res = await fetch(
-                      "http://localhost:5000/api/pendaftaran/public",
+                      "http://localhost:5000/api/pendaftaran",
                       {
                         method: "POST",
                         body: formData,

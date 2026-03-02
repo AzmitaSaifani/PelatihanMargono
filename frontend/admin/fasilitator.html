@@ -113,7 +113,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html">Lembaga Mitra</a>
+                  <a class="dropdown-item" href="institusi.html"
+                    >Lembaga Mitra</a
+                  >
                 </li>
               </ul>
             </li>
@@ -141,7 +143,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="sertifikat.html">Sertifikat Akreditasi</a>
+                  <a class="dropdown-item" href="sertifikat.html"
+                    >Sertifikat Akreditasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -499,7 +503,7 @@
         let allData = [];
         let filteredData = [];
         let currentPage = 1;
-        const rowsPerPage = 5;
+        const rowsPerPage = 10;
 
         const tableBody = document.getElementById("tableFasilitator");
         const form = document.getElementById("formFasilitator");
@@ -679,26 +683,43 @@
               credentials: "include",
             });
 
-            const data = await res.json();
-            alert(data.message);
+            const text = await res.text();
 
-            if (res.ok) {
-              form.reset();
-              preview.style.display = "none";
+            // DETEKSI LANGSUNG ERROR MULTER
+            if (!res.ok) {
+              // kalau multer limit
+              if (text.toLowerCase().includes("file too large")) {
+                alert("File terlalu besar. Maksimal 3MB.");
+                return;
+              }
 
-              // tutup modal
-              bootstrap.Modal.getInstance(
-                document.getElementById("modalTambahFasilitator"),
-              ).hide();
+              let data = {};
+              try {
+                data = JSON.parse(text);
+              } catch {
+                alert("Upload gagal");
+                return;
+              }
 
-              loadFasilitator(); // refresh tabel
+              alert(data.message || "Upload gagal");
+              return;
             }
+
+            // SUKSES
+            alert("Fasilitator berhasil ditambahkan!");
+
+            form.reset();
+            preview.style.display = "none";
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalTambahFasilitator"),
+            ).hide();
+
+            loadGallery();
           } catch (err) {
-            alert("Gagal menambahkan fasilitator");
-            console.error(err);
+            alert("Tidak dapat terhubung ke server");
           }
         });
-
         // =========================
         // OPEN EDIT MODAL
         // =========================
@@ -736,24 +757,51 @@
             e.preventDefault();
 
             const id = document.getElementById("edit_id").value;
-            const formData = new FormData(
-              document.getElementById("formEditFasilitator"),
-            );
+            const formEdit = document.getElementById("formEditFasilitator");
+            const formData = new FormData(formEdit);
 
-            const res = await fetch(`${API}/${id}`, {
-              method: "PUT",
-              body: formData,
-              credentials: "include",
-            });
+            try {
+              const res = await fetch(`${API}/${id}`, {
+                method: "PUT",
+                body: formData,
+                credentials: "include",
+              });
 
-            const data = await res.json();
-            alert(data.message);
+              const text = await res.text();
 
-            if (res.ok) {
+              // ================= ERROR =================
+              if (!res.ok) {
+                // DETEKSI FILE TERLALU BESAR
+                if (text.toLowerCase().includes("file too large")) {
+                  alert("File terlalu besar. Maksimal 3MB.");
+                  return;
+                }
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch {
+                  alert("Upload gagal");
+                  return;
+                }
+
+                alert(data.message || "Upload gagal");
+                return;
+              }
+
+              // ================= SUCCESS =================
+              alert("Fasilitator berhasil diperbarui!");
+
+              formEdit.reset();
+              previewEdit.style.display = "none";
+
               bootstrap.Modal.getInstance(
                 document.getElementById("modalEditFasilitator"),
               ).hide();
-              loadFasilitator();
+
+              loadData();
+            } catch (err) {
+              alert("Tidak dapat terhubung ke server");
             }
           });
 

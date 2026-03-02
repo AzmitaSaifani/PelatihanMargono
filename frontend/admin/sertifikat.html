@@ -110,7 +110,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html">Lembaga Mitra</a>
+                  <a class="dropdown-item" href="institusi.html"
+                    >Lembaga Mitra</a
+                  >
                 </li>
               </ul>
             </li>
@@ -138,7 +140,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="sertifikat.html">Sertifikat Akreditasi</a>
+                  <a class="dropdown-item" href="sertifikat.html"
+                    >Sertifikat Akreditasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -340,7 +344,7 @@
       let allData = [];
       let filteredData = [];
       let currentPage = 1;
-      const rowsPerPage = 5;
+      const rowsPerPage = 10;
 
       const tableBody = document.getElementById("tableData");
       const infoData = document.getElementById("infoData");
@@ -485,18 +489,41 @@
               body: formData,
             });
 
-            const result = await res.json();
-            if (res.ok) {
-              alert(result.message);
-              bootstrap.Modal.getInstance(
-                document.getElementById("modalEdit"),
-              ).hide();
-              loadData();
-            } else {
-              alert("Error: " + result.message);
+            const text = await res.text();
+
+            // DETEKSI LANGSUNG ERROR MULTER
+            if (!res.ok) {
+              // kalau multer limit
+              if (text.toLowerCase().includes("file too large")) {
+                alert("File terlalu besar. Maksimal 3MB.");
+                return;
+              }
+
+              let data = {};
+              try {
+                data = JSON.parse(text);
+              } catch {
+                alert("Upload gagal");
+                return;
+              }
+
+              alert(data.message || "Upload gagal");
+              return;
             }
+
+            // SUKSES
+            alert("Sertifikat berhasil diedit");
+
+            form.reset();
+            preview.style.display = "none";
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalEdit"),
+            ).hide();
+
+            loadGallery();
           } catch (err) {
-            console.error("Gagal update:", err);
+            alert("Tidak dapat terhubung ke server");
           }
         });
 

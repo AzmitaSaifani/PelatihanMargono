@@ -156,13 +156,13 @@ router.get("/", (req, res) => {
 
 // Route Pendaftaran
 router.post(
-  "/public",
+  "/",
   upload.fields([
     { name: "surat_tugas", maxCount: 1 },
     { name: "foto_4x6", maxCount: 1 },
   ]),
   async (req, res) => {
-    const {
+    let {
       id_pelatihan,
       nik,
       nip,
@@ -640,6 +640,11 @@ router.delete("/:id", authAdmin, (req, res) => {
 router.put("/:id/accept", authAdmin, (req, res) => {
   const { id } = req.params;
 
+  const admin = req.session.admin;
+  const adminId = admin?.id_user;
+  const adminEmail = admin?.email;
+  const adminNama = admin?.nama_lengkap;
+
   const getPesertaSQL = `
     SELECT 
       d.nama_peserta,
@@ -863,6 +868,11 @@ router.get("/validate-token/:token", (req, res) => {
 // ========================================================
 router.put("/:id/reject", authAdmin, (req, res) => {
   const { id } = req.params;
+
+  const admin = req.session.admin;
+  const adminId = admin?.id_user;
+  const adminEmail = admin?.email;
+  const adminNama = admin?.nama_lengkap;
 
   // 1. Ambil data peserta (email & nama)
   const getPesertaSQL = `

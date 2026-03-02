@@ -262,7 +262,6 @@
 
         <!-- SEARCH BAR -->
         <div class="col-md-4 mt-2 ms-3 mb-4 text-end">
-          <i class="bi bi-search search-icon"></i>
 
           <input
             type="text"
@@ -352,7 +351,7 @@
           <div class="modal-body">
             <form id="formTambahPelatihan">
               <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <label class="form-label">Nama Pelatihan *</label>
                   <input
                     type="text"
@@ -466,6 +465,14 @@
                     name="tipe_pelatihan"
                     class="form-control"
                     placeholder="Online / Offline / Hybrid"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label">Link Grup</label>
+                  <input
+                    name="link_grup"
+                    class="form-control"
                   />
                 </div>
 
@@ -627,6 +634,15 @@
                 </div>
 
                 <div class="col-md-4">
+                  <label class="form-label">Link Grup</label>
+                  <input
+                    id="edit_link"
+                    name="link_grup"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="col-md-4">
                   <label class="form-label">Kategori</label>
                   <select
                     id="edit_kategori"
@@ -731,7 +747,7 @@
         let allData = [];
         let filteredData = [];
         let currentPage = 1;
-        const rowsPerPage = 5;
+        const rowsPerPage = 10;
 
         const tableBody = document.getElementById("tablePelatihan");
         const formTambah = document.getElementById("formTambahPelatihan");
@@ -949,32 +965,55 @@
             }
 
             if (tanggalSelesai < tanggalMulai) {
-              alert(
-                "❌ Tanggal selesai tidak boleh lebih awal dari tanggal mulai"
-              );
+              alert("❌ Tanggal selesai tidak boleh lebih awal dari tanggal mulai");
               return;
             }
 
             const formData = new FormData(formTambah);
 
-            // jika ingin set created_by admin tertentu → misal 1
-            const res = await fetch(API, {
-              method: "POST",
-              body: formData,
-              credentials: "include",
-            });
+            try {
+              const res = await fetch(API, {
+                method: "POST",
+                body: formData,
+                credentials: "include",
+              });
 
-            const data = await res.json();
+              const text = await res.text();
 
-            alert(data.message);
+              // ================= ERROR =================
+              if (!res.ok) {
 
-            if (res.ok) {
+                // DETEKSI FILE TERLALU BESAR
+                if (text.toLowerCase().includes("file too large")) {
+                  alert("File terlalu besar. Maksimal 3MB.");
+                  return;
+                }
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch {
+                  alert("Upload gagal");
+                  return;
+                }
+
+                alert(data.message || "Upload gagal");
+                return;
+              }
+
+              // ================= SUCCESS =================
+              alert("Pelatihan berhasil ditambahkan!");
+
               formTambah.reset();
+
+              bootstrap.Modal.getInstance(
+                document.getElementById("modalTambahPelatihan")
+              ).hide();
+
               loadPelatihan();
 
-              const modalEl = document.getElementById("modalTambahPelatihan");
-              const modal = bootstrap.Modal.getInstance(modalEl);
-              modal.hide();
+            } catch (err) {
+              alert("Tidak dapat terhubung ke server");
             }
           });
         }
@@ -1075,6 +1114,7 @@
           edit_kuota.value = data.kuota ?? "";
           edit_warna.value = data.warna ?? "#3498db";
           edit_harga.value = data.harga ?? 0;
+          edit_link.value = data.link_grup;
           edit_kategori.value = data.kategori;
           edit_keterangan.value = data.kriteria_peserta ?? "";
           edit_tipe_pelatihan.value = data.tipe_pelatihan ?? "";
@@ -1105,20 +1145,48 @@
             const id = edit_id_pelatihan.value;
             const formData = new FormData(formEdit);
 
-            const res = await fetch(`${API}/${id}`, {
-              method: "PUT",
-              body: formData,
-              credentials: "include",
-            });
+            try {
+              const res = await fetch(`${API}/${id}`, {
+                method: "PUT",
+                body: formData,
+                credentials: "include",
+              });
 
-            const result = await res.json();
-            alert(result.message);
+              const text = await res.text();
 
-            bootstrap.Modal.getInstance(
-              document.getElementById("modalEditPelatihan")
-            ).hide();
+              // ================= ERROR =================
+              if (!res.ok) {
 
-            loadPelatihan();
+                // DETEKSI FILE TERLALU BESAR
+                if (text.toLowerCase().includes("file too large")) {
+                  alert("File terlalu besar. Maksimal 3MB.");
+                  return;
+                }
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch {
+                  alert("Upload gagal");
+                  return;
+                }
+
+                alert(data.message || "Upload gagal");
+                return;
+              }
+
+              // ================= SUCCESS =================
+              alert("Pelatihan berhasil diperbarui!");
+
+              bootstrap.Modal.getInstance(
+                document.getElementById("modalEditPelatihan")
+              ).hide();
+
+              loadPelatihan();
+
+            } catch (err) {
+              alert("Tidak dapat terhubung ke server");
+            }
           });
         }
 

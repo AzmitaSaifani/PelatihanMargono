@@ -298,7 +298,10 @@
                         type="text"
                         name="no_wa"
                         class="form-control"
+                        maxlength="15"
                         placeholder="08xxxxxxxxxx"
+                        inputmode="numeric"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                         required
                       >
                       <small class="text-danger">
@@ -461,32 +464,53 @@
                   location.href = "index.html";
                 });
 
+              // ==========================================
+              // Format tanggal ISO → DD/MM/YYYY
+              // ==========================================
+                function formatTanggalIndo(dateString) {
+                  const date = new Date(dateString);
+                  const d = String(date.getDate()).padStart(2, "0");
+                  const m = String(date.getMonth() + 1).padStart(2, "0");
+                  const y = date.getFullYear();
+                  return `${d}/${m}/${y}`;
+                }
+
               // ================= LOAD PELATIHAN =================
               async function loadPelatihan() {
-                const res = await fetch("http://localhost:5000/api/pelatihan/public");
-
-                const text = await res.text();
-
-                let data = {};
-                try {
-                  data = JSON.parse(text);
-                } catch (e) {
-                  console.error("JSON ERROR:", e);
+                const res = await fetch(
+                  "http://localhost:5000/api/pelatihan",
+                );
+                if (!res.ok) {
+                  console.error("Response error:", res.status);
+                  return;
                 }
+
+                const data = await res.json();
                 const select = document.getElementById("menupelatihan");
                 const today = new Date().toISOString().split("T")[0];
 
-                data.forEach(item => {
+                data.forEach((item) => {
+                  // HANYA tampilkan status publish
                   if (item.status !== "publish") return;
-                  const tgl = item.tanggal_mulai?.split("T")[0];
-                  if (tgl >= today) {
+
+                  const tanggalISO = item.tanggal_mulai;
+                  if (!tanggalISO) return;
+
+                  const tanggalOnly = tanggalISO.split("T")[0];
+
+                  // Hanya tampilkan pelatihan yang belum lewat
+                  if (tanggalOnly >= today) {
                     const opt = document.createElement("option");
                     opt.value = item.id_pelatihan;
-                    opt.textContent = `${item.nama_pelatihan}`;
+
+                    const tanggalFormatted = formatTanggalIndo(tanggalISO);
+                    opt.textContent = `${item.nama_pelatihan} - (${tanggalFormatted})`;
+
                     select.appendChild(opt);
                   }
                 });
               }
+
               loadPelatihan();
 
               // ================= MODAL =================
@@ -530,7 +554,7 @@
               const formData = new FormData(form);
 
               try {
-                const res = await fetch("http://localhost:5000/api/pembayaran/public", {
+                const res = await fetch("http://localhost:5000/api/pembayaran", {
                   method: "POST",
                   credentials: "include",
                   body: formData

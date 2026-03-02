@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 /* CREATE PEMBAYARAN + EMAIL PENDING */
-router.post("/", authAdmin, upload.single("bukti_transfer"), (req, res) => {
+router.post("/", upload.single("bukti_transfer"), (req, res) => {
   const { token } = req.body;
 
   if (!token) {
@@ -223,7 +223,7 @@ router.post("/", authAdmin, upload.single("bukti_transfer"), (req, res) => {
 });
 
 /* GET ALL */
-router.get("/", authAdmin, (req, res) => {
+router.get("/", (req, res) => {
   const sql = `
       SELECT 
       bayar.id_pembayaran,
@@ -263,57 +263,6 @@ router.get("/", authAdmin, (req, res) => {
     }
 
     res.json(results);
-  });
-});
-
-// ==========================
-// PUBLIC UPLOAD PEMBAYARAN
-// ==========================
-router.post("/public", upload.single("bukti_transfer"), (req, res) => {
-  const { token } = req.body;
-
-  if (!token) {
-    return res.status(400).json({
-      message: "Token wajib dikirim",
-    });
-  }
-
-  let id_pendaftaran;
-  try {
-    id_pendaftaran = decryptId(token);
-  } catch {
-    return res.status(403).json({
-      message: "Token tidak valid",
-    });
-  }
-
-  if (!req.file) {
-    return res.status(400).json({
-      message: "Bukti pembayaran wajib diupload",
-    });
-  }
-
-  const bukti_transfer = req.file.filename;
-
-  const sql = `
-    INSERT INTO pembayaran_tb
-    (id_pendaftaran, bukti_transfer, status, uploaded_at)
-    VALUES (?, ?, 'PENDING', NOW())
-  `;
-
-  connection.query(sql, [id_pendaftaran, bukti_transfer], (err, result) => {
-    if (err) {
-      console.error("UPLOAD ERROR:", err);
-      return res.status(500).json({
-        message: "Gagal menyimpan pembayaran",
-      });
-    }
-
-    res.status(201).json({
-      success: true,
-      message: "Bukti pembayaran berhasil diupload",
-      status: "PENDING",
-    });
   });
 });
 

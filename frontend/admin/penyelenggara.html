@@ -112,7 +112,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html">Lembaga Mitra</a>
+                  <a class="dropdown-item" href="institusi.html"
+                    >Lembaga Mitra</a
+                  >
                 </li>
               </ul>
             </li>
@@ -140,7 +142,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="sertifikat.html">Sertifikat Akreditasi</a>
+                  <a class="dropdown-item" href="sertifikat.html"
+                    >Sertifikat Akreditasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -497,7 +501,7 @@
         let allData = [];
         let filteredData = [];
         let currentPage = 1;
-        const rowsPerPage = 5;
+        const rowsPerPage = 10;
 
         const tableBody = document.getElementById("tablePenyelenggara");
         const form = document.getElementById("formPenyelenggara");
@@ -668,24 +672,41 @@
               body: formData,
             });
 
-            const data = await res.json();
-            alert(data.message);
+            const text = await res.text();
 
-            if (res.ok) {
-              form.reset();
-              preview.style.display = "none";
+            // DETEKSI LANGSUNG ERROR MULTER
+            if (!res.ok) {
+              // kalau multer limit
+              if (text.toLowerCase().includes("file too large")) {
+                alert("File terlalu besar. Maksimal 3MB.");
+                return;
+              }
 
-              // kalau pakai modal
-              const modal = bootstrap.Modal.getInstance(
-                document.getElementById("modalTambahPenyelenggara"),
-              );
-              if (modal) modal.hide();
+              let data = {};
+              try {
+                data = JSON.parse(text);
+              } catch {
+                alert("Upload gagal");
+                return;
+              }
 
-              loadPenyelenggara();
+              alert(data.message || "Upload gagal");
+              return;
             }
+
+            // ✅ SUKSES
+            alert("Penyelenggara berhasil ditambahkan!");
+
+            form.reset();
+            preview.style.display = "none";
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalTambahPenyelenggara"),
+            ).hide();
+
+            loadGallery();
           } catch (err) {
-            alert("Gagal menambahkan penyelenggara");
-            console.error(err);
+            alert("Tidak dapat terhubung ke server");
           }
         });
 
@@ -728,19 +749,47 @@
               document.getElementById("formEditPenyelenggara"),
             );
 
-            const res = await fetch(`${API}/${id}`, {
-              method: "PUT",
-              body: formData,
-            });
+            try {
+              const res = await fetch(`${API}/${id}`, {
+                method: "PUT",
+                body: formData,
+              });
 
-            const data = await res.json();
-            alert(data.message);
+              const text = await res.text();
 
-            if (res.ok) {
+              // ================= ERROR =================
+              if (!res.ok) {
+                // DETEKSI FILE TERLALU BESAR
+                if (text.toLowerCase().includes("file too large")) {
+                  alert("File terlalu besar. Maksimal 3MB.");
+                  return;
+                }
+
+                let data = {};
+                try {
+                  data = JSON.parse(text);
+                } catch {
+                  alert("Upload gagal");
+                  return;
+                }
+
+                alert(data.message || "Upload gagal");
+                return;
+              }
+
+              // ================= SUCCESS =================
+              alert("Penyelenggara berhasil diperbarui!");
+
+              formEdit.reset();
+              previewEdit.style.display = "none";
+
               bootstrap.Modal.getInstance(
                 document.getElementById("modalEditPenyelenggara"),
               ).hide();
-              loadPenyelenggara();
+
+              loadData();
+            } catch (err) {
+              alert("Tidak dapat terhubung ke server");
             }
           });
 
