@@ -968,30 +968,45 @@
 
                       // ===================== LOAD LIST PELATIHAN (CARD) =====================
                       async function loadPelatihan() {
-                        const res = await fetch(API);
-                        const data = await res.json();
+                        try {
+                          const res = await fetch(API);
 
-                        // Urutkan dari yg masih bisa daftar
-                        allPelatihan = data
-                          .filter(item => item.status === "publish")
-                          .sort((a, b) => {
-                            const today = new Date().setHours(0, 0, 0, 0);
+                          if (!res.ok) {
+                            console.error("Gagal ambil data:", res.status);
+                            return;
+                          }
 
-                            const aDate = new Date(a.tanggal_mulai).setHours(0, 0, 0, 0);
-                            const bDate = new Date(b.tanggal_mulai).setHours(0, 0, 0, 0);
+                          const data = await res.json();
 
-                            const aAvailable = a.sisa_kuota > 0 && aDate >= today;
-                            const bAvailable = b.sisa_kuota > 0 && bDate >= today;
+                          if (!Array.isArray(data)) {
+                            console.error("Response bukan array:", data);
+                            return;
+                          }
 
-                            if (aAvailable && !bAvailable) return -1;
-                            if (!aAvailable && bAvailable) return 1;
+                          allPelatihan = data
+                            .filter(item => item.status === "publish")
+                            .sort((a, b) => {
+                              const today = new Date().setHours(0, 0, 0, 0);
 
-                            if (aAvailable && bAvailable) return aDate - bDate;
+                              const aDate = new Date(a.tanggal_mulai).setHours(0, 0, 0, 0);
+                              const bDate = new Date(b.tanggal_mulai).setHours(0, 0, 0, 0);
 
-                            return bDate - aDate;
-                          });
+                              const aAvailable = a.sisa_kuota > 0 && aDate >= today;
+                              const bAvailable = b.sisa_kuota > 0 && bDate >= today;
 
-                        renderPelatihan(getPelatihanAkanDilaksanakan());
+                              if (aAvailable && !bAvailable) return -1;
+                              if (!aAvailable && bAvailable) return 1;
+
+                              if (aAvailable && bAvailable) return aDate - bDate;
+
+                              return bDate - aDate;
+                            });
+
+                          renderPelatihan(getPelatihanAkanDilaksanakan());
+
+                        } catch (err) {
+                          console.error("Load error:", err);
+                        }
                       }
 
                       // ===================== RENDER CARD PELATIHAN =====================

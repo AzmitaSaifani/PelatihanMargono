@@ -219,7 +219,7 @@
       </div>
     </nav>
     <div class="container py-4">
-      <h2 class="fw-bold mb-4">👑 Kelola User Admin</h2>
+      <h2 class="fw-bold mb-4"> Kelola User Admin</h2>
 
       <div class="card">
         <div class="card-header bg-dark text-white">Daftar Admin</div>
@@ -274,7 +274,7 @@
     <div class="modal fade" id="modalTambahAdmin">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header bg-dark text-white">
+          <div class="modal-header">
             <h5 class="modal-title">Tambah Admin</h5>
             <button
               class="btn-close btn-close-white"
@@ -433,22 +433,6 @@
         const meData = await meRes.json();
 
         currentUser = meData.admin;
-
-        // Menu khusus superadmin
-        // const menuSuperAdmin = document.getElementById("menuSuperAdmin");
-
-        // if (currentUser?.level_user === 1) {
-        //   menuSuperAdmin.innerHTML = `
-        //     <li>
-        //     <a class="dropdown-item" href="admin.html">Kelola Admin</a>
-        //     </li>
-        // `;
-        // } else {
-        //   menuSuperAdmin.innerHTML = ""; // kosongkan jika bukan super admin
-        // }
-
-        // console.log("RESPONSE /me:", meData);
-        // console.log("CURRENT USER:", currentUser);
 
         if (currentUser?.level_user === 1) {
           document.getElementById("btnTambahContainer").innerHTML = `
