@@ -242,7 +242,7 @@ router.get("/", (req, res) => {
       pel.lokasi,
       pel.tanggal_mulai,
       pel.tanggal_selesai,
-      pel.link_grup_wa
+      pel.link_grup
 
     FROM pembayaran_tb bayar
     LEFT JOIN pendaftaran_tb daftar 
@@ -283,7 +283,7 @@ router.put("/:id/validate", authAdmin, (req, res) => {
         pel.lokasi,
         pel.tanggal_mulai,
         pel.tanggal_selesai,
-        pel.link_grup_wa
+        pel.link_grup
 
       FROM pembayaran_tb bayar
       JOIN pendaftaran_tb daftar

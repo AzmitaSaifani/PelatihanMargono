@@ -66,7 +66,7 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="kalender.html"
-                    >Kalender Pelatihan</a
+                    >Jadwal Pelatihan</a
                   >
                 </li>
                 <li>
@@ -218,7 +218,7 @@
 
     <!-- ================= CONTENT ================= -->
     <div class="container py-4">
-      <h2 class="fw-bold mb-4">📜 Sertifikat Akreditasi</h2>
+      <h2 class="fw-bold mb-4">Sertifikat Akreditasi</h2>
 
       <div class="card">
         <div
@@ -257,12 +257,22 @@
     </div>
 
     <!-- ================= MODAL EDIT ================= -->
-    <div class="modal fade" id="modalEdit">
-      <div class="modal-dialog modal-lg">
+    <div
+      class="modal fade"
+      id="modalEdit"
+      tabindex="-1"
+      aria-labelledby="modalEditInstitusiLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-          <div class="modal-header>
-            <h5 class="modal-title">Edit Sertifikat</h5>
+          <!-- HEADER -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEditInstitusiLabel">
+              Edit Sertifikat
+            </h5>
             <button
+              type="button"
               class="btn-close btn-close-white"
               data-bs-dismiss="modal"
             ></button>

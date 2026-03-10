@@ -11,7 +11,7 @@
       sizes="512x512"
     />
 
-    <title>Institusi Kerjasama - Admin DIKLAT RSMS</title>
+    <title>Lembaga Mitra - Admin DIKLAT RSMS</title>
 
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -69,7 +69,7 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="kalender.html"
-                    >Kalender Pelatihan</a
+                    >Jadwal Pelatihan</a
                   >
                 </li>
                 <li>
@@ -221,11 +221,11 @@
 
     <!-- CONTENT -->
     <div class="container py-4">
-      <h2 class="fw-bold mb-4">🏛️ Kelola Institusi Kerjasama</h2>
+      <h2 class="fw-bold mb-4">Kelola Lembaga Mitra</h2>
 
       <!-- TABLE LIST -->
       <div class="card">
-        <div class="card-header bg-dark text-white">Daftar Institusi</div>
+        <div class="card-header bg-dark text-white">Daftar Lembaga Mitra</div>
 
         <div class="col-md-4 mt-3 ms-3">
           <input
@@ -242,7 +242,7 @@
             data-bs-toggle="modal"
             data-bs-target="#modalTambahInstitusi"
           >
-            + Tambah Institusi
+            + Tambah Lembaga Mitra
           </button>
         </div>
 
@@ -290,12 +290,12 @@
       aria-labelledby="modalTambahInstitusiLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <!-- HEADER -->
           <div class="modal-header">
             <h5 class="modal-title" id="modalTambahInstitusiLabel">
-              Tambah Institusi
+              Tambah Lembaga Mitra
             </h5>
             <button
               type="button"
@@ -309,7 +309,7 @@
             <form id="formInstitusi">
               <div class="row g-3">
                 <div class="col-md-6">
-                  <label class="form-label">Nama Institusi *</label>
+                  <label class="form-label">Nama Lembaga Mitra:</label>
                   <input
                     type="text"
                     name="nama"
@@ -319,7 +319,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Link Terkait</label>
+                  <label class="form-label">Link Terkait:</label>
                   <input
                     type="text"
                     name="link_terkait"
@@ -329,7 +329,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Upload Logo *</label>
+                  <label class="form-label">Upload Logo:</label>
                   <input
                     type="file"
                     name="foto"
@@ -358,7 +358,7 @@
               Batal
             </button>
             <button type="submit" form="formInstitusi" class="btn btn-primary">
-              Simpan Institusi
+              Simpan Lembaga Mitra
             </button>
           </div>
         </div>
@@ -378,7 +378,7 @@
           <!-- HEADER -->
           <div class="modal-header>
             <h5 class="modal-title" id="modalEditInstitusiLabel">
-              Edit Institusi
+              Edit Lembaga Mitra
             </h5>
             <button
               type="button"
@@ -394,7 +394,7 @@
 
               <div class="row g-3">
                 <div class="col-md-6">
-                  <label class="form-label">Nama Institusi *</label>
+                  <label class="form-label">Nama Lembaga Mitra:</label>
                   <input
                     type="text"
                     id="edit_nama"
@@ -423,7 +423,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Logo Baru (Opsional)</label>
+                  <label class="form-label">Logo Baru:</label>
                   <input
                     type="file"
                     id="edit_foto"

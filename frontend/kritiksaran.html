@@ -168,7 +168,7 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
 
             <li class="dropdown">
               <a href="#">
@@ -218,7 +218,7 @@
               </ul>
             </li>
 
-            <li><a href="kritiksaran.html">Kritik Saran</a></li>
+            <li><a href="kritiksaran.html" class="active">Kritik Saran</a></li>
 
             <li class="ms-lg-3">
               <a href="daftarpelatihan.html" class="btn btn-accent nav-cta">
@@ -386,8 +386,7 @@
               <div class="card-body">
                 <p><b>Nama Lengkap:</b> ${item.nama_lengkap ?? "Anonim"}</p>
                 <hr>
-                <p><b>Kritik:</b> ${item.kritik}</p>
-                <p><b>Saran:</b> ${item.saran}</p>
+                <p>${item.kritik} ${item.saran}</p>
               </div>
             </div>
           `;
@@ -443,28 +442,53 @@
           return;
         }
 
+        const noHp   = document.getElementById("no_hp").value.trim();
+        const kritik = document.getElementById("kritik").value.trim();
+        const saran  = document.getElementById("saran").value.trim();
+
+        if (!noHp) {
+          document.getElementById("pesanValidasi").innerHTML =
+            "<b>Nomor HP wajib diisi.</b>";
+          modalValidasi.show();
+          return;
+        }
+
+        if (!kritik && !saran) {
+          document.getElementById("pesanValidasi").innerHTML =
+            "<b>Kritik atau saran harus diisi.</b>";
+          modalValidasi.show();
+          return;
+        }
+
         const payload = {
           nama_lengkap: chkAnonim.checked ? null : inputNama.value.trim(),
           is_anonim: chkAnonim.checked ? "Y" : "N",
-          no_hp: document.getElementById("no_hp").value,
-          kritik: document.getElementById("kritik").value,
-          saran: document.getElementById("saran").value
+          no_hp: noHp,
+          kritik: kritik,
+          saran: saran
         };
 
         try {
-          await fetch(API, {
+
+          const res = await fetch(API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
 
-          // ✔ RESET FORM
+          const result = await res.json();
+
+          if (!res.ok) {
+            document.getElementById("pesanValidasi").innerHTML = result.message;
+            modalValidasi.show();
+            return;
+          }
+
           form.reset();
           inputNama.disabled = false;
           inputNama.setAttribute("required", true);
           generateCaptcha();
 
-          // ✔ TUTUP → BUKA (TANPA EVENT hidden)
           modalKritik.hide();
           modalKritik._element.addEventListener(
             "hidden.bs.modal",
@@ -477,8 +501,10 @@
           loadKritik();
 
         } catch (err) {
+          console.error(err);
           alert("Gagal mengirim kritik & saran.");
         }
+
       });
 
     });
@@ -499,7 +525,7 @@
             <form id="formKritik">
 
             <div class="mb-3">
-                <label class="form-label">Nama Lengkap</label>
+                <label class="form-label">Nama Lengkap:</label>
                 <input
                     type="text"
                     id="nama_lengkap"
@@ -520,17 +546,23 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Nomor HP</label>
-                <input type="number" id="no_hp" class="form-control" required>
+                <label class="form-label" >Nomor HP:</label>
+                <input type="tel"
+                        id="no_hp"
+                        class="form-control"
+                        maxlength="15"
+                        inputmode="numeric"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Kritik</label>
+                <label class="form-label">Kritik:</label>
                 <textarea id="kritik" class="form-control" rows="3" required></textarea>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Saran</label>
+                <label class="form-label">Saran:</label>
                 <textarea id="saran" class="form-control" rows="3" required></textarea>
             </div>
 
@@ -596,6 +628,29 @@
         </div>
     </div>
     </div>
+
+    <div class="modal fade" id="modalValidasi" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Validasi Data</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <p id="pesanValidasi"></p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-bs-dismiss="modal">
+            OK
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
     <!-- ================= MODAL TERIMA KASIH ================= -->
     <div class="modal fade" id="modalTerimaKasih" tabindex="-1">

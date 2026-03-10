@@ -799,7 +799,7 @@
 
                   <li class="nav-item">
                     <button class="nav-link"
-                      onclick="filterKategori('terlaksana', this)">
+                      onclick="filterKategori('selesai', this)">
                       Sudah Terlaksana
                     </button>
                   </li>
@@ -984,7 +984,7 @@
                           }
 
                           allPelatihan = data
-                            .filter(item => item.status === "publish")
+                            .filter(item => item.status === "publish" || item.status === "selesai")
                             .sort((a, b) => {
                               const today = new Date().setHours(0, 0, 0, 0);
 
@@ -1087,7 +1087,7 @@
                             return tanggalMulai >= today;
                           });
                         } 
-                        else if (kategori === "terlaksana") {
+                        else if (kategori === "selesai") {
                           hasil = allPelatihan
                             .filter(p => {
                               const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);

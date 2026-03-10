@@ -181,15 +181,15 @@
 
         <nav id="navmenu" class="navmenu">
           <ul>
-            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="index.html">Home</a></li>
 
             <li class="dropdown">
-              <a href="#">
+              <a href="#" class="active">
                 <span>Pelatihan</span>
                 <i class="bi bi-chevron-down toggle-dropdown"></i>
               </a>
               <ul>
-                <li><a href="menupelatihan.html">Program Pelatihan</a></li>
+                <li><a href="menupelatihan.html" class="active">Program Pelatihan</a></li>
                 <li><a href="kalender.html">Kalender</a></li>
                 <li><a href="daftarpelatihan.html">Pendaftaran Pelatihan</a></li>
                 <li><a href="alurpendaftaran.html">Alur Pendaftaran</a></li>
@@ -294,7 +294,7 @@
 
                   <li class="nav-item">
                     <button class="nav-link"
-                      onclick="filterKategori('terlaksana', this)">
+                      onclick="filterKategori('selesai', this)">
                       Sudah Terlaksana
                     </button>
                   </li>
@@ -498,7 +498,7 @@
 
                         // Urutkan dari yg masih bisa daftar
                         allPelatihan = data
-                          .filter(item => item.status === "publish")
+                          .filter(item => item.status === "publish" || item.status === "selesai" )
                           .sort((a, b) => {
                             const today = new Date().setHours(0, 0, 0, 0);
 
@@ -597,7 +597,7 @@
                             return tanggalMulai >= today;
                           });
                         } 
-                        else if (kategori === "terlaksana") {
+                        else if (kategori === "selesai") {
                           hasil = allPelatihan
                             .filter(p => {
                               const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);

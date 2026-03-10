@@ -10,9 +10,15 @@ const router = express.Router();
 router.post("/", (req, res) => {
   const { nama_lengkap, no_hp, kritik, saran, is_anonim } = req.body;
 
-  if (!no_hp || !kritik || !saran) {
+  if (!no_hp) {
     return res.status(400).json({
-      message: "❌ Nomor HP, kritik, dan saran wajib diisi",
+      message: "❌ Nomor HP wajib diisi",
+    });
+  }
+
+  if (!kritik && !saran) {
+    return res.status(400).json({
+      message: "❌ Kritik atau saran harus diisi",
     });
   }
 
@@ -39,7 +45,7 @@ router.post("/", (req, res) => {
         message: "✅ Terima kasih atas kritik dan saran Anda",
         id_kritik: result.insertId,
       });
-    }
+    },
   );
 });
 
@@ -168,7 +174,7 @@ router.delete("/:id", (req, res) => {
       res.json({
         message: "🗑️ Kritik & saran berhasil dihapus",
       });
-    }
+    },
   );
 });
 
