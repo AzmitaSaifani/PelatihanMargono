@@ -1,6 +1,7 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import express, { Router } from "express";
 import connection from "../../config/db.js";
+import { authAdmin } from "../../middleware/auth.js";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import path from "path";
@@ -54,118 +55,139 @@ const upload = multer({ storage });
 /* ======================================================
    CREATE / UPDATE (BERDASARKAN TAHUN)
 ====================================================== */
-router.post("/", upload.single("file_kalender"), (req, res) => {
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
+router.post("/", authAdmin, upload.single("file_kalender"), (req, res) => {
+  const adminId = req.user.id_user;
+  const adminEmail = req.user.email;
+  const adminNama = req.user.nama_lengkap;
 
-  if (!adminId) {
-    return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
-  }
+  const { tahun, judul, status } = req.body;
 
-  let { tahun, judul, status } = req.body;
-  if (Array.isArray(tahun)) {
-    tahun = tahun[0];
-  }
-
-  const file = req.file?.filename;
-
-  if (!tahun || !judul || !file) {
+  if (!tahun || !judul || !req.file) {
     return res.status(400).json({
       message: "❌ Tahun, judul, dan file kalender wajib diisi",
     });
   }
 
   const fileKalender = req.file.filename;
+  const tipe_file = mapTipeFile(fileKalender);
 
-  const tipe_file = mapTipeFile(file);
+  const sql = `
+    INSERT INTO kalender_pelatihan
+    (tahun, judul, file_kalender, tipe_file, status, uploaded_by)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
 
-  const checkSql =
-    "SELECT id_kalender, file_kalender FROM kalender_pelatihan WHERE tahun = ?";
-
-  connection.query(checkSql, [tahun], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "❌ Server error" });
-    }
-
-    /* ================= UPDATE ================= */
-    if (results.length > 0) {
-      const oldFile = results[0].file_kalender;
-
-      if (oldFile) {
-        const oldPath = path.join(__dirname, "../../uploads/kalender", oldFile);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+  connection.query(
+    sql,
+    [tahun, judul, fileKalender, tipe_file, status || "aktif", adminId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({
+          message: "❌ Gagal menambahkan kalender",
+        });
       }
 
-      const updateSql = `
-        UPDATE kalender_pelatihan
-        SET judul=?, file_kalender=?, tipe_file=?, status=?, uploaded_by=?, updated_at=NOW()
-        WHERE tahun=?
-      `;
+      logAdmin({
+        id_user: adminId,
+        email: adminEmail,
+        nama_lengkap: adminNama,
+        aktivitas: "AKSI",
+        keterangan: `Menambahkan kalender pelatihan tahun ${tahun}`,
+        req,
+      });
 
-      connection.query(
-        updateSql,
-        [judul, fileKalender, tipe_file, status || "aktif", adminId, tahun],
-        (err) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ message: "❌ Gagal memperbarui kalender" });
-          }
+      res.status(201).json({
+        message: "✅ Kalender berhasil ditambahkan",
+        id_kalender: result.insertId,
+      });
+    },
+  );
+});
 
-          logAdmin({
-            id_user: adminId,
-            email: adminEmail,
-            nama_lengkap: adminNama,
-            aktivitas: "AKSI",
-            keterangan: `Update kalender pelatihan tahun ${tahun}`,
-            req,
-          });
+// Update
 
-          res.json({
-            message: `✅ Kalender pelatihan tahun ${tahun} berhasil diperbarui`,
-          });
-        }
-      );
-    } else {
-      /* ================= INSERT ================= */
-      const insertSql = `
-        INSERT INTO kalender_pelatihan
-        (tahun, judul, file_kalender, tipe_file, status, uploaded_by)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
+router.put("/:id", authAdmin, upload.single("file_kalender"), (req, res) => {
+  const adminId = req.user.id_user;
+  const adminEmail = req.user.email;
+  const adminNama = req.user.nama_lengkap;
 
-      connection.query(
-        insertSql,
-        [tahun, judul, fileKalender, tipe_file, status || "aktif", adminId],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ message: "❌ Gagal menambahkan kalender" });
-          }
+  const { id } = req.params;
+  const { tahun, judul, status } = req.body;
 
-          logAdmin({
-            id_user: adminId,
-            email: adminEmail,
-            nama_lengkap: adminNama,
-            aktivitas: "AKSI",
-            keterangan: `Menambahkan kalender pelatihan tahun ${tahun}`,
-            req,
-          });
+  const getSql = "SELECT * FROM kalender_pelatihan WHERE id_kalender=?";
 
-          res.status(201).json({
-            message: `✅ Kalender pelatihan tahun ${tahun} berhasil ditambahkan`,
-            id_kalender: result.insertId,
-          });
-        }
-      );
+  connection.query(getSql, [id], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({
+        message: "❌ Kalender tidak ditemukan",
+      });
     }
+
+    const dataLama = results[0];
+
+    // ===============================
+    // ambil value lama jika tidak dikirim
+    // ===============================
+    const tahunFinal = tahun || dataLama.tahun;
+    const judulFinal = judul || dataLama.judul;
+    const statusFinal = status || dataLama.status;
+
+    let fileFinal = dataLama.file_kalender;
+
+    // ===============================
+    // jika upload file baru
+    // ===============================
+    if (req.file) {
+      const oldPath = path.join(
+        __dirname,
+        "../../uploads/kalender",
+        dataLama.file_kalender,
+      );
+
+      if (dataLama.file_kalender && fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+
+      fileFinal = req.file.filename;
+    }
+
+    const tipe_file = mapTipeFile(fileFinal);
+
+    const updateSql = `
+      UPDATE kalender_pelatihan
+      SET tahun=?, judul=?, file_kalender=?, tipe_file=?, status=?, uploaded_by=?, updated_at=NOW()
+      WHERE id_kalender=?
+    `;
+
+    connection.query(
+      updateSql,
+      [tahunFinal, judulFinal, fileFinal, tipe_file, statusFinal, adminId, id],
+      (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({
+            message: "❌ Gagal memperbarui kalender",
+          });
+        }
+
+        logAdmin({
+          id_user: adminId,
+          email: adminEmail,
+          nama_lengkap: adminNama,
+          aktivitas: "AKSI",
+          keterangan: `Update kalender pelatihan ID ${id}`,
+          req,
+        });
+
+        res.json({
+          message: "✅ Kalender berhasil diperbarui",
+        });
+      },
+    );
   });
 });
+
 
 /* ======================================================
    READ ALL
@@ -199,69 +221,25 @@ router.get("/", (req, res) => {
 /* ======================================================
    EDIT KALENDER
 ====================================================== */
-router.put("/:id/status", (req, res) => {
+router.put("/:id/status", authAdmin, (req, res) => {
   const { status } = req.body;
 
   connection.query(
     "UPDATE kalender_pelatihan SET status=? WHERE id_kalender=?",
     [status, req.params.id],
-    () => res.json({ message: "Status diubah" })
-  );
-});
-
-/* ======================================================
-   DELETE
-====================================================== */
-router.delete("/:id", (req, res) => {
-  const { id } = req.params;
-
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
-
-  if (!adminId) {
-    return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
-  }
-
-  const getSql =
-    "SELECT tahun, file_kalender FROM kalender_pelatihan WHERE id_kalender=?";
-
-  connection.query(getSql, [id], (err, results) => {
-    if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Kalender tidak ditemukan" });
-    }
-
-    const { tahun, file_kalender } = results[0];
-
-    if (file_kalender) {
-      const filePath = path.join("uploads/kalender", file_kalender);
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    }
-
-    connection.query(
-      "DELETE FROM kalender_pelatihan WHERE id_kalender=?",
-      [id],
-      (err) => {
-        if (err) {
-          console.error(err);
-          return res
-            .status(500)
-            .json({ message: "❌ Gagal menghapus kalender" });
-        }
-
-        logAdmin({
-          id_user: adminId,
-          email: adminEmail,
-          nama_lengkap: adminNama,
-          aktivitas: "AKSI",
-          keterangan: `Hapus kalender pelatihan tahun ${tahun}`,
-          req,
-        });
-
-        res.json({ message: "✅ Kalender berhasil dihapus" });
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Gagal update status" });
       }
-    );
-  });
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "Data tidak ditemukan" });
+      }
+
+      res.json({ message: "Status berhasil diubah" });
+    },
+  );
 });
 
 // ===============================

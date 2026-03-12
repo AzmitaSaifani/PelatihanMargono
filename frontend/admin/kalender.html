@@ -87,7 +87,7 @@
                 </li>
                 <li>
                   <a class="dropdown-item" href="kritiksaran.html"
-                    >Kritik dan Saran</a
+                    >Ulasan Peserta</a
                   >
                 </li>
               </ul>
@@ -113,7 +113,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="institusi.html">Lembaga Mitra</a>
+                  <a class="dropdown-item" href="institusi.html"
+                    >Lembaga Mitra</a
+                  >
                 </li>
               </ul>
             </li>
@@ -141,7 +143,9 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="sertifikat.html">Sertifikat Akreditasi</a>
+                  <a class="dropdown-item" href="sertifikat.html"
+                    >Sertifikat Akreditasi</a
+                  >
                 </li>
               </ul>
             </li>
@@ -224,6 +228,25 @@
           Daftar Jadwal Pelatihan
         </div>
 
+        <div class="col-md-4 mt-3 ms-3 mb-3">
+          <input
+            type="text"
+            id="searchGallery"
+            placeholder="Cari..."
+            class="form-control"
+          />
+        </div>
+
+        <div class="col-md-12">
+          <button
+            class="btn btn-primary mt-3 mb-2 ms-3"
+            data-bs-toggle="modal"
+            data-bs-target="#modalTambahKalender"
+          >
+            + Tambah Jadwal Pelatihan
+          </button>
+        </div>
+
         <div
           class="table-responsive ms-3 me-3 mt-3"
           style="max-height: 450px; overflow-y: auto"
@@ -235,6 +258,7 @@
                 <th>Tahun</th>
                 <th>Judul</th>
                 <th>File</th>
+                <th>Status</th>
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -250,6 +274,70 @@
             </button>
             <button class="btn btn-outline-secondary btn-sm" id="nextBtn">
               Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalTambahKalender" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Tambah Jadwal Pelatihan</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="formTambahKalender" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label class="form-label">Tahun</label>
+                <input
+                  type="number"
+                  name="tahun"
+                  class="form-control"
+                  min="0"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Judul Jadwal *</label>
+                <input type="text" name="judul" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Upload File Jadwal *</label>
+                <input
+                  type="file"
+                  name="file_kalender"
+                  class="form-control"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-control">
+                  <option value="1">Aktif</option>
+                  <option value="0">Nonaktif</option>
+                </select>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Batal
+            </button>
+
+            <button
+              type="submit"
+              form="formTambahKalender"
+              class="btn btn-primary"
+            >
+              Simpan Jadwal
             </button>
           </div>
         </div>
@@ -297,7 +385,9 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">File Jadwal Pelatihan Saat Ini:</label>
+                <label class="form-label"
+                  >File Jadwal Pelatihan Saat Ini:</label
+                >
                 <div>
                   <button
                     type="button"
@@ -322,7 +412,11 @@
             <button class="btn btn-secondary" data-bs-dismiss="modal">
               Batal
             </button>
-            <button class="btn btn-primary" form="formEditKalender">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              form="formEditKalender"
+            >
               Simpan Perubahan
             </button>
           </div>
@@ -356,69 +450,253 @@
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/kalender";
 
-        let previewFileUrl = "";
+        let allData = [];
+        let filteredData = [];
 
-        // const ADMIN_HEADERS = {
-        //   "x-admin-id": localStorage.getItem("admin_id"),
-        //   "x-admin-email": localStorage.getItem("admin_email"),
-        //   "x-admin-nama": localStorage.getItem("admin_nama"),
-        // };
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        let previewFileUrl = "";
 
         const tableBody = document.getElementById("tableKalender");
         const formEdit = document.getElementById("formEditKalender");
+        const formTambah = document.getElementById("formTambahKalender");
 
-        let allData = [];
+        const infoData = document.getElementById("infoData");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        const searchInput = document.getElementById("searchGallery");
 
         // =====================
         // LOAD DATA
         // =====================
         async function loadKalender() {
-          const res = await fetch(`${API}?admin=1`);
-          allData = await res.json();
+          try {
+            const res = await fetch(`${API}?admin=1`);
+            allData = await res.json();
 
+            applyFilter();
+          } catch (err) {
+            tableBody.innerHTML = `
+            <tr>
+            <td colspan="6" class="text-center text-danger">
+            Gagal memuat data kalender
+            </td>
+            </tr>
+            `;
+          }
+        }
+
+        // =====================
+        // FILTER SEARCH
+        // =====================
+        function applyFilter() {
+          const keyword = searchInput.value.toLowerCase().trim();
+
+          filteredData = allData.filter(
+            (item) =>
+              item.judul?.toLowerCase().includes(keyword) ||
+              item.tahun?.toString().includes(keyword),
+          );
+
+          currentPage = 1;
+
+          renderTable();
+        }
+
+        // =====================
+        // RENDER TABLE
+        // =====================
+        function renderTable() {
           tableBody.innerHTML = "";
 
-          allData.forEach((d, i) => {
+          if (filteredData.length === 0) {
+            tableBody.innerHTML = `
+            <tr>
+            <td colspan="6" class="text-center text-muted">
+            Data tidak ditemukan
+            </td>
+            </tr>
+            `;
+
+            infoData.innerText = "Showing 0 entries";
+
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+
+            return;
+          }
+
+          const start = (currentPage - 1) * rowsPerPage;
+          const end = start + rowsPerPage;
+
+          const pageData = filteredData.slice(start, end);
+
+          pageData.forEach((d, i) => {
             tableBody.innerHTML += `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${d.tahun}</td>
-          <td>${d.judul}</td>
-          <td>
+
+            <tr>
+
+            <td>${start + i + 1}</td>
+
+            <td>${d.tahun}</td>
+
+            <td>${d.judul}</td>
+
+            <td>
+
             <button
-              class="btn btn-outline-primary btn-sm"
-              onclick="previewKalenderFromTable('${d.file_kalender}')"
+            class="btn btn-outline-primary btn-sm"
+            onclick="previewKalenderFromTable('${d.file_kalender}')"
             >
-              Lihat File
+            Lihat File
             </button>
-          </td>
-          <td class="text-center">
-                  <div class="d-flex justify-content-center align-items-center gap-2">
-                    <button class="btn btn-sm text-warning p-0"
-                            onclick="openEditKalender(${d.id_kalender})"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Edit">
-                      <i class="bi bi-pencil-square fs-5"></i>
-                    </button>
-                </td>
-              </tr>
+
+            </td>
+
+            <td>
+
+            <span class="badge bg-${d.status === "aktif" ? "success" : "secondary"}">
+            ${d.status === "aktif" ? "Aktif" : "Nonaktif"}
+            </span>
+
+            </td>
+
+            <td class="text-center">
+
+            <div class="d-flex justify-content-center gap-2">
+
+            <button
+            class="btn btn-sm text-warning"
+            onclick="openEditKalender(${d.id_kalender})"
+            title="Edit"
+            >
+            <i class="bi bi-pencil-square"></i>
+            </button>
+
+            <button
+            class="btn btn-sm text-danger"
+            onclick="toggleStatusKalender(${d.id_kalender},'${d.status}')"
+            title="Aktif / Nonaktif"
+            >
+            <i class="bi bi-power"></i>
+            </button>
+
+            </div>
+
+            </td>
+
+            </tr>
+
             `;
           });
+
+          infoData.innerText = `Showing ${start + 1} to ${Math.min(end, filteredData.length)} of ${filteredData.length} entries`;
+
+          prevBtn.disabled = currentPage === 1;
+          nextBtn.disabled = end >= filteredData.length;
         }
+
+        // =====================
+        // PAGINATION
+        // =====================
+        prevBtn.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        };
+
+        nextBtn.onclick = () => {
+          if (currentPage * rowsPerPage < filteredData.length) {
+            currentPage++;
+            renderTable();
+          }
+        };
+
+        // =====================
+        // SEARCH
+        // =====================
+        searchInput.addEventListener("input", applyFilter);
+
+        // =====================
+        // TAMBAH JADWAL
+        // =====================
+        formTambah.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(formTambah);
+
+          try {
+            const res = await fetch(API, {
+              method: "POST",
+              body: formData,
+              credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              alert(data.message || "Upload gagal");
+              return;
+            }
+
+            alert("Jadwal pelatihan berhasil ditambahkan");
+
+            formTambah.reset();
+
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalTambahKalender"),
+            ).hide();
+
+            loadKalender();
+          } catch (err) {
+            alert("Tidak dapat terhubung ke server");
+          }
+        });
+
+        // =====================
+        // TOGGLE STATUS
+        // =====================
+        window.toggleStatusKalender = async (id, status) => {
+          const statusBaru = status === "aktif" ? "nonaktif" : "aktif";
+
+          if (!confirm("Ubah status jadwal ini?")) return;
+
+          try {
+            const res = await fetch(`${API}/${id}/status`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+
+              body: JSON.stringify({ status: statusBaru }),
+            });
+
+            const data = await res.json();
+
+            alert(data.message);
+
+            loadKalender();
+          } catch (err) {
+            alert("Gagal mengubah status");
+          }
+        };
 
         // =====================
         // OPEN EDIT MODAL
         // =====================
         window.openEditKalender = (id) => {
           const data = allData.find((d) => d.id_kalender === id);
+
           if (!data) return;
 
           edit_id_kalender.value = data.id_kalender;
           edit_tahun.value = data.tahun;
           edit_judul.value = data.judul;
 
-          // SIMPAN URL FILE UNTUK PREVIEW
           previewFileUrl = `http://localhost:5000/uploads/kalender/${data.file_kalender}`;
 
           new bootstrap.Modal(
@@ -427,33 +705,47 @@
         };
 
         // =====================
-        // SUBMIT EDIT
+        // EDIT SUBMIT
         // =====================
         formEdit.addEventListener("submit", async (e) => {
           e.preventDefault();
 
+          const id = document.getElementById("edit_id_kalender").value;
+
           const formData = new FormData(formEdit);
 
-          // backend update berdasarkan TAHUN
-          formData.append("tahun", document.getElementById("edit_tahun").value);
+          try {
+            const res = await fetch(`${API}/${id}`, {
+              method: "PUT",
+              body: formData,
+              credentials: "include",
+            });
 
-          const res = await fetch(API, {
-            method: "POST",
-            headers: ADMIN_HEADERS,
-            body: formData,
-          });
+            const data = await res.json();
 
-          const data = await res.json();
-          alert(data.message);
+            if (!res.ok) {
+              alert(data.message);
+              return;
+            }
 
-          bootstrap.Modal.getInstance(
-            document.getElementById("modalEditKalender"),
-          ).hide();
+            alert(data.message);
 
-          formEdit.reset();
-          loadKalender();
+            bootstrap.Modal.getInstance(
+              document.getElementById("modalEditKalender"),
+            ).hide();
+
+            formEdit.reset();
+
+            loadKalender();
+          } catch (err) {
+            console.error(err);
+            alert("Gagal update data");
+          }
         });
 
+        // =====================
+        // PREVIEW FILE
+        // =====================
         window.previewKalenderFromTable = (filename) => {
           if (!filename) {
             alert("File tidak tersedia");
@@ -461,36 +753,21 @@
           }
 
           const fileUrl = `http://localhost:5000/uploads/kalender/${filename}`;
+
           const container = document.getElementById("previewContainer");
+
           container.innerHTML = "";
 
           const ext = filename.split(".").pop().toLowerCase();
 
           if (ext === "pdf") {
             container.innerHTML = `
-      <iframe
-        src="${fileUrl}"
-        width="100%"
-        height="600px"
-        style="border:none;"
-      ></iframe>
-    `;
-          } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
-            container.innerHTML = `
-      <img
-        src="${fileUrl}"
-        class="img-fluid rounded shadow"
-        alt="Preview Kalender"
-      />
-    `;
+<iframe src="${fileUrl}" width="100%" height="600"></iframe>
+`;
           } else {
             container.innerHTML = `
-      <p class="text-muted">
-        Preview tidak tersedia untuk file ini.
-        <br />
-        <a href="${fileUrl}" target="_blank">Download File</a>
-      </p>
-    `;
+<img src="${fileUrl}" class="img-fluid rounded">
+`;
           }
 
           new bootstrap.Modal(
@@ -504,41 +781,7 @@
             return;
           }
 
-          const container = document.getElementById("previewContainer");
-          container.innerHTML = "";
-
-          const ext = previewFileUrl.split(".").pop().toLowerCase();
-
-          if (ext === "pdf") {
-            container.innerHTML = `
-      <iframe
-        src="${previewFileUrl}"
-        width="100%"
-        height="600px"
-        style="border:none;"
-      ></iframe>
-    `;
-          } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
-            container.innerHTML = `
-      <img
-        src="${previewFileUrl}"
-        class="img-fluid rounded shadow"
-        alt="Preview Kalender"
-      />
-    `;
-          } else {
-            container.innerHTML = `
-      <p class="text-muted">
-        Preview tidak tersedia untuk file ini.
-        <br />
-        <a href="${previewFileUrl}" target="_blank">Download File</a>
-      </p>
-    `;
-          }
-
-          new bootstrap.Modal(
-            document.getElementById("modalPreviewKalender"),
-          ).show();
+          previewKalenderFromTable(previewFileUrl.split("/").pop());
         };
 
         loadKalender();

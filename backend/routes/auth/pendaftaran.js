@@ -753,6 +753,23 @@ router.put("/:id/accept", authAdmin, (req, res) => {
                   "id-ID",
                 )}</b></td>
               </tr>
+              <tr>
+                <td><b>Bank</b></td>
+                <td>:</td>
+                <td>Bank BNI</td>
+              </tr>
+
+              <tr>
+                <td><b>No. Rekening</b></td>
+                <td>:</td>
+                <td>3380009008</td>
+              </tr>
+
+              <tr>
+                <td><b>Atas Nama</b></td>
+                <td>:</td>
+                <td>RSUD PROF DR MARGONO SOEKARJO</td>
+              </tr>
             </table>
 
             <br>
@@ -760,13 +777,12 @@ router.put("/:id/accept", authAdmin, (req, res) => {
             <p><b>Langkah Selanjutnya:</b></p>
             <ol>
               <li>Lakukan pembayaran sesuai nominal</li>
-              <li>Simpan bukti transfer</li>
-              <li>
-                Upload bukti pembayaran melalui link berikut:<br>
+              <li>Simpan bukti transfer dan upload bukti pembayaran melalui link berikut:<br>
                 <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}">
                   Upload Bukti Pembayaran
                 </a>
               </li>
+              <li>Pembayaran dilakukan maksimal h-2 sebelum tanggal pelaksanaan pelatihan</li>
             </ol>
 
             <p>

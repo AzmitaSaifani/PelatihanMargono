@@ -13,7 +13,25 @@ function getClientInfo(req) {
 }
 
 router.post("/", (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, captcha } = req.body;
+
+  // ===============================
+  // VALIDASI CAPTCHA
+  // ===============================
+  if (!req.session.captchaAnswer) {
+    return res.status(400).json({
+      message: "Captcha tidak ditemukan. Silakan refresh halaman.",
+    });
+  }
+
+  if (parseInt(captcha) !== req.session.captchaAnswer) {
+    return res.status(400).json({
+      message: "Jawaban captcha salah",
+    });
+  }
+
+  // hapus captcha agar tidak bisa dipakai ulang
+  req.session.captchaAnswer = null;
 
   const sql = `
     SELECT * FROM user_tb
@@ -92,16 +110,16 @@ router.post("/", (req, res) => {
       level_user: user.level_user,
     };
 
-    req.session.save(() => {
-      if (err) {
-        console.error("SESSION SAVE ERROR:", err);
+    req.session.save((sessionErr) => {
+      if (sessionErr) {
+        console.error("SESSION SAVE ERROR:", sessionErr);
         return res.status(500).json({ message: "Gagal menyimpan session" });
       }
 
       // LOGIN BERHASIL
       connection.query(
         "UPDATE user_tb SET last_login = NOW() WHERE id_user = ?",
-        [user.id_user]
+        [user.id_user],
       );
 
       logAdmin({

@@ -5,10 +5,10 @@ import { maskPhone } from "../../utils/maskPhone.js";
 const router = express.Router();
 
 // =====================================================
-// CREATE – KIRIM KRITIK & SARAN (SUPPORT ANONIM)
+// CREATE – KIRIM KRITIK (SUPPORT ANONIM)
 // =====================================================
 router.post("/", (req, res) => {
-  const { nama_lengkap, no_hp, kritik, saran, is_anonim } = req.body;
+  const { nama_lengkap, no_hp, kritik, is_anonim } = req.body;
 
   if (!no_hp) {
     return res.status(400).json({
@@ -16,9 +16,9 @@ router.post("/", (req, res) => {
     });
   }
 
-  if (!kritik && !saran) {
+  if (!kritik ) {
     return res.status(400).json({
-      message: "❌ Kritik atau saran harus diisi",
+      message: "❌ Ulasan harus diisi",
     });
   }
 
@@ -26,23 +26,23 @@ router.post("/", (req, res) => {
 
   const sql = `
     INSERT INTO kritik_saran_tb
-    (nama_lengkap, is_anonim, no_hp, kritik, saran, status)
-    VALUES (?, ?, ?, ?, ?, 'NONAKTIF')
+    (nama_lengkap, is_anonim, no_hp, kritik, status)
+    VALUES (?, ?, ?, ?, 'NONAKTIF')
   `;
 
   connection.query(
     sql,
-    [anonim === "Y" ? null : nama_lengkap, anonim, no_hp, kritik, saran],
+    [anonim === "Y" ? null : nama_lengkap, anonim, no_hp, kritik],
     (err, result) => {
       if (err) {
-        console.error("❌ Insert kritik error:", err);
+        console.error("❌ Insert ulasan error:", err);
         return res.status(500).json({
-          message: "Gagal menyimpan kritik dan saran",
+          message: "Gagal menyimpan ulasan",
         });
       }
 
       res.status(201).json({
-        message: "✅ Terima kasih atas kritik dan saran Anda",
+        message: "Terima kasih atas ulasan dan  Anda",
         id_kritik: result.insertId,
       });
     },
@@ -71,7 +71,7 @@ router.get("/", (req, res) => {
     if (err) {
       console.error("❌ Get kritik error:", err);
       return res.status(500).json({
-        message: "Gagal mengambil data kritik",
+        message: "Gagal mengambil data ulasan",
       });
     }
 
@@ -80,7 +80,6 @@ router.get("/", (req, res) => {
       nama_lengkap: row.is_anonim === "Y" ? "Anonim" : row.nama_lengkap,
       no_hp: maskPhone(row.no_hp),
       kritik: row.kritik,
-      saran: row.saran,
       created_at: row.created_at,
     }));
 
@@ -111,9 +110,9 @@ router.get("/admin", (req, res) => {
 
   connection.query(sql, params, (err, rows) => {
     if (err) {
-      console.error("❌ Admin get kritik error:", err);
+      console.error("❌ Admin get ulasan error:", err);
       return res.status(500).json({
-        message: "Gagal mengambil data kritik",
+        message: "Gagal mengambil data ulasan",
       });
     }
 
@@ -149,7 +148,7 @@ router.put("/:id/status", (req, res) => {
     }
 
     res.json({
-      message: `✅ Status kritik berhasil diubah menjadi ${status}`,
+      message: `✅ Status ulasan berhasil diubah menjadi ${status}`,
     });
   });
 });
@@ -165,14 +164,14 @@ router.delete("/:id", (req, res) => {
     [id],
     (err) => {
       if (err) {
-        console.error("❌ Delete kritik error:", err);
+        console.error("❌ Delete ulasan error:", err);
         return res.status(500).json({
           message: "Gagal menghapus data",
         });
       }
 
       res.json({
-        message: "🗑️ Kritik & saran berhasil dihapus",
+        message: "🗑️ Ulasan peserta berhasil dihapus",
       });
     },
   );
