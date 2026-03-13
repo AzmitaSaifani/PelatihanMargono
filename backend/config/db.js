@@ -12,6 +12,13 @@ const connection = mysql.createPool({
   queueLimit: 0,
 });
 
-console.log("✅ MySQL Pool initialized");
+connection.getConnection((err, conn) => {
+  if (err) {
+    console.error("❌ MySQL gagal connect:", err);
+  } else {
+    console.log("✅ MySQL connected");
+    conn.release();
+  }
+});
 
 export default connection;

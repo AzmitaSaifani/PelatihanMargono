@@ -447,25 +447,24 @@ router.post(
                     nomorWA = "62" + nomorWA.slice(1);
                   }
 
+                  const pesanWA = `
+                    Halo ${nama_peserta},
+
+                    Terima kasih telah mendaftar pelatihan di DIKLAT RSUD Prof. Dr. Margono Soekarjo.
+                    Pendaftaran pelatihan Anda berhasil.
+
+                    Nama Peserta: ${nama_peserta}
+                    Pelatihan: ${nama_pelatihan}
+                    Waktu Pelaksanaan: ${waktuPelaksanaan}
+
+                    Saat ini berkas Anda sedang dalam proses verifikasi.
+                    Informasi selanjutnya akan kami kirim melalui WhatsApp maupun email.
+
+                    Terima kasih.`.trim();
+
                   await sendWhatsApp({
                     nohp: nomorWA,
-                    pesan: `Halo ${nama_peserta},
-
-                  Pendaftaran pelatihan Anda berhasil.
-
-                  Nama Peserta:${nama_peserta}
-
-                  Pelatihan:
-                  ${nama_pelatihan}
-
-                  Waktu Pelaksanaan:
-                  ${waktuPelaksanaan}
-
-                  Saat ini berkas Anda sedang dalam proses verifikasi berkas oleh tim DIKLAT RSUD Prof. Dr. Margono Soekarjo. Mohon ditunggu untuk proses selanjutnya.
-
-                  Informasi selanjutnya akan kami kirim melalui whatsapp maupun email.
-
-                  Terima kasih.`,
+                    pesan: pesanWA,
                   });
 
                   await logEmail({
@@ -502,6 +501,7 @@ router.post(
     });
   },
 );
+
 // ======================
 // UPDATE PENDAFTARAN
 // ======================

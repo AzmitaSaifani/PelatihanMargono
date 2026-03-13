@@ -49,10 +49,6 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
 
-  const adminId = admin.id_user;
-  const adminEmail = admin.email;
-  const adminNama = admin.nama_lengkap;
-
   let {
     nama_pelatihan,
     jumlah_jpl,
@@ -152,7 +148,7 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
     flyer_url,
     link_grup,
     status || "draft",
-    adminId,
+    admin.id_user,
   ];
 
   connection.query(sql, values, (err, result) => {
@@ -164,15 +160,13 @@ router.post("/", authAdmin, upload.single("flyer_url"), (req, res) => {
       });
     }
 
-    console.log("ADMIN HEADER:", {
-      adminId,
-    });
+    const user = req.session.admin;
 
     // ================= ADMIN LOG =================
     logAdmin({
-      id_user: adminId,
-      email: adminEmail,
-      nama_lengkap: adminNama,
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
       aktivitas: "AKSI",
       keterangan: `Menambahkan pelatihan [ID:${result.insertId}]`,
       req,
@@ -496,10 +490,6 @@ router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
 
-  const adminId = admin.id_user;
-  const adminEmail = admin.email;
-  const adminNama = admin.nama_lengkap;
-
   const { id } = req.params;
   const {
     nama_pelatihan,
@@ -577,10 +567,12 @@ router.put("/:id", authAdmin, upload.single("flyer_url"), (req, res) => {
           .json({ message: "❌ Gagal memperbarui pelatihan" });
       }
 
+      const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
         aktivitas: "AKSI",
         keterangan: `Update pelatihan ID ${id}`,
         req,
@@ -600,10 +592,6 @@ router.delete("/:id", authAdmin, (req, res) => {
   if (!admin) {
     return res.status(401).json({ message: "❌ Admin tidak terautentikasi" });
   }
-
-  const adminId = admin.id_user;
-  const adminEmail = admin.email;
-  const adminNama = admin.nama_lengkap;
 
   // Ambil nama file dulu biar bisa dihapus dari folder
   const getFlyer = `SELECT flyer_url FROM pelatihan_tb WHERE id_pelatihan = ?`;
@@ -627,10 +615,12 @@ router.delete("/:id", authAdmin, (req, res) => {
           .json({ message: "❌ Gagal menghapus pelatihan" });
       }
 
+      const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
         aktivitas: "AKSI",
         keterangan: `Hapus pelatihan ID ${id}`,
         req,
