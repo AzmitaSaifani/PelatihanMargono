@@ -2,6 +2,7 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
 import { logEmail } from "../../utils/emailLogger.js";
+import { sendWhatsApp } from "../../utils/whatsapp.js";
 import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
@@ -382,7 +383,8 @@ router.post(
                 // ======================
                 // KIRIM EMAIL (AMAN)
                 // ======================
-                let emailStatus = "GAGAL";
+                let emailStatus = "TIDAK DIKIRIM";
+
                 try {
                   const sent = await sendEmail({
                     to: email,
@@ -419,12 +421,7 @@ router.post(
 
                     <p>
                       Berkas pendaftaran Anda telah kami terima dan saat ini
-                      sedang dalam proses <b>verifikasi oleh tim kami</b>.
-                    </p>
-
-                    <p>
-                      Status pendaftaran Anda saat ini:
-                      <b>Menunggu Verifikasi Berkas</b>
+                      sedang dalam proses <b>verifikasi oleh tim DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
                     </p>
 
                     <p>
@@ -439,6 +436,37 @@ router.post(
                 `,
                   });
                   if (sent) emailStatus = "TERKIRIM";
+
+                  // ======================
+                  // KIRIM WHATSAPP
+                  // ======================
+
+                  let nomorWA = no_wa.replace(/\D/g, "");
+
+                  if (nomorWA.startsWith("0")) {
+                    nomorWA = "62" + nomorWA.slice(1);
+                  }
+
+                  await sendWhatsApp({
+                    nohp: nomorWA,
+                    pesan: `Halo ${nama_peserta},
+
+                  Pendaftaran pelatihan Anda berhasil.
+
+                  Nama Peserta:${nama_peserta}
+
+                  Pelatihan:
+                  ${nama_pelatihan}
+
+                  Waktu Pelaksanaan:
+                  ${waktuPelaksanaan}
+
+                  Saat ini berkas Anda sedang dalam proses verifikasi berkas oleh tim DIKLAT RSUD Prof. Dr. Margono Soekarjo. Mohon ditunggu untuk proses selanjutnya.
+
+                  Informasi selanjutnya akan kami kirim melalui whatsapp maupun email.
+
+                  Terima kasih.`,
+                  });
 
                   await logEmail({
                     id_pendaftaran: newId,
@@ -651,13 +679,13 @@ router.put("/:id/accept", authAdmin, (req, res) => {
       d.email,
       d.harga_pelatihan,
       p.nama_pelatihan,
-    p.tanggal_mulai,
-    p.tanggal_selesai
-  FROM pendaftaran_tb d
-  JOIN pelatihan_tb p
-    ON d.id_pelatihan = p.id_pelatihan
-  WHERE d.id_pendaftaran = ?
-  `;
+      p.tanggal_mulai,
+      p.tanggal_selesai
+    FROM pendaftaran_tb d
+    JOIN pelatihan_tb p
+      ON d.id_pelatihan = p.id_pelatihan
+    WHERE d.id_pendaftaran = ?
+    `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
     if (err) {
@@ -695,113 +723,142 @@ router.put("/:id/accept", authAdmin, (req, res) => {
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
     // 🔐 TOKEN PEMBAYARAN
-    const token = encryptId(id);
+    let statusBaru = "Menunggu Pembayaran";
 
-    // ======================
-    // UPDATE STATUS
-    // ======================
+    if (Number(harga_pelatihan) === 0) {
+      statusBaru = "Diterima";
+    }
+
+    let token = null;
+
+    if (Number(harga_pelatihan) > 0) {
+      token = encryptId(id);
+    }
+
     const updateStatusSQL = `
-      UPDATE pendaftaran_tb 
-      SET status = 'Menunggu Pembayaran'
-      WHERE id_pendaftaran = ?
-    `;
+  UPDATE pendaftaran_tb 
+  SET status = ?
+  WHERE id_pendaftaran = ?
+`;
 
-    connection.query(updateStatusSQL, [id], async (err) => {
+    connection.query(updateStatusSQL, [statusBaru, id], async (err) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: "Gagal update status" });
       }
 
-      // 📧 EMAIL
       let emailStatus = "GAGAL";
       let errorMessage = null;
 
       try {
-        const sent = await sendEmail({
-          to: email,
-          subject: "Instruksi Pembayaran Pelatihan",
-          html: `
+        // ==========================
+        // PELATIHAN GRATIS
+        // ==========================
+        if (Number(harga_pelatihan) === 0) {
+          const sent = await sendEmail({
+            to: email,
+            subject: "Pendaftaran Pelatihan Diterima",
+            html: `
             <p>Yth. <b>${nama_peserta}</b>,</p>
 
-            <p>
-              Terima kasih telah mendaftar pelatihan di
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
-            </p>
+            <p>Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b>.</p>
 
-            <p>
-              Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b>.
-            </p>
+            <p>Anda telah resmi diterima sebagai peserta pelatihan berikut:</p>
 
-            <hr>
-
-            <p><b>Detail Pelatihan:</b></p>
-            <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+            <table cellpadding="6">
               <tr>
-                <td><b>Nama Pelatihan</b></td>
+                <td>Nama Pelatihan</td>
                 <td>:</td>
                 <td>${nama_pelatihan}</td>
               </tr>
               <tr>
-                <td><b>Waktu Pelaksanaan</b></td>
+                <td>Waktu Pelaksanaan</td>
                 <td>:</td>
                 <td>${waktuPelaksanaan}</td>
               </tr>
-              <tr>
-                <td><b>Biaya</b></td>
-                <td>:</td>
-                <td><b>Rp ${Number(harga_pelatihan).toLocaleString(
-                  "id-ID",
-                )}</b></td>
-              </tr>
-              <tr>
-                <td><b>Bank</b></td>
-                <td>:</td>
-                <td>Bank BNI</td>
-              </tr>
-
-              <tr>
-                <td><b>No. Rekening</b></td>
-                <td>:</td>
-                <td>3380009008</td>
-              </tr>
-
-              <tr>
-                <td><b>Atas Nama</b></td>
-                <td>:</td>
-                <td>RSUD PROF DR MARGONO SOEKARJO</td>
-              </tr>
             </table>
 
-            <br>
-
-            <p><b>Langkah Selanjutnya:</b></p>
-            <ol>
-              <li>Lakukan pembayaran sesuai nominal</li>
-              <li>Simpan bukti transfer dan upload bukti pembayaran melalui link berikut:<br>
-                <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}">
-                  Upload Bukti Pembayaran
-                </a>
-              </li>
-              <li>Pembayaran dilakukan maksimal sebelum tanggal pelaksanaan pelatihan</li>
-            </ol>
-
-            <p>
-              Status pendaftaran Anda saat ini:
-              <b>Menunggu Pembayaran</b>
-            </p>
+            <p>Status pendaftaran Anda saat ini: <b>Diterima</b></p>
 
             <br>
-            <p>
-              Hormat kami,<br>
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-            </p>
-          `,
-        });
+            <p>Hormat kami,<br>
+            <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
+            `,
+          });
 
-        if (sent !== false) {
-          emailStatus = "TERKIRIM";
+          if (sent !== false) emailStatus = "TERKIRIM";
+        }
+
+        // ==========================
+        // PELATIHAN BERBAYAR
+        // ==========================
+        if (Number(harga_pelatihan) > 0) {
+          const sent = await sendEmail({
+            to: email,
+            subject: "Instruksi Pembayaran Pelatihan",
+            html: `
+        <p>Yth. <b>${nama_peserta}</b>,</p>
+
+        <p>Berkas pendaftaran Anda telah <b>DINYATAKAN VALID</b> sehingga status pendaftaran Anda saat ini adalah <b>Menunggu Pembayaran</b></p>
+
+        <p>Silakan melakukan pembayaran pelatihan berikut:</p>
+
+        <table cellpadding="6">
+          <tr>
+            <td>Nama Pelatihan</td>
+            <td>:</td>
+            <td>${nama_pelatihan}</td>
+          </tr>
+          <tr>
+            <td>Waktu Pelaksanaan</td>
+            <td>:</td>
+            <td>${waktuPelaksanaan}</td>
+          </tr>
+          <tr>
+            <td>Biaya</td>
+            <td>:</td>
+            <td><b>Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}</b></td>
+          </tr>
+        </table>
+
+        <p><b>Informasi Pembayaran</b></p>
+
+        <table cellpadding="6">
+          <tr>
+            <td>Bank</td>
+            <td>:</td>
+            <td>BNI</td>
+          </tr>
+          <tr>
+            <td>No Rekening</td>
+            <td>:</td>
+            <td>3380009008</td>
+          </tr>
+          <tr>
+            <td>Atas Nama</td>
+            <td>:</td>
+            <td>RSUD PROF DR MARGONO SOEKARJO</td>
+          </tr>
+        </table>
+
+        <br>
+
+        <p>Upload bukti pembayaran melalui link berikut:</p>
+
+        <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}">
+        Upload Bukti Pembayaran
+        </a>
+
+        <br>
+        <p>Hormat kami,<br>
+        <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
+        `,
+          });
+
+          if (sent !== false) emailStatus = "TERKIRIM";
         }
       } catch (emailErr) {
+        errorMessage = emailErr.message;
         console.error("Email gagal dikirim:", emailErr.message);
       }
 
@@ -833,7 +890,7 @@ router.put("/:id/accept", authAdmin, (req, res) => {
       res.json({
         message:
           "✅ Berkas valid. Status diubah ke Menunggu Pembayaran & email terkirim",
-        status: "Menunggu Pembayaran",
+        status: statusBaru,
       });
     });
   });
@@ -938,9 +995,6 @@ router.put("/:id/reject", authAdmin, (req, res) => {
       tanggal_mulai,
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
-    // ======================
-    // UPDATE STATUS
-    // ======================
     const updateStatusSQL = `
       UPDATE pendaftaran_tb 
       SET status = 'Verifikasi Berkas Invalid'
@@ -1256,10 +1310,6 @@ router.get("/export/excel", authAdmin, async (req, res) => {
         };
         cell.alignment = { vertical: "middle" };
       });
-    });
-
-    rows.forEach((row, i) => {
-      sheet.addRow({ no: i + 1, ...row });
     });
 
     res.setHeader(

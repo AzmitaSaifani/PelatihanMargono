@@ -447,6 +447,25 @@
 
     <!-- ================= SCRIPT ================= -->
     <script>
+      // =========================
+      // LOGOUT ADMIN (GLOBAL)
+      // =========================
+      async function logoutAdmin() {
+        if (!confirm("Apakah Anda yakin ingin logout?")) return;
+
+        try {
+          await fetch("http://localhost:5000/api/admin/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+        } catch (err) {
+          console.error("Gagal logout:", err);
+        } finally {
+          localStorage.clear();
+          window.location.href = "loginadmin.html";
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         const API = "http://localhost:5000/api/kalender";
 
