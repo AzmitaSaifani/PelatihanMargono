@@ -44,10 +44,13 @@ router.post("/", (req, res) => {
         return res.status(500).json({ message: "Gagal menambah jabatan" });
       }
 
+      const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user,
+        nama_lengkap,
         aktivitas: "AKSI",
         keterangan: `Tambah jabatan ${nama_jabatan}`,
         req,
@@ -88,10 +91,12 @@ router.put("/:id", (req, res) => {
         return res.status(500).json({ message: "Gagal update jabatan" });
       }
 
+      const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_jabatan,
         aktivitas: "AKSI",
         keterangan: `Update jabatan ID ${id}`,
         req,
@@ -147,10 +152,12 @@ router.delete("/:id", (req, res) => {
       return res.status(500).json({ message: "Gagal menghapus jabatan" });
     }
 
+    const user = req.session.admin;
+
     logAdmin({
-      id_user: adminId,
-      email: adminEmail,
-      nama_lengkap: adminNama,
+      id_user: user. id_user,
+      email: user. email,
+      nama_lengkap: user. nama_lengkap,
       aktivitas: "HAPUS",
       keterangan: `Hapus jabatan ID ${id}`,
       req,

@@ -458,10 +458,12 @@ router.put("/:id/validate", authAdmin, (req, res) => {
           });
         }
 
+        const user = req.session.admin;
+
         logAdmin({
-          id_user: req.headers["x-admin-id"],
-          email: req.headers["x-admin-email"],
-          nama_lengkap: req.headers["x-admin-nama"],
+          id_user: user.id_user,
+          email: user.email,
+          nama_lengkap: user.nama_lengkap,
           aktivitas: "AKSI",
           keterangan: `Validasi pembayaran VALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
           req,
@@ -651,10 +653,12 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
           });
         }
 
+        const user = req.session.admin;
+
         logAdmin({
-          id_user: req.headers["x-admin-id"],
-          email: req.headers["x-admin-email"],
-          nama_lengkap: req.headers["x-admin-nama"],
+          id_user: user.id_user,
+          email: user.email,
+          nama_lengkap: user.nama_lengkap,
           aktivitas: "AKSI",
           keterangan: `Validasi pembayaran INVALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
           req,

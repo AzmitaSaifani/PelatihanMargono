@@ -8,10 +8,6 @@ const router = express.Router();
    SET / GANTI ANGGOTA JABATAN
 ========================= */
 router.post("/", (req, res) => {
-  const adminId = req.headers["x-admin-id"];
-  const adminEmail = req.headers["x-admin-email"];
-  const adminNama = req.headers["x-admin-nama"];
-
   const { id_anggota, id_jabatan, is_utama } = req.body;
 
   if (!adminId) {
@@ -39,10 +35,12 @@ router.post("/", (req, res) => {
           return res.status(500).json({ message: "Gagal menempatkan anggota" });
         }
 
+        const user = req.session.admin;
+
         logAdmin({
-          id_user: adminId,
-          email: adminEmail,
-          nama_lengkap: adminNama,
+          id_user: user. id_user,
+          email: user. email,
+          nama_lengkap: user. nama_lengkap,
           aktivitas: "AKSI",
           keterangan: `Menempatkan anggota ${id_anggota} ke jabatan ${id_jabatan}`,
           req,
@@ -75,10 +73,12 @@ router.delete("/:id_jabatan", (req, res) => {
       return res.status(500).json({ message: "Gagal hapus struktur" });
     }
 
+    const user = req.session.admin;
+
     logAdmin({
-      id_user: adminId,
-      email: adminEmail,
-      nama_lengkap: adminNama,
+      id_user: user.id_user,
+      email: user.email,
+      nama_lengkap: user.nama_lengkap,
       aktivitas: "HAPUS",
       keterangan: `Hapus penempatan jabatan ID ${id_jabatan}`,
       req,

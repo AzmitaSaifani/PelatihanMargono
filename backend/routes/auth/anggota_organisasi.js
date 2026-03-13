@@ -63,10 +63,12 @@ router.post("/", upload.single("foto"), (req, res) => {
         return res.status(500).json({ message: "Gagal tambah anggota" });
       }
 
+    const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user. id_user,
+        email: user. email,
+        nama_lengkap: user. nama_lengkap,
         aktivitas: "AKSI",
         keterangan: `Tambah anggota ${nama_lengkap}`,
         req,

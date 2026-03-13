@@ -782,7 +782,7 @@ router.put("/:id/accept", authAdmin, (req, res) => {
                   Upload Bukti Pembayaran
                 </a>
               </li>
-              <li>Pembayaran dilakukan maksimal h-2 sebelum tanggal pelaksanaan pelatihan</li>
+              <li>Pembayaran dilakukan maksimal sebelum tanggal pelaksanaan pelatihan</li>
             </ol>
 
             <p>
