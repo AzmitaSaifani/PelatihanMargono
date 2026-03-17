@@ -21,6 +21,7 @@ import loginAdminRoute from "./auth/loginadmin.js";
 import adminRoutes from "./auth/admin.js";
 import logoutAdminRoute from "./auth/logoutadmin.js";
 import logEmailRoute from "./auth/logemail.js";
+import logWhatsAppRoute from "./auth/logWhatsApp.js";
 
 // CORE DATA
 import pelatihanRoutes from "./auth/pelatihan.js";
@@ -66,6 +67,7 @@ router.use("/loginadmin", loginAdminRoute);
 router.use("/admin", adminRoutes);
 router.use("/admin/logout", logoutAdminRoute);
 router.use("/log-email", logEmailRoute);
+router.use("/log-wa", logWhatsAppRoute);
 
 /* ===========================
    DASHBOARD ADMIN

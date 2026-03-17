@@ -3,6 +3,7 @@ import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
 import { logEmail } from "../../utils/emailLogger.js";
 import { sendWhatsApp } from "../../utils/whatsapp.js";
+import { logWhatsApp } from "../../utils/whatsappLogger.js";
 import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
@@ -381,9 +382,37 @@ router.post(
                 )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
                 // ======================
+                // KIRIM WHATSAPP
+                // ======================
+                let cleanNoWa = no_wa.replace(/[^0-9]/g, "");
+
+                // Jika nomor dimulai dengan '0', ganti jadi '62'
+                if (cleanNoWa.startsWith("0")) {
+                  cleanNoWa = "62" + cleanNoWa.slice(1);
+                }
+
+                // TES PESAN POLOS
+                // const pesanWA = `Halo ${nama_peserta}, pendaftaran diklat anda di RSUD Margono sudah kami terima. Terima kasih.`;
+
+                const pesanWA =
+                  `. ` +
+                  `Halo ${nama_peserta}, pendaftaran pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo BERHASIL. ` +
+                  `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} ` +
+                  `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
+                  ` Status pendaftaran pelatihan Anda saat ini dalam proses verifikasi berkas, untuk informasi selanjutnya harap cek berkala melalui WhatsApp maupun Email secara berkala. ` +
+                  `Terima kasih`;
+
+                // ======================
+                // KIRIM WHATSAPP + LOG
+                // ======================
+                let waStatus = "GAGAL";
+                let waError = null;
+
+                // ======================
                 // KIRIM EMAIL (AMAN)
                 // ======================
                 let emailStatus = "TIDAK DIKIRIM";
+                let emailError = null;
 
                 try {
                   const sent = await sendEmail({
@@ -436,51 +465,45 @@ router.post(
                 `,
                   });
                   if (sent) emailStatus = "TERKIRIM";
-
-                  // ======================
-                  // KIRIM WHATSAPP
-                  // ======================
-                  let cleanNoWa = no_wa.replace(/[^0-9]/g, "");
-
-                  // Jika nomor dimulai dengan '0', ganti jadi '62'
-                  if (cleanNoWa.startsWith("0")) {
-                    cleanNoWa = "62" + cleanNoWa.slice(1);
-                  }
-
-                  // TES PESAN POLOS
-                  // const pesanWA = `Halo ${nama_peserta}, pendaftaran diklat anda di RSUD Margono sudah kami terima. Terima kasih.`;
-
-                  const pesanWA =
-                    `. ` +
-                    `Halo ${nama_peserta}, pendaftaran pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo BERHASIL. ` +
-                    `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} ` +
-                    `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
-                    ` Status pendaftaran pelatihan Anda saat ini dalam proses verifikasi berkas, untuk informasi selanjutnya harap cek berkala melalui WhatsApp maupun Email secara berkala. ` +
-                    `Terima kasih`;
-
-                  sendWhatsApp(cleanNoWa, pesanWA);
-
-                  await logEmail({
-                    id_pendaftaran: newId,
-                    email,
-                    nama_penerima: nama_peserta,
-                    jenis_email: "BERKAS_PENDING",
-                    subject:
-                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                    status: emailStatus,
-                  });
                 } catch (errEmail) {
-                  await logEmail({
-                    id_pendaftaran: newId,
-                    email,
-                    nama_penerima: nama_peserta,
-                    jenis_email: "BERKAS_PENDING",
-                    subject:
-                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                    status: "GAGAL",
-                    error_message: errEmail.message,
-                  });
+                  emailError = errEmail.message;
                 }
+
+                // ======================
+                // KIRIM WHATSAPP
+                // ======================
+                try {
+                  const waResponse = await sendWhatsApp(cleanNoWa, pesanWA);
+                  if (waResponse) waStatus = "TERKIRIM";
+                } catch (errWA) {
+                  waError = errWA.message;
+                }
+
+                // ======================
+                // LOG EMAIL (TETAP)
+                // ======================
+                await logEmail({
+                  id_pendaftaran: newId,
+                  email,
+                  nama_penerima: nama_peserta,
+                  jenis_email: "BERKAS_PENDING",
+                  subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                  status: emailStatus,
+                  error_message: emailStatus === "GAGAL" ? emailError : null,
+                });
+
+                // ======================
+                // LOG WHATSAPP
+                // ======================
+                await logWhatsApp({
+                  id_pendaftaran: newId,
+                  no_wa: cleanNoWa,
+                  nama_penerima: nama_peserta,
+                  jenis_wa: "BERKAS_PENDING",
+                  pesan: pesanWA,
+                  status: waStatus,
+                  error_message: waStatus === "GAGAL" ? waError : null,
+                });
 
                 res.status(201).json({
                   message: "✅ Pendaftaran berhasil",
