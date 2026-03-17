@@ -440,32 +440,25 @@ router.post(
                   // ======================
                   // KIRIM WHATSAPP
                   // ======================
+                  let cleanNoWa = no_wa.replace(/[^0-9]/g, "");
 
-                  let nomorWA = no_wa.replace(/\D/g, "");
-
-                  if (nomorWA.startsWith("0")) {
-                    nomorWA = "62" + nomorWA.slice(1);
+                  // Jika nomor dimulai dengan '0', ganti jadi '62'
+                  if (cleanNoWa.startsWith("0")) {
+                    cleanNoWa = "62" + cleanNoWa.slice(1);
                   }
 
-                  const pesanWA = `
-                    Halo ${nama_peserta},
+                  // TES PESAN POLOS
+                  // const pesanWA = `Halo ${nama_peserta}, pendaftaran diklat anda di RSUD Margono sudah kami terima. Terima kasih.`;
 
-                    Terima kasih telah mendaftar pelatihan di DIKLAT RSUD Prof. Dr. Margono Soekarjo.
-                    Pendaftaran pelatihan Anda berhasil.
+                  const pesanWA =
+                    `. ` +
+                    `Halo ${nama_peserta}, pendaftaran pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo BERHASIL. ` +
+                    `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} ` +
+                    `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
+                    ` Status pendaftaran pelatihan Anda saat ini dalam proses verifikasi berkas, untuk informasi selanjutnya harap cek berkala melalui WhatsApp maupun Email secara berkala. ` +
+                    `Terima kasih`;
 
-                    Nama Peserta: ${nama_peserta}
-                    Pelatihan: ${nama_pelatihan}
-                    Waktu Pelaksanaan: ${waktuPelaksanaan}
-
-                    Saat ini berkas Anda sedang dalam proses verifikasi.
-                    Informasi selanjutnya akan kami kirim melalui WhatsApp maupun email.
-
-                    Terima kasih.`.trim();
-
-                  await sendWhatsApp({
-                    nohp: nomorWA,
-                    pesan: pesanWA,
-                  });
+                  sendWhatsApp(cleanNoWa, pesanWA);
 
                   await logEmail({
                     id_pendaftaran: newId,
