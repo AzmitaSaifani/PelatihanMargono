@@ -684,15 +684,11 @@ router.delete("/:id", authAdmin, (req, res) => {
 router.put("/:id/accept", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  const admin = req.session.admin;
-  const adminId = admin?.id_user;
-  const adminEmail = admin?.email;
-  const adminNama = admin?.nama_lengkap;
-
   const getPesertaSQL = `
     SELECT 
       d.nama_peserta,
       d.email,
+      d.no_wa,
       d.harga_pelatihan,
       p.nama_pelatihan,
       p.tanggal_mulai,
@@ -701,7 +697,7 @@ router.put("/:id/accept", authAdmin, (req, res) => {
     JOIN pelatihan_tb p
       ON d.id_pelatihan = p.id_pelatihan
     WHERE d.id_pendaftaran = ?
-    `;
+  `;
 
   connection.query(getPesertaSQL, [id], async (err, pesertaRes) => {
     if (err) {
@@ -716,6 +712,7 @@ router.put("/:id/accept", authAdmin, (req, res) => {
     const {
       nama_peserta,
       email,
+      no_wa,
       harga_pelatihan,
       nama_pelatihan,
       tanggal_mulai,
@@ -738,7 +735,20 @@ router.put("/:id/accept", authAdmin, (req, res) => {
       tanggal_mulai,
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
-    // 🔐 TOKEN PEMBAYARAN
+    // ======================
+    // FORMAT NOMOR WA
+    // ======================
+    let cleanNoWa = (no_wa || "").replace(/[^0-9]/g, "");
+
+    if (cleanNoWa.startsWith("0")) {
+      cleanNoWa = "62" + cleanNoWa.slice(1);
+    }
+
+    console.log("KIRIM WA KE:", cleanNoWa);
+
+    // ======================
+    // STATUS & TOKEN
+    // ======================
     let statusBaru = "Menunggu Pembayaran";
 
     if (Number(harga_pelatihan) === 0) {
@@ -752,10 +762,10 @@ router.put("/:id/accept", authAdmin, (req, res) => {
     }
 
     const updateStatusSQL = `
-  UPDATE pendaftaran_tb 
-  SET status = ?
-  WHERE id_pendaftaran = ?
-`;
+      UPDATE pendaftaran_tb 
+      SET status = ?
+      WHERE id_pendaftaran = ?
+    `;
 
     connection.query(updateStatusSQL, [statusBaru, id], async (err) => {
       if (err) {
@@ -764,12 +774,41 @@ router.put("/:id/accept", authAdmin, (req, res) => {
       }
 
       let emailStatus = "GAGAL";
-      let errorMessage = null;
+      let emailError = null;
+
+      let waStatus = "GAGAL";
+      let waError = null;
+
+      // ======================
+      // TEMPLATE PESAN WA
+      // ======================
+      let pesanWA = "";
+
+      if (Number(harga_pelatihan) === 0) {
+        pesanWA =
+          `. ` +
+          `Halo ${nama_peserta}, berkas pendaftaran Anda telah DINYATAKAN VALID. ` +
+          `Anda resmi diterima pada pelatihan ${nama_pelatihan} ` +
+          `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
+          `Status pendaftaran anda saat ini: Diterima. ` +
+          `Terima kasih`;
+      } else {
+        pesanWA =
+          `. ` +
+          `Halo ${nama_peserta}, berkas pendaftaran Anda telah DINYATAKAN VALID. ` +
+          `Status pendaftaran anda saat ini adalah Menunggu Pembayaran. ` +
+          `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} yang akan dilaksanakan pada tanggal ${waktuPelaksanaan}. ` +
+          `Biaya pendaftaran pelatihan Anda sebesar Rp ${Number(harga_pelatihan).toLocaleString("id-ID")}. ` +
+          `Informasi pembayaran: Bank BNI, No Rekening 3380009008, Atas Nama RSUD PROF DR MARGONO SOEKARJO. ` +
+          `Silakan upload bukti pembayaran dengan mengakses link berikut; ` +
+          `http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token} ` +
+          `Terima kasih`;
+      }
 
       try {
-        // ==========================
-        // PELATIHAN GRATIS
-        // ==========================
+        // ======================
+        // EMAIL GRATIS
+        // ======================
         if (Number(harga_pelatihan) === 0) {
           const sent = await sendEmail({
             to: email,
@@ -802,12 +841,12 @@ router.put("/:id/accept", authAdmin, (req, res) => {
             `,
           });
 
-          if (sent !== false) emailStatus = "TERKIRIM";
+          if (sent) emailStatus = "TERKIRIM";
         }
 
-        // ==========================
-        // PELATIHAN BERBAYAR
-        // ==========================
+        // ======================
+        // EMAIL BERBAYAR
+        // ======================
         if (Number(harga_pelatihan) > 0) {
           const sent = await sendEmail({
             to: email,
@@ -871,41 +910,70 @@ router.put("/:id/accept", authAdmin, (req, res) => {
         `,
           });
 
-          if (sent !== false) emailStatus = "TERKIRIM";
+          if (sent) emailStatus = "TERKIRIM";
         }
-      } catch (emailErr) {
-        errorMessage = emailErr.message;
-        console.error("Email gagal dikirim:", emailErr.message);
+
+        // ======================
+        // 🔥 KIRIM WHATSAPP (SEMUA KONDISI)
+        // ======================
+        try {
+          const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
+
+          console.log("RESPON WA:", waRes);
+
+          if (waRes) waStatus = "TERKIRIM";
+        } catch (errWA) {
+          waError = errWA.message;
+          console.error("WA gagal:", errWA.message);
+        }
+      } catch (errEmail) {
+        emailError = errEmail.message;
+        console.error("Email gagal:", errEmail.message);
       }
 
-      // 2️⃣ Log email ke database (WAJIB setelah try/catch)
+      // ======================
+      // LOG EMAIL
+      // ======================
       await logEmail({
         id_pendaftaran: id,
         email,
         nama_penerima: nama_peserta,
         jenis_email: "BERKAS_VALID",
-        subject: "Berkas Dinyatakan Valid – Menunggu Pembayaran",
+        subject: "Berkas Valid",
         status: emailStatus,
-        error_message: emailStatus === "GAGAL" ? errorMessage : null,
+        error_message: emailStatus === "GAGAL" ? emailError : null,
       });
 
-      console.log("ADMIN HEADER:", {
-        adminId,
+      // ======================
+      // LOG WHATSAPP (ENUM FIX)
+      // ======================
+      await logWhatsApp({
+        id_pendaftaran: id,
+        no_wa: cleanNoWa,
+        nama_penerima: nama_peserta,
+        jenis_wa:
+          Number(harga_pelatihan) === 0 ? "BERKAS_VALID" : "PEMBAYARAN_PENDING",
+        pesan: pesanWA,
+        status: waStatus,
+        error_message: waStatus === "GAGAL" ? waError : null,
       });
 
-      // ================= ADMIN LOG =================
+      // ======================
+      // LOG ADMIN
+      // ======================
+      const user = req.session.admin;
+
       logAdmin({
-        id_user: adminId,
-        email: adminEmail,
-        nama_lengkap: adminNama,
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
         aktivitas: "AKSI",
         keterangan: `Verifikasi berkas VALID untuk ID ${id} (${nama_peserta})`,
         req,
       });
 
       res.json({
-        message:
-          "✅ Berkas valid. Status diubah ke Menunggu Pembayaran & email terkirim",
+        message: "✅ Berhasil verifikasi + kirim Email & WhatsApp",
         status: statusBaru,
       });
     });
@@ -957,11 +1025,6 @@ router.get("/validate-token/:token", (req, res) => {
 // ========================================================
 router.put("/:id/reject", authAdmin, (req, res) => {
   const { id } = req.params;
-
-  const admin = req.session.admin;
-  const adminId = admin?.id_user;
-  const adminEmail = admin?.email;
-  const adminNama = admin?.nama_lengkap;
 
   // 1. Ambil data peserta (email & nama)
   const getPesertaSQL = `
@@ -1112,15 +1175,13 @@ router.put("/:id/reject", authAdmin, (req, res) => {
           status: "TERKIRIM",
         });
 
-        console.log("ADMIN HEADER:", {
-          adminId,
-        });
-
         // ================= ADMIN LOG =================
+        const user = req.session.admin;
+
         logAdmin({
-          id_user: adminId,
-          email: adminEmail,
-          nama_lengkap: adminNama,
+          id_user: user.id_user,
+          email: user.email,
+          nama_lengkap: user.nama_lengkap,
           aktivitas: "AKSI",
           keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
           req,
