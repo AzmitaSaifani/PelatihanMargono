@@ -452,15 +452,22 @@
                 return;
               }
 
-              fetch(`http://localhost:5000/api/pendaftaran/validate-token/${token}`)
-                .then(r => r.json())
+              fetch(`http://localhost:5000/api/pendaftaran/validate-token/${encodeURIComponent(token)}`)
+                .then(async (r) => {
+                  const data = await r.json();
+
+                  if (!r.ok) {
+                    throw new Error(data.message || "Akses ditolak");
+                  }
+
+                  return data;
+                })
                 .then(data => {
-                  if (!data.ok) throw new Error("Token tidak valid");
                   document.getElementById("id_pendaftaran").value = data.id_pendaftaran;
                   document.getElementById("token").value = token;
                 })
-                .catch(() => {
-                  alert("Token tidak valid");
+                .catch(err => {
+                  alert(err.message);
                   location.href = "index.html";
                 });
 

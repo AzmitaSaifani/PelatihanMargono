@@ -1,6 +1,8 @@
 import { logAdmin } from "../../routes/auth/adminLogger.js";
 import { sendEmail } from "../../utils/email.js";
 import { logEmail } from "../../utils/emailLogger.js";
+import { sendWhatsApp } from "../../utils/whatsapp.js";
+import { logWhatsApp } from "../../utils/whatsappLogger.js";
 import { decryptId } from "../../routes/auth//token.js";
 import express from "express";
 import connection from "../../config/db.js";
@@ -53,20 +55,20 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
   const bukti_transfer = req.file.filename;
 
   const sqlCari = `
-      SELECT 
-        daftar.nama_peserta,
-        daftar.email,
-        daftar.status,
-
-        pel.nama_pelatihan,
-        pel.lokasi,
-        pel.tanggal_mulai,
-        pel.tanggal_selesai
-      FROM pendaftaran_tb daftar
-      JOIN pelatihan_tb pel
-        ON daftar.id_pelatihan = pel.id_pelatihan
-      WHERE daftar.id_pendaftaran = ?
-    `;
+    SELECT 
+      daftar.nama_peserta,
+      daftar.email,
+      daftar.no_wa,
+      daftar.status,
+      pel.nama_pelatihan,
+      pel.lokasi,
+      pel.tanggal_mulai,
+      pel.tanggal_selesai
+    FROM pendaftaran_tb daftar
+    JOIN pelatihan_tb pel
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    WHERE daftar.id_pendaftaran = ?
+  `;
 
   connection.query(sqlCari, [id_pendaftaran], async (err, hasil) => {
     if (err) {
@@ -81,29 +83,63 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
       });
     }
 
-    const allowedStatus = ["Menunggu Pembayaran"];
+    const allowedStatus = [
+      "Menunggu Pembayaran",
+      "Verifikasi Pembayaran Invalid",
+    ];
 
     if (!allowedStatus.includes(hasil[0].status)) {
       return res.status(403).json({
         message:
-          "Upload pembayaran hanya dapat dilakukan setelah berkas dinyatakan valid atau perlu perbaikan",
+          "Upload pembayaran hanya dapat dilakukan setelah berkas dinyatakan valid",
       });
     }
 
     const {
       nama_peserta,
       email,
+      no_wa,
       nama_pelatihan,
       lokasi,
       tanggal_mulai,
       tanggal_selesai,
     } = hasil[0];
 
+    // ======================
+    // FORMAT TANGGAL
+    // ======================
+    const formatTanggal = (dateStr) => {
+      if (!dateStr) return "-";
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
+    const tglMulaiFormatted = formatTanggal(tanggal_mulai);
+    const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+    const waktuPelaksanaan = `${tglMulaiFormatted} s.d. ${tglSelesaiFormatted}`;
+
+    // ======================
+    // FORMAT NOMOR WA
+    // ======================
+    let cleanNoWa = (no_wa || "").replace(/[^0-9]/g, "");
+
+    if (cleanNoWa.startsWith("0")) {
+      cleanNoWa = "62" + cleanNoWa.slice(1);
+    }
+
+    console.log("KIRIM WA KE:", cleanNoWa);
+
+    // ======================
+    // INSERT PEMBAYARAN
+    // ======================
     const sqlInsert = `
-        INSERT INTO pembayaran_tb
-        (id_pendaftaran, bukti_transfer, status, uploaded_at)
-        VALUES (?, ?, 'PENDING', NOW())
-      `;
+      INSERT INTO pembayaran_tb
+      (id_pendaftaran, bukti_transfer, status, uploaded_at)
+      VALUES (?, ?, 'PENDING', NOW())
+    `;
 
     connection.query(
       sqlInsert,
@@ -115,105 +151,112 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
           });
         }
 
-        // =====================
-        // KIRIM EMAIL PENDING + LOG
-        // =====================
         let emailStatus = "GAGAL";
+        let emailError = null;
 
-        const formatTanggal = (dateStr) => {
-          if (!dateStr) return "-";
-          return new Date(dateStr).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-        };
+        let waStatus = "GAGAL";
+        let waError = null;
 
-        const tglMulaiFormatted = formatTanggal(tanggal_mulai);
-        const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+        // ======================
+        // TEMPLATE PESAN WA
+        // ======================
+        const pesanWA =
+          `. ` +
+          `Halo ${nama_peserta}, bukti pembayaran Anda telah berhasil kami terima. ` +
+          `Status pendaftaran saat ini adalah Menunggu Verifikasi Pembayaran. ` +
+          `Pelatihan: ${nama_pelatihan} yang akan dilaksanakan pada ${waktuPelaksanaan} di ${lokasi}. ` +
+          `Hasil verifikasi akan kami informasikan melalui WhatsApp atau Email. ` +
+          `Terima kasih`;
 
+        // ======================
+        // EMAIL (TERPISAH)
+        // ======================
         try {
           const sent = await sendEmail({
             to: email,
             subject: "Konfirmasi Penerimaan Bukti Pembayaran",
             html: `
-                  <p>Yth. <b>${nama_peserta}</b>,</p>
+              <p>Yth. <b>${nama_peserta}</b>,</p>
 
-                  <p>
-                    Terima kasih. Bukti pembayaran Anda telah kami terima
-                    dan saat ini sedang dalam proses <b>verifikasi oleh tim kami</b>.
-                  </p>
+              <p>
+                Bukti pembayaran Anda telah kami terima dan sedang dalam proses verifikasi.
+              </p>
 
-                  <p>
-                    Status pembayaran Anda saat ini:
-                    <b>PENDING (Menunggu Verifikasi Pembayaran)</b>.
-                  </p>
+              <p>Status: <b>PENDING</b></p>
 
-                  <hr>
+              <table cellpadding="6">
+                <tr>
+                  <td>Nama Pelatihan</td>
+                  <td>:</td>
+                  <td>${nama_pelatihan}</td>
+                </tr>
+                <tr>
+                  <td>Lokasi</td>
+                  <td>:</td>
+                  <td>${lokasi}</td>
+                </tr>
+                <tr>
+                  <td>Waktu</td>
+                  <td>:</td>
+                  <td>${waktuPelaksanaan}</td>
+                </tr>
+              </table>
 
-                    <p><b>Detail Pelatihan:</b></p>
-                    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
-                    <tr>
-                      <td><b>Nama Peserta</b></td>
-                      <td>:</td>
-                      <td>${nama_peserta}</td>
-                    </tr>
-                      <tr>
-                        <td><b>Nama Pelatihan</b></td>
-                        <td>:</td>
-                        <td>${nama_pelatihan}</td>
-                      </tr>
-                      <tr>
-                        <td><b>Lokasi</b></td>
-                        <td>:</td>
-                        <td>${lokasi}</td>
-                      </tr>
-                      <tr>
-                        <td><b>Waktu Pelaksanaan</b></td>
-                        <td>:</td>
-                        <td>${tglMulaiFormatted} s.d. ${tglSelesaiFormatted}</td>
-                      </tr>
-                    </table>
-
-                    <br>
-
-                    <p>
-                      Hasil verifikasi akan kami informasikan melalui email
-                      setelah proses pengecekan selesai.
-                    </p>
-
-                  <br>
-                  <p>
-                    Hormat kami,<br>
-                    <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-                  </p>
-                `,
+              <br>
+              <p>Hormat kami,<br>
+              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
+            `,
           });
 
           if (sent) emailStatus = "TERKIRIM";
-
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_PENDING",
-            subject: "Konfirmasi Penerimaan Bukti Pembayaran",
-            status: emailStatus,
-          });
         } catch (errEmail) {
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_PENDING",
-            subject: "Konfirmasi Penerimaan Bukti Pembayaran",
-            status: "GAGAL",
-            error_message: errEmail.message,
-          });
+          emailError = errEmail.message;
+          console.error("Email gagal:", errEmail.message);
         }
+
+        // ======================
+        // WHATSAPP (TERPISAH)
+        // ======================
+        try {
+          const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
+
+          console.log("RESPON WA:", waRes);
+
+          if (waRes) waStatus = "TERKIRIM";
+        } catch (errWA) {
+          waError = errWA.message;
+          console.error("WA gagal:", errWA.message);
+        }
+
+        // ======================
+        // LOG EMAIL
+        // ======================
+        await logEmail({
+          id_pendaftaran,
+          email,
+          nama_penerima: nama_peserta,
+          jenis_email: "PEMBAYARAN_PENDING",
+          subject: "Konfirmasi Penerimaan Bukti Pembayaran",
+          status: emailStatus,
+          error_message: emailStatus === "GAGAL" ? emailError : null,
+        });
+
+        // ======================
+        // LOG WHATSAPP
+        // ======================
+        await logWhatsApp({
+          id_pendaftaran,
+          no_wa: cleanNoWa,
+          nama_penerima: nama_peserta,
+          jenis_wa: "PEMBAYARAN_PENDING",
+          pesan: pesanWA,
+          status: waStatus,
+          error_message: waStatus === "GAGAL" ? waError : null,
+        });
+
         return res.status(201).json({
           success: true,
-          message: "Bukti pembayaran berhasil diupload dan sedang diverifikasi",
+          message: "Bukti pembayaran berhasil diupload & notifikasi terkirim",
           id_pembayaran: result.insertId,
           status: "PENDING",
         });
@@ -272,26 +315,26 @@ router.get("/", (req, res) => {
 router.put("/:id/validate", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  // 1. Ambil data pembayaran + peserta
   const getDataSQL = `
-      SELECT 
-        bayar.id_pendaftaran,
-        daftar.nama_peserta,
-        daftar.email,
+    SELECT 
+      bayar.id_pendaftaran,
+      daftar.nama_peserta,
+      daftar.email,
+      daftar.no_wa,
 
-        pel.nama_pelatihan,
-        pel.lokasi,
-        pel.tanggal_mulai,
-        pel.tanggal_selesai,
-        pel.link_grup
+      pel.nama_pelatihan,
+      pel.lokasi,
+      pel.tanggal_mulai,
+      pel.tanggal_selesai,
+      pel.link_grup
 
-      FROM pembayaran_tb bayar
-      JOIN pendaftaran_tb daftar
-        ON bayar.id_pendaftaran = daftar.id_pendaftaran
-      JOIN pelatihan_tb pel
-        ON daftar.id_pelatihan = pel.id_pelatihan
-      WHERE bayar.id_pembayaran = ?
-          `;
+    FROM pembayaran_tb bayar
+    JOIN pendaftaran_tb daftar
+      ON bayar.id_pendaftaran = daftar.id_pendaftaran
+    JOIN pelatihan_tb pel
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    WHERE bayar.id_pembayaran = ?
+  `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
     if (err) {
@@ -311,19 +354,49 @@ router.put("/:id/validate", authAdmin, (req, res) => {
       id_pendaftaran,
       nama_peserta,
       email,
+      no_wa,
       nama_pelatihan,
       lokasi,
       tanggal_mulai,
       tanggal_selesai,
-      link_grup_wa,
+      link_grup,
     } = dataRes[0];
 
-    // 2. Update status pembayaran → VALID
+    // ======================
+    // FORMAT TANGGAL
+    // ======================
+    const formatTanggal = (dateStr) => {
+      if (!dateStr) return "-";
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
+    const waktuPelaksanaan = `${formatTanggal(
+      tanggal_mulai,
+    )} s.d. ${formatTanggal(tanggal_selesai)}`;
+
+    // ======================
+    // FORMAT NOMOR WA
+    // ======================
+    let cleanNoWa = (no_wa || "").replace(/[^0-9]/g, "");
+
+    if (cleanNoWa.startsWith("0")) {
+      cleanNoWa = "62" + cleanNoWa.slice(1);
+    }
+
+    console.log("KIRIM WA KE:", cleanNoWa);
+
+    // ======================
+    // UPDATE PEMBAYARAN
+    // ======================
     const updateBayarSQL = `
-        UPDATE pembayaran_tb
-        SET status = 'VALID'
-        WHERE id_pembayaran = ?
-      `;
+      UPDATE pembayaran_tb
+      SET status = 'VALID'
+      WHERE id_pembayaran = ?
+    `;
 
     connection.query(updateBayarSQL, [id], async (err) => {
       if (err) {
@@ -331,12 +404,14 @@ router.put("/:id/validate", authAdmin, (req, res) => {
         return res.status(500).json({ message: "Gagal update pembayaran" });
       }
 
-      // 3. Update status pendaftaran → DITERIMA
+      // ======================
+      // UPDATE PENDAFTARAN
+      // ======================
       const updateDaftarSQL = `
-          UPDATE pendaftaran_tb
-          SET status = 'Diterima'
-          WHERE id_pendaftaran = ?
-        `;
+        UPDATE pendaftaran_tb
+        SET status = 'Diterima'
+        WHERE id_pendaftaran = ?
+      `;
 
       connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
         if (err) {
@@ -346,21 +421,30 @@ router.put("/:id/validate", authAdmin, (req, res) => {
             .json({ message: "Gagal update status pendaftaran" });
         }
 
-        // 4. Kirim email ke peserta
         let emailStatus = "GAGAL";
+        let emailError = null;
 
-        const formatTanggal = (dateStr) => {
-          if (!dateStr) return "-";
-          return new Date(dateStr).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-        };
+        let waStatus = "GAGAL";
+        let waError = null;
 
-        const tglMulaiFormatted = formatTanggal(tanggal_mulai);
-        const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
+        // ======================
+        // TEMPLATE PESAN WA
+        // ======================
+        const pesanWA =
+          `. ` +
+          `Halo ${nama_peserta}, pembayaran Anda telah kami terima dan dinyatakan VALID. ` +
+          `Status pendaftaran Anda: DITERIMA. ` +
+          `Pelatihan: ${nama_pelatihan} yang akan dilaksanakan pada ${waktuPelaksanaan} di ${lokasi}. ` +
+          `${
+            link_grup
+              ? `Silakan bergabung ke grup peserta untuk memudahkan koordinasi dan penyampaian informasi pelatihan,: ${link_grup}. `
+              : `Informasi pelatihan selanjutnya akan kami sampaikan melalui grup pelatihan. `
+          }` +
+          `Terima kasih`;
 
+        // ======================
+        // EMAIL (TERPISAH)
+        // ======================
         try {
           const sent = await sendEmail({
             to: email,
@@ -437,27 +521,54 @@ router.put("/:id/validate", authAdmin, (req, res) => {
           });
 
           if (sent) emailStatus = "TERKIRIM";
-
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_VALID",
-            subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
-            status: emailStatus,
-          });
-        } catch (emailErr) {
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_VALID",
-            subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
-            status: "GAGAL",
-            error_message: emailErr.message,
-          });
+        } catch (errEmail) {
+          emailError = errEmail.message;
+          console.error("Email gagal:", errEmail.message);
         }
 
+        // ======================
+        // WHATSAPP (TERPISAH)
+        // ======================
+        try {
+          const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
+
+          console.log("RESPON WA:", waRes);
+
+          if (waRes) waStatus = "TERKIRIM";
+        } catch (errWA) {
+          waError = errWA.message;
+          console.error("WA gagal:", errWA.message);
+        }
+
+        // ======================
+        // LOG EMAIL
+        // ======================
+        await logEmail({
+          id_pendaftaran,
+          email,
+          nama_penerima: nama_peserta,
+          jenis_email: "PEMBAYARAN_VALID",
+          subject: "Konfirmasi Pembayaran & Pendaftaran Diterima",
+          status: emailStatus,
+          error_message: emailStatus === "GAGAL" ? emailError : null,
+        });
+
+        // ======================
+        // LOG WHATSAPP
+        // ======================
+        await logWhatsApp({
+          id_pendaftaran,
+          no_wa: cleanNoWa,
+          nama_penerima: nama_peserta,
+          jenis_wa: "PEMBAYARAN_VALID",
+          pesan: pesanWA,
+          status: waStatus,
+          error_message: waStatus === "GAGAL" ? waError : null,
+        });
+
+        // ======================
+        // LOG ADMIN
+        // ======================
         const user = req.session.admin;
 
         logAdmin({
@@ -465,13 +576,12 @@ router.put("/:id/validate", authAdmin, (req, res) => {
           email: user.email,
           nama_lengkap: user.nama_lengkap,
           aktivitas: "AKSI",
-          keterangan: `Validasi pembayaran VALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
+          keterangan: `Validasi pembayaran VALID untuk ID ${id_pendaftaran} (${nama_peserta})`,
           req,
         });
 
         res.json({
-          message:
-            "✅ Pembayaran valid. Status peserta DITERIMA & email terkirim",
+          message: "✅ Pembayaran valid + Email & WhatsApp terkirim",
         });
       });
     });
@@ -484,25 +594,24 @@ router.put("/:id/validate", authAdmin, (req, res) => {
 router.put("/:id/invalid", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  // 1. Ambil data peserta
   const getDataSQL = `
-      SELECT 
-        bayar.id_pendaftaran,
-        daftar.nama_peserta,
-        daftar.email,
+    SELECT 
+      bayar.id_pendaftaran,
+      daftar.nama_peserta,
+      daftar.email,
+      daftar.no_wa,
 
-        pel.nama_pelatihan,
-        pel.lokasi,
-        pel.tanggal_mulai,
-        pel.tanggal_selesai
-      FROM pembayaran_tb bayar
-      JOIN pendaftaran_tb daftar
-        ON bayar.id_pendaftaran = daftar.id_pendaftaran
-      JOIN pelatihan_tb pel
-        ON daftar.id_pelatihan = pel.id_pelatihan
-      WHERE bayar.id_pembayaran = ?
-
-    `;
+      pel.nama_pelatihan,
+      pel.lokasi,
+      pel.tanggal_mulai,
+      pel.tanggal_selesai
+    FROM pembayaran_tb bayar
+    JOIN pendaftaran_tb daftar
+      ON bayar.id_pendaftaran = daftar.id_pendaftaran
+    JOIN pelatihan_tb pel
+      ON daftar.id_pelatihan = pel.id_pelatihan
+    WHERE bayar.id_pembayaran = ?
+  `;
 
   connection.query(getDataSQL, [id], async (err, dataRes) => {
     if (err) {
@@ -522,18 +631,48 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
       id_pendaftaran,
       nama_peserta,
       email,
+      no_wa,
       nama_pelatihan,
       lokasi,
       tanggal_mulai,
       tanggal_selesai,
     } = dataRes[0];
 
-    // 2. Update status pembayaran → INVALID
+    // ======================
+    // FORMAT TANGGAL
+    // ======================
+    const formatTanggal = (dateStr) => {
+      if (!dateStr) return "-";
+      return new Date(dateStr).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    };
+
+    const waktuPelaksanaan = `${formatTanggal(
+      tanggal_mulai,
+    )} s.d. ${formatTanggal(tanggal_selesai)}`;
+
+    // ======================
+    // FORMAT NOMOR WA
+    // ======================
+    let cleanNoWa = (no_wa || "").replace(/[^0-9]/g, "");
+
+    if (cleanNoWa.startsWith("0")) {
+      cleanNoWa = "62" + cleanNoWa.slice(1);
+    }
+
+    console.log("KIRIM WA KE:", cleanNoWa);
+
+    // ======================
+    // UPDATE PEMBAYARAN → INVALID
+    // ======================
     const updateBayarSQL = `
-        UPDATE pembayaran_tb
-        SET status = 'INVALID'
-        WHERE id_pembayaran = ?
-      `;
+      UPDATE pembayaran_tb
+      SET status = 'INVALID'
+      WHERE id_pembayaran = ?
+    `;
 
     connection.query(updateBayarSQL, [id], async (err) => {
       if (err) {
@@ -543,12 +682,14 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
           .json({ message: "Gagal update status pembayaran" });
       }
 
-      // 3. Update status pendaftaran (opsional tapi disarankan)
+      // ======================
+      // UPDATE PENDAFTARAN
+      // ======================
       const updateDaftarSQL = `
-          UPDATE pendaftaran_tb
-          SET status = 'Perlu Perbaikan'
-          WHERE id_pendaftaran = ?
-        `;
+        UPDATE pendaftaran_tb
+        SET status = 'Perlu Perbaikan'
+        WHERE id_pendaftaran = ?
+      `;
 
       connection.query(updateDaftarSQL, [id_pendaftaran], async (err) => {
         if (err) {
@@ -558,18 +699,26 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
             .json({ message: "Gagal update status pendaftaran" });
         }
 
-        // 4. Kirim email ke peserta
         let emailStatus = "GAGAL";
+        let emailError = null;
 
-        const formatTanggal = (dateStr) => {
-          if (!dateStr) return "-";
-          return new Date(dateStr).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          });
-        };
+        let waStatus = "GAGAL";
+        let waError = null;
 
+        // ======================
+        // TEMPLATE PESAN WA
+        // ======================
+        const pesanWA =
+          `. ` +
+          `Halo ${nama_peserta}, pembayaran Anda belum dapat kami validasi. ` +
+          `Status saat ini: Perlu Perbaikan. ` +
+          `Pelatihan: ${nama_pelatihan} (${waktuPelaksanaan}) di ${lokasi}. ` +
+          `Silakan upload ulang bukti pembayaran yang valid melalui sistem. ` +
+          `Terima kasih.`;
+
+        // ======================
+        // EMAIL (TERPISAH)
+        // ======================
         const tglMulaiFormatted = formatTanggal(tanggal_mulai);
         const tglSelesaiFormatted = formatTanggal(tanggal_selesai);
 
@@ -620,8 +769,11 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
 
                 <p>
                   Silakan melakukan unggah ulang bukti pembayaran yang valid
-                  melalui sistem pendaftaran.
+                  melalui link berikut:
                 </p>
+                <a href="http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}">
+                Upload Bukti Pembayaran
+                </a>
 
                 <br>
                 <p>
@@ -632,27 +784,54 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
           });
 
           if (sent) emailStatus = "TERKIRIM";
-
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_INVALID",
-            subject: "Informasi Pembayaran Belum Valid",
-            status: emailStatus,
-          });
-        } catch (emailErr) {
-          await logEmail({
-            id_pendaftaran,
-            email,
-            nama_penerima: nama_peserta,
-            jenis_email: "PEMBAYARAN_INVALID",
-            subject: "Informasi Pembayaran Belum Valid",
-            status: "GAGAL",
-            error_message: emailErr.message,
-          });
+        } catch (errEmail) {
+          emailError = errEmail.message;
+          console.error("Email gagal:", errEmail.message);
         }
 
+        // ======================
+        // WHATSAPP (TERPISAH)
+        // ======================
+        try {
+          const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
+
+          console.log("RESPON WA:", waRes);
+
+          if (waRes) waStatus = "TERKIRIM";
+        } catch (errWA) {
+          waError = errWA.message;
+          console.error("WA gagal:", errWA.message);
+        }
+
+        // ======================
+        // LOG EMAIL
+        // ======================
+        await logEmail({
+          id_pendaftaran,
+          email,
+          nama_penerima: nama_peserta,
+          jenis_email: "PEMBAYARAN_INVALID",
+          subject: "Informasi Pembayaran Belum Valid",
+          status: emailStatus,
+          error_message: emailStatus === "GAGAL" ? emailError : null,
+        });
+
+        // ======================
+        // LOG WHATSAPP
+        // ======================
+        await logWhatsApp({
+          id_pendaftaran,
+          no_wa: cleanNoWa,
+          nama_penerima: nama_peserta,
+          jenis_wa: "PEMBAYARAN_INVALID",
+          pesan: pesanWA,
+          status: waStatus,
+          error_message: waStatus === "GAGAL" ? waError : null,
+        });
+
+        // ======================
+        // LOG ADMIN
+        // ======================
         const user = req.session.admin;
 
         logAdmin({
@@ -660,12 +839,12 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
           email: user.email,
           nama_lengkap: user.nama_lengkap,
           aktivitas: "AKSI",
-          keterangan: `Validasi pembayaran INVALID untuk ID pendaftaran ${id_pendaftaran} (${nama_peserta})`,
+          keterangan: `Validasi pembayaran INVALID untuk ID ${id_pendaftaran} (${nama_peserta})`,
           req,
         });
 
         res.json({
-          message: `⚠️ Pembayaran ditandai INVALID. ${emailStatus}`,
+          message: "⚠️ Pembayaran INVALID + Email & WhatsApp terkirim",
         });
       });
     });

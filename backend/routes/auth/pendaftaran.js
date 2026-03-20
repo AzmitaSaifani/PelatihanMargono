@@ -984,12 +984,20 @@ router.put("/:id/accept", authAdmin, (req, res) => {
 // VALIDASI TOKEN UNTUK HALAMAN UPLOAD PEMBAYARAN
 // ========================================================
 router.get("/validate-token/:token", (req, res) => {
-  const { token } = req.params;
+  const rawToken = req.params.token;
+
+  let token;
+  try {
+    token = decodeURIComponent(rawToken);
+  } catch {
+    return res.status(400).json({ message: "Format token salah" });
+  }
 
   let id_pendaftaran;
   try {
     id_pendaftaran = decryptId(token);
-  } catch {
+  } catch (err) {
+    console.error("DECRYPT ERROR:", err);
     return res.status(403).json({ message: "Token tidak valid" });
   }
 
@@ -1000,16 +1008,25 @@ router.get("/validate-token/:token", (req, res) => {
   `;
 
   connection.query(sql, [id_pendaftaran], (err, rows) => {
-    if (err) return res.status(500).json({ message: "Server error" });
+    if (err) {
+      console.error("DB ERROR:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "Data tidak ditemukan" });
     }
 
-    if (rows[0].status !== "Menunggu Pembayaran") {
+    const status = (rows[0].status || "").trim();
+
+    const allowedStatus = [
+      "Menunggu Pembayaran",
+      "Verifikasi Pembayaran Invalid",
+    ];
+
+    if (!allowedStatus.includes(status)) {
       return res.status(403).json({
-        message:
-          "Pembayaran hanya dapat dilakukan jika status Menunggu Pembayaran",
+        message: `Akses ditolak. Status: ${status}`,
       });
     }
 
@@ -1026,11 +1043,11 @@ router.get("/validate-token/:token", (req, res) => {
 router.put("/:id/reject", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  // 1. Ambil data peserta (email & nama)
   const getPesertaSQL = `
     SELECT
-      nama_peserta,
-      email,
+      d.nama_peserta,
+      d.email,
+      d.no_wa,
       p.nama_pelatihan,
       p.tanggal_mulai,
       p.tanggal_selesai
@@ -1053,6 +1070,7 @@ router.put("/:id/reject", authAdmin, (req, res) => {
     const {
       nama_peserta,
       email,
+      no_wa,
       nama_pelatihan,
       tanggal_mulai,
       tanggal_selesai,
@@ -1074,6 +1092,20 @@ router.put("/:id/reject", authAdmin, (req, res) => {
       tanggal_mulai,
     )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
+    // ======================
+    // FORMAT NOMOR WA
+    // ======================
+    let cleanNoWa = (no_wa || "").replace(/[^0-9]/g, "");
+
+    if (cleanNoWa.startsWith("0")) {
+      cleanNoWa = "62" + cleanNoWa.slice(1);
+    }
+
+    console.log("KIRIM WA KE:", cleanNoWa);
+
+    // ======================
+    // UPDATE STATUS
+    // ======================
     const updateStatusSQL = `
       UPDATE pendaftaran_tb 
       SET status = 'Verifikasi Berkas Invalid'
@@ -1086,31 +1118,32 @@ router.put("/:id/reject", authAdmin, (req, res) => {
         return res.status(500).json({ message: "Gagal update status" });
       }
 
-      // 2. Update status
-      const updateStatusSQL = `
-      UPDATE pendaftaran_tb 
-      SET status = 'Verifikasi Berkas Invalid'
-      WHERE id_pendaftaran = ?
-    `;
+      let emailStatus = "GAGAL";
+      let emailError = null;
 
-      connection.query(updateStatusSQL, [id], async (err) => {
-        if (err) {
-          console.error("❌ Error update status:", err);
-          return res.status(500).json({ message: "Gagal update status" });
-        }
+      let waStatus = "GAGAL";
+      let waError = null;
 
-        // 3. Kirim email (AMAN: gagal email ≠ gagal update)
-        try {
-          await sendEmail({
-            to: email,
-            subject: "Informasi Verifikasi Berkas Pendaftaran Pelatihan",
-            html: `
+      // ======================
+      // TEMPLATE PESAN WA
+      // ======================
+      const pesanWA =
+        `. ` +
+        `Halo ${nama_peserta}, kami informasikan bahwa berkas pendaftaran Anda dinyatakan BELUM VALID. ` +
+        `Pelatihan: ${nama_pelatihan} dengan waktu pelaksanaan ${waktuPelaksanaan}. ` +
+        `Silakan melakukan perbaikan berkas sesuai ketentuan yang berlaku dengan melakukan pendaftaran ulang pelatihan di Web Diklat Margono.` +
+        `Informasi lebih lanjut akan disampaikan melalui email dan WhatsApp. ` +
+        `Terima kasih`;
+
+      try {
+        // ======================
+        // EMAIL
+        // ======================
+        const sent = await sendEmail({
+          to: email,
+          subject: "Informasi Verifikasi Berkas Pendaftaran Pelatihan",
+          html: `
             <p>Yth. <b>${nama_peserta}</b>,</p>
-
-            <p>
-              Terima kasih telah mendaftar pelatihan di
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>.
-            </p>
 
             <p>
               Setelah dilakukan proses verifikasi, kami informasikan bahwa
@@ -1119,15 +1152,14 @@ router.put("/:id/reject", authAdmin, (req, res) => {
 
             <hr>
 
-            <p><b>Detail Pelatihan:</b></p>
-            <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+            <table cellpadding="6">
               <tr>
-                <td><b>Nama Pelatihan</b></td>
+                <td>Nama Pelatihan</td>
                 <td>:</td>
                 <td>${nama_pelatihan}</td>
               </tr>
               <tr>
-                <td><b>Waktu Pelaksanaan</b></td>
+                <td>Waktu Pelaksanaan</td>
                 <td>:</td>
                 <td>${waktuPelaksanaan}</td>
               </tr>
@@ -1135,63 +1167,84 @@ router.put("/:id/reject", authAdmin, (req, res) => {
 
             <br>
 
-            <p>
-              Adapun beberapa kemungkinan penyebab berkas belum valid, antara lain:
-            </p>
+            <p>Kemungkinan penyebab:</p>
             <ul>
               <li>Dokumen tidak lengkap</li>
-              <li>Format dokumen tidak sesuai</li>
-              <li>Data pada dokumen tidak terbaca dengan jelas</li>
+              <li>Format tidak sesuai</li>
+              <li>Dokumen tidak terbaca</li>
             </ul>
 
-            <p>
-              Tim kami akan menghubungi Anda untuk menyampaikan
-              informasi lebih lanjut terkait perbaikan berkas.
-            </p>
-
-            <p>
-              Mohon memastikan email dan nomor kontak Anda tetap aktif.
-            </p>
+            <p>Silakan lakukan perbaikan berkas sesuai ketentuan yang berlaku dengan melakukan pendaftaran ulang pelatihan di Web Diklat Margono.</p>
 
             <br>
-            <p>
-              Hormat kami,<br>
-              <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
-            </p>
+            <p>Hormat kami,<br>
+            <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b></p>
           `,
-          });
+        });
 
-          console.log("📧 Email verifikasi invalid terkirim ke:", email);
-        } catch (emailErr) {
-          console.error("⚠️ Email gagal dikirim:", emailErr.message);
+        if (sent) emailStatus = "TERKIRIM";
+
+        // ======================
+        // WHATSAPP
+        // ======================
+        try {
+          const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
+
+          console.log("RESPON WA:", waRes);
+
+          if (waRes) waStatus = "TERKIRIM";
+        } catch (errWA) {
+          waError = errWA.message;
+          console.error("WA gagal:", errWA.message);
         }
+      } catch (errEmail) {
+        emailError = errEmail.message;
+        console.error("Email gagal:", errEmail.message);
+      }
 
-        await logEmail({
-          id_pendaftaran: id,
-          email,
-          nama_penerima: nama_peserta,
-          jenis_email: "BERKAS_INVALID",
-          subject: "Berkas Tidak Valid",
-          status: "TERKIRIM",
-        });
+      // ======================
+      // LOG EMAIL
+      // ======================
+      await logEmail({
+        id_pendaftaran: id,
+        email,
+        nama_penerima: nama_peserta,
+        jenis_email: "BERKAS_INVALID",
+        subject: "Berkas Tidak Valid",
+        status: emailStatus,
+        error_message: emailStatus === "GAGAL" ? emailError : null,
+      });
 
-        // ================= ADMIN LOG =================
-        const user = req.session.admin;
+      // ======================
+      // LOG WHATSAPP
+      // ======================
+      await logWhatsApp({
+        id_pendaftaran: id,
+        no_wa: cleanNoWa,
+        nama_penerima: nama_peserta,
+        jenis_wa: "BERKAS_INVALID",
+        pesan: pesanWA,
+        status: waStatus,
+        error_message: waStatus === "GAGAL" ? waError : null,
+      });
 
-        logAdmin({
-          id_user: user.id_user,
-          email: user.email,
-          nama_lengkap: user.nama_lengkap,
-          aktivitas: "AKSI",
-          keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
-          req,
-        });
+      // ======================
+      // LOG ADMIN
+      // ======================
+      const user = req.session.admin;
 
-        // 4. Response ke frontend
-        res.json({
-          message: "❌ Berkas dinyatakan tidak valid & email terkirim",
-          status: "Verifikasi Berkas Invalid",
-        });
+      logAdmin({
+        id_user: user.id_user,
+        email: user.email,
+        nama_lengkap: user.nama_lengkap,
+        aktivitas: "AKSI",
+        keterangan: `Verifikasi berkas INVALID untuk ID ${id} (${nama_peserta})`,
+        req,
+      });
+
+      res.json({
+        message: "❌ Berkas tidak valid + Email & WhatsApp terkirim",
+        status: "Verifikasi Berkas Invalid",
       });
     });
   });
