@@ -687,7 +687,7 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
       // ======================
       const updateDaftarSQL = `
         UPDATE pendaftaran_tb
-        SET status = 'Perlu Perbaikan'
+        SET status = 'Verifikasi Pembayaran Invalid'
         WHERE id_pendaftaran = ?
       `;
 
@@ -711,7 +711,7 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
         const pesanWA =
           `. ` +
           `Halo ${nama_peserta}, pembayaran Anda belum dapat kami validasi. ` +
-          `Status saat ini: Perlu Perbaikan. ` +
+          `Status saat ini: Verifikasi Pembayaran Invalid. ` +
           `Pelatihan: ${nama_pelatihan} (${waktuPelaksanaan}) di ${lokasi}. ` +
           `Silakan upload ulang bukti pembayaran yang valid melalui sistem. ` +
           `Terima kasih.`;

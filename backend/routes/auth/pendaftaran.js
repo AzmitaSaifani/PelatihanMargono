@@ -1017,16 +1017,19 @@ router.get("/validate-token/:token", (req, res) => {
       return res.status(404).json({ message: "Data tidak ditemukan" });
     }
 
-    const status = (rows[0].status || "").trim();
+    // Ambil status, trim spasi, dan ubah ke huruf kecil untuk perbandingan yang aman
+    const statusOriginal = (rows[0].status || "").trim();
+    const statusLower = statusOriginal.toLowerCase();
 
+    // Daftar status yang diizinkan (tulis dalam huruf kecil semua)
     const allowedStatus = [
-      "Menunggu Pembayaran",
-      "Verifikasi Pembayaran Invalid",
+      "menunggu pembayaran",
+      "verifikasi pembayaran invalid",
     ];
 
-    if (!allowedStatus.includes(status)) {
+    if (!allowedStatus.includes(statusLower)) {
       return res.status(403).json({
-        message: `Akses ditolak. Status: ${status}`,
+        message: `Akses ditolak. Status saat ini: ${statusOriginal}`,
       });
     }
 
