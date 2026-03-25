@@ -3,10 +3,7 @@ import connection from "../../config/db.js";
 
 const router = express.Router();
 
-/**
- * GET /api/email-log
- * Ambil semua log email (latest first)
- */
+// get
 router.get("/", (req, res) => {
   const sql = `
     SELECT 

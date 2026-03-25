@@ -3,10 +3,7 @@ import connection from "../../config/db.js";
 
 const router = express.Router();
 
-/**
- * GET /api/log-wa
- * Ambil semua log WhatsApp (latest first)
- */
+// get
 router.get("/", (req, res) => {
   const sql = `
     SELECT 
@@ -15,7 +12,7 @@ router.get("/", (req, res) => {
       no_wa,
       nama_penerima,
       jenis_wa,
-      pesan,
+      subject,
       status,
       error_message,
       sent_at

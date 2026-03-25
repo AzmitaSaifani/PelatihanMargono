@@ -5,10 +5,20 @@ export const logWhatsApp = async ({
   no_wa,
   nama_penerima,
   jenis_wa,
-  pesan,
   status,
   error_message = null,
 }) => {
+
+  // ✅ Mapping subject otomatis
+  const subjectMap = {
+    BERKAS_PENDING: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+    BERKAS_VALID: "Berkas Diterima – Pendaftaran Disetujui",
+    BERKAS_INVALID: "Berkas Tidak Valid – Perlu Perbaikan",
+  };
+
+  const subject = subjectMap[jenis_wa] || "Notifikasi Pendaftaran";
+
+
   const sql = `
     INSERT INTO log_wa
     (
@@ -16,7 +26,7 @@ export const logWhatsApp = async ({
       no_wa,
       nama_penerima,
       jenis_wa,
-      pesan,
+      subject,
       status,
       error_message
     )
@@ -28,7 +38,7 @@ export const logWhatsApp = async ({
     no_wa,
     nama_penerima,
     jenis_wa,
-    pesan,
+    subject,
     status,
     error_message,
   ];
