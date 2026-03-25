@@ -68,10 +68,11 @@ router.get("/check-duplikat", (req, res) => {
   }
 
   const sql = `
-    SELECT id_pendaftaran
+    SELECT id_pendaftaran, status
     FROM pendaftaran_tb
     WHERE id_pelatihan = ?
       AND (nik = ? OR nip = ?)
+    ORDER BY id_pendaftaran DESC
     LIMIT 1
   `;
 
@@ -83,16 +84,44 @@ router.get("/check-duplikat", (req, res) => {
       });
     }
 
-    if (rows.length > 0) {
+    // ======================
+    // TIDAK ADA DATA → BOLEH
+    // ======================
+    if (rows.length === 0) {
+      return res.json({
+        duplicate: false,
+        message: "Data belum terdaftar, boleh lanjut",
+      });
+    }
+
+    const status = rows[0].status;
+
+    // ======================
+    // ❌ BLOKIR (SUDAH FINAL)
+    // ======================
+    if (status === "Diterima" || status === "Menunggu Pembayaran") {
       return res.json({
         duplicate: true,
         message: "NIK atau NIP sudah terdaftar pada pelatihan yang sama",
       });
     }
 
-    res.json({
+    // ======================
+    // BOLEH DAFTAR ULANG
+    // ======================
+    if (status === "Verifikasi Berkas Invalid") {
+      return res.json({
+        duplicate: false,
+        message: "Data sebelumnya ditolak, silakan daftar ulang",
+      });
+    }
+
+    // ======================
+    // DEFAULT AMAN
+    // ======================
+    return res.json({
       duplicate: false,
-      message: "Data belum terdaftar, boleh lanjut",
+      message: "Silakan lanjut pendaftaran",
     });
   });
 });
@@ -291,9 +320,100 @@ router.post(
           }
 
           // ======================
-          // INSERT PENDAFTARAN
+          // 🔥 CEK DATA PENDAFTARAN (ANTI DOUBLE)
           // ======================
-          const insertSQL = `
+          const cekSQL = `
+            SELECT id_pendaftaran, status
+            FROM pendaftaran_tb
+            WHERE id_pelatihan = ?
+              AND (nik = ? OR nip = ?)
+            ORDER BY id_pendaftaran DESC
+            LIMIT 1
+          `;
+
+          connection.query(
+            cekSQL,
+            [id_pelatihan, nik, nip],
+            (errCek, cekRes) => {
+              if (errCek) {
+                return res.status(500).json({
+                  message: "Gagal cek data pendaftaran",
+                });
+              }
+
+              let id_pendaftaran;
+              let query;
+              let values;
+
+              // ======================
+              // JIKA SUDAH ADA DATA
+              // ======================
+              if (cekRes.length > 0) {
+                const last = cekRes[0];
+
+                // ❌ SUDAH DITERIMA
+                if (
+                  last.status === "Diterima" ||
+                  last.status === "Menunggu Pembayaran"
+                ) {
+                  return res.status(403).json({
+                    message: "Anda sudah terdaftar pada pelatihan ini",
+                  });
+                }
+
+                // ✅ INVALID → UPDATE
+                if (last.status === "Verifikasi Berkas Invalid") {
+                  id_pendaftaran = last.id_pendaftaran;
+
+                  query = `
+                    UPDATE pendaftaran_tb SET
+                      id_pelatihan=?, harga_pelatihan=?, nik=?, nip=?, gelar_depan=?, nama_peserta=?, gelar_belakang=?,
+                      asal_instansi=?, tempat_lahir=?, tanggal_lahir=?, pendidikan=?, jenis_kelamin=?, agama=?,
+                      status_pegawai=?, pangkat_golongan=?, kabupaten_asal=?, alamat_kantor=?, alamat_rumah=?,
+                      no_wa=?, email=?, str=?, provinsi_asal=?, jenis_nakes=?, jabatan=?,
+                      kabupaten_kantor=?, provinsi_kantor=?, surat_tugas=?, foto_4x6=?, status='Menunggu Verifikasi Berkas'
+                    WHERE id_pendaftaran = ?
+                  `;
+
+                  values = [
+                    id_pelatihan,
+                    harga_pelatihan,
+                    nik,
+                    nip,
+                    gelar_depan,
+                    nama_peserta,
+                    gelar_belakang,
+                    asal_instansi,
+                    tempat_lahir,
+                    tanggal_lahir,
+                    pendidikan,
+                    jenis_kelamin,
+                    agama,
+                    status_pegawai,
+                    pangkat_golongan,
+                    kabupaten_asal,
+                    alamat_kantor,
+                    alamat_rumah,
+                    no_wa,
+                    email,
+                    str,
+                    provinsi_asal,
+                    jenis_nakes,
+                    jabatan,
+                    kabupaten_kantor,
+                    provinsi_kantor,
+                    surat_tugas,
+                    foto_4x6,
+                    id_pendaftaran,
+                  ];
+                }
+              }
+
+              // ======================
+              // INSERT BARU
+              // ======================
+              if (!query) {
+                query = `
           INSERT INTO pendaftaran_tb (
             id_pelatihan, harga_pelatihan,  nik, nip, gelar_depan, nama_peserta, gelar_belakang,
             asal_instansi, tempat_lahir, tanggal_lahir, pendidikan, jenis_kelamin, agama,
@@ -303,50 +423,60 @@ router.post(
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-          const values = [
-            id_pelatihan,
-            harga_pelatihan,
-            nik,
-            nip,
-            gelar_depan,
-            nama_peserta,
-            gelar_belakang,
-            asal_instansi,
-            tempat_lahir,
-            tanggal_lahir,
-            pendidikan,
-            jenis_kelamin,
-            agama,
-            status_pegawai,
-            pangkat_golongan,
-            kabupaten_asal,
-            alamat_kantor,
-            alamat_rumah,
-            no_wa,
-            email,
-            str,
-            provinsi_asal,
-            jenis_nakes,
-            jabatan,
-            kabupaten_kantor,
-            provinsi_kantor,
-            surat_tugas,
-            foto_4x6,
-            "Menunggu Verifikasi Berkas",
-          ];
+                values = [
+                  id_pelatihan,
+                  harga_pelatihan,
+                  nik,
+                  nip,
+                  gelar_depan,
+                  nama_peserta,
+                  gelar_belakang,
+                  asal_instansi,
+                  tempat_lahir,
+                  tanggal_lahir,
+                  pendidikan,
+                  jenis_kelamin,
+                  agama,
+                  status_pegawai,
+                  pangkat_golongan,
+                  kabupaten_asal,
+                  alamat_kantor,
+                  alamat_rumah,
+                  no_wa,
+                  email,
+                  str,
+                  provinsi_asal,
+                  jenis_nakes,
+                  jabatan,
+                  kabupaten_kantor,
+                  provinsi_kantor,
+                  surat_tugas,
+                  foto_4x6,
+                  "Menunggu Verifikasi Berkas",
+                ];
+              }
 
-          connection.query(insertSQL, values, async (err, result) => {
-            if (err) {
-              console.error("❌ Error insert pendaftaran:", err);
-              return res.status(500).json({ message: "Gagal mendaftar" });
-            }
+              // ======================
+              // EKSEKUSI 1x
+              // ======================
+              connection.query(query, values, async (err2, result) => {
+                if (err2) {
+                  console.error("❌ Error pendaftaran:", err2);
+                  return res.status(500).json({
+                    message: "Gagal mendaftar",
+                  });
+                }
 
-            const newId = result.insertId;
+                if (!id_pendaftaran) {
+                  id_pendaftaran = result.insertId;
+                }
 
-            // ======================
-            // AMBIL DATA PELATIHAN
-            // ======================
-            const getPelatihanSQL = `
+                const newId = id_pendaftaran;
+
+                // ======================
+                // AMBIL DATA PELATIHAN
+                // ======================
+                const getPelatihanSQL = `
               SELECT 
                 nama_pelatihan,
                 tanggal_mulai,
@@ -355,71 +485,71 @@ router.post(
               WHERE id_pelatihan = ?
             `;
 
-            connection.query(
-              getPelatihanSQL,
-              [id_pelatihan],
-              async (err, pelRes) => {
-                if (err || pelRes.length === 0) {
-                  console.error("❌ Error ambil data pelatihan:", err);
-                  return res.status(500).json({
-                    message: "Gagal mengambil data pelatihan",
-                  });
-                }
+                connection.query(
+                  getPelatihanSQL,
+                  [id_pelatihan],
+                  async (err, pelRes) => {
+                    if (err || pelRes.length === 0) {
+                      console.error("❌ Error ambil data pelatihan:", err);
+                      return res.status(500).json({
+                        message: "Gagal mengambil data pelatihan",
+                      });
+                    }
 
-                const { nama_pelatihan, tanggal_mulai, tanggal_selesai } =
-                  pelRes[0];
+                    const { nama_pelatihan, tanggal_mulai, tanggal_selesai } =
+                      pelRes[0];
 
-                const formatTanggal = (dateStr) => {
-                  return new Date(dateStr).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  });
-                };
+                    const formatTanggal = (dateStr) => {
+                      return new Date(dateStr).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      });
+                    };
 
-                const waktuPelaksanaan = `${formatTanggal(
-                  tanggal_mulai,
-                )} s.d. ${formatTanggal(tanggal_selesai)}`;
+                    const waktuPelaksanaan = `${formatTanggal(
+                      tanggal_mulai,
+                    )} s.d. ${formatTanggal(tanggal_selesai)}`;
 
-                // ======================
-                // KIRIM WHATSAPP
-                // ======================
-                let cleanNoWa = no_wa.replace(/[^0-9]/g, "");
+                    // ======================
+                    // KIRIM WHATSAPP
+                    // ======================
+                    let cleanNoWa = no_wa.replace(/[^0-9]/g, "");
 
-                // Jika nomor dimulai dengan '0', ganti jadi '62'
-                if (cleanNoWa.startsWith("0")) {
-                  cleanNoWa = "62" + cleanNoWa.slice(1);
-                }
+                    // Jika nomor dimulai dengan '0', ganti jadi '62'
+                    if (cleanNoWa.startsWith("0")) {
+                      cleanNoWa = "62" + cleanNoWa.slice(1);
+                    }
 
-                // TES PESAN POLOS
-                // const pesanWA = `Halo ${nama_peserta}, pendaftaran diklat anda di RSUD Margono sudah kami terima. Terima kasih.`;
+                    // TES PESAN POLOS
+                    // const pesanWA = `Halo ${nama_peserta}, pendaftaran diklat anda di RSUD Margono sudah kami terima. Terima kasih.`;
 
-                const pesanWA =
-                  `. ` +
-                  `Halo ${nama_peserta}, pendaftaran pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo BERHASIL. ` +
-                  `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} ` +
-                  `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
-                  ` Status pendaftaran pelatihan Anda saat ini dalam proses verifikasi berkas, untuk informasi selanjutnya harap cek berkala melalui WhatsApp maupun Email secara berkala. ` +
-                  `Terima kasih`;
+                    const pesanWA =
+                      `. ` +
+                      `Halo ${nama_peserta}, pendaftaran pelatihan DIKLAT RSUD Prof. Dr. Margono Soekarjo BERHASIL. ` +
+                      `Pelatihan yang Anda ikuti adalah ${nama_pelatihan} ` +
+                      `yang akan dilaksanakan pada ${waktuPelaksanaan}. ` +
+                      ` Status pendaftaran pelatihan Anda saat ini dalam proses verifikasi berkas, untuk informasi selanjutnya harap cek berkala melalui WhatsApp maupun Email secara berkala. ` +
+                      `Terima kasih`;
 
-                // ======================
-                // KIRIM WHATSAPP + LOG
-                // ======================
-                let waStatus = "GAGAL";
-                let waError = null;
+                    // ======================
+                    // KIRIM WHATSAPP + LOG
+                    // ======================
+                    let waStatus = "GAGAL";
+                    let waError = null;
 
-                // ======================
-                // KIRIM EMAIL (AMAN)
-                // ======================
-                let emailStatus = "TIDAK DIKIRIM";
-                let emailError = null;
+                    // ======================
+                    // KIRIM EMAIL (AMAN)
+                    // ======================
+                    let emailStatus = "TIDAK DIKIRIM";
+                    let emailError = null;
 
-                try {
-                  const sent = await sendEmail({
-                    to: email,
-                    subject:
-                      "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                    html: `
+                    try {
+                      const sent = await sendEmail({
+                        to: email,
+                        subject:
+                          "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                        html: `
                   <p>Yth. <b>${nama_peserta}</b>,</p>
 
                   <p>
@@ -463,55 +593,59 @@ router.post(
                     <b>DIKLAT RSUD Prof. Dr. Margono Soekarjo</b>
                   </p>
                 `,
-                  });
-                  if (sent) emailStatus = "TERKIRIM";
-                } catch (errEmail) {
-                  emailError = errEmail.message;
-                }
+                      });
+                      if (sent) emailStatus = "TERKIRIM";
+                    } catch (errEmail) {
+                      emailError = errEmail.message;
+                    }
 
-                // ======================
-                // KIRIM WHATSAPP
-                // ======================
-                try {
-                  const waResponse = await sendWhatsApp(cleanNoWa, pesanWA);
-                  if (waResponse) waStatus = "TERKIRIM";
-                } catch (errWA) {
-                  waError = errWA.message;
-                }
+                    // ======================
+                    // KIRIM WHATSAPP
+                    // ======================
+                    try {
+                      const waResponse = await sendWhatsApp(cleanNoWa, pesanWA);
+                      if (waResponse) waStatus = "TERKIRIM";
+                    } catch (errWA) {
+                      waError = errWA.message;
+                    }
 
-                // ======================
-                // LOG EMAIL (TETAP)
-                // ======================
-                await logEmail({
-                  id_pendaftaran: newId,
-                  email,
-                  nama_penerima: nama_peserta,
-                  jenis_email: "BERKAS_PENDING",
-                  subject: "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
-                  status: emailStatus,
-                  error_message: emailStatus === "GAGAL" ? emailError : null,
-                });
+                    // ======================
+                    // LOG EMAIL (TETAP)
+                    // ======================
+                    await logEmail({
+                      id_pendaftaran: newId,
+                      email,
+                      nama_penerima: nama_peserta,
+                      jenis_email: "BERKAS_PENDING",
+                      subject:
+                        "Pendaftaran Berhasil – Menunggu Verifikasi Berkas",
+                      status: emailStatus,
+                      error_message:
+                        emailStatus === "GAGAL" ? emailError : null,
+                    });
 
-                // ======================
-                // LOG WHATSAPP
-                // ======================
-                await logWhatsApp({
-                  id_pendaftaran: newId,
-                  no_wa: cleanNoWa,
-                  nama_penerima: nama_peserta,
-                  jenis_wa: "BERKAS_PENDING",
-                  pesan: pesanWA,
-                  status: waStatus,
-                  error_message: waStatus === "GAGAL" ? waError : null,
-                });
+                    // ======================
+                    // LOG WHATSAPP
+                    // ======================
+                    await logWhatsApp({
+                      id_pendaftaran: newId,
+                      no_wa: cleanNoWa,
+                      nama_penerima: nama_peserta,
+                      jenis_wa: "BERKAS_PENDING",
+                      pesan: pesanWA,
+                      status: waStatus,
+                      error_message: waStatus === "GAGAL" ? waError : null,
+                    });
 
-                res.status(201).json({
-                  message: "✅ Pendaftaran berhasil",
-                  id_pendaftaran: newId,
-                });
-              },
-            );
-          });
+                    res.status(201).json({
+                      message: "✅ Pendaftaran berhasil",
+                      id_pendaftaran: newId,
+                    });
+                  },
+                );
+              });
+            },
+          );
         },
       );
     });
@@ -914,7 +1048,7 @@ router.put("/:id/accept", authAdmin, (req, res) => {
         }
 
         // ======================
-        // 🔥 KIRIM WHATSAPP (SEMUA KONDISI)
+        // KIRIM WHATSAPP
         // ======================
         try {
           const waRes = await sendWhatsApp(cleanNoWa, pesanWA);
@@ -1134,7 +1268,7 @@ router.put("/:id/reject", authAdmin, (req, res) => {
         `. ` +
         `Halo ${nama_peserta}, kami informasikan bahwa berkas pendaftaran Anda dinyatakan BELUM VALID. ` +
         `Pelatihan: ${nama_pelatihan} dengan waktu pelaksanaan ${waktuPelaksanaan}. ` +
-        `Silakan melakukan perbaikan berkas sesuai ketentuan yang berlaku dengan melakukan pendaftaran ulang pelatihan di Web Diklat Margono.` +
+        `Silakan melakukan perbaikan berkas sesuai ketentuan yang berlaku dengan melakukan pendaftaran ulang pelatihan di Web Diklat Margono. ` +
         `Informasi lebih lanjut akan disampaikan melalui email dan WhatsApp. ` +
         `Terima kasih`;
 
@@ -1246,7 +1380,7 @@ router.put("/:id/reject", authAdmin, (req, res) => {
       });
 
       res.json({
-        message: "❌ Berkas tidak valid + Email & WhatsApp terkirim",
+        message: "Berkas tidak valid, notifikasi Email & WhatsApp terkirim",
         status: "Verifikasi Berkas Invalid",
       });
     });

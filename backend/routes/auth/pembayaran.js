@@ -3,7 +3,7 @@ import { sendEmail } from "../../utils/email.js";
 import { logEmail } from "../../utils/emailLogger.js";
 import { sendWhatsApp } from "../../utils/whatsapp.js";
 import { logWhatsApp } from "../../utils/whatsappLogger.js";
-import { decryptId } from "../../routes/auth//token.js";
+import { encryptId, decryptId } from "../../routes/auth/token.js";
 import express from "express";
 import connection from "../../config/db.js";
 import { authAdmin } from "../../middleware/auth.js";
@@ -54,6 +54,9 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
 
   const bukti_transfer = req.file.filename;
 
+  // ======================
+  // CEK DATA PENDAFTARAN
+  // ======================
   const sqlCari = `
     SELECT 
       daftar.nama_peserta,
@@ -90,8 +93,7 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
 
     if (!allowedStatus.includes(hasil[0].status)) {
       return res.status(403).json({
-        message:
-          "Upload pembayaran hanya dapat dilakukan setelah berkas dinyatakan valid",
+        message: "Tidak diperbolehkan upload pembayaran",
       });
     }
 
@@ -130,25 +132,75 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
       cleanNoWa = "62" + cleanNoWa.slice(1);
     }
 
-    console.log("KIRIM WA KE:", cleanNoWa);
+    // ======================
+    // CEK SUDAH ADA DATA BELUM
+    // ======================
+    const cekSQL = `
+  SELECT id_pembayaran, status
+  FROM pembayaran_tb
+  WHERE id_pendaftaran = ?
+  ORDER BY id_pembayaran DESC
+  LIMIT 1
+`;
 
-    // ======================
-    // INSERT PEMBAYARAN
-    // ======================
-    const sqlInsert = `
+    connection.query(cekSQL, [id_pendaftaran], (errCek, cekRes) => {
+      if (errCek) {
+        return res.status(500).json({ message: "Gagal cek pembayaran" });
+      }
+
+      let id_pembayaran;
+      let query;
+      let params;
+
+      if (cekRes.length > 0) {
+        const last = cekRes[0];
+
+        // ❌ sudah VALID
+        if (last.status === "VALID") {
+          return res.status(403).json({
+            message: "Pembayaran sudah valid, tidak bisa upload ulang",
+          });
+        }
+
+        // ✅ INVALID → UPDATE
+        if (last.status === "INVALID") {
+          id_pembayaran = last.id_pembayaran;
+
+          query = `
+        UPDATE pembayaran_tb
+        SET bukti_transfer = ?, status = 'PENDING', uploaded_at = NOW()
+        WHERE id_pembayaran = ?
+      `;
+
+          params = [bukti_transfer, id_pembayaran];
+        }
+      }
+
+      // ======================
+      // DEFAULT → INSERT
+      // ======================
+      if (!query) {
+        query = `
       INSERT INTO pembayaran_tb
       (id_pendaftaran, bukti_transfer, status, uploaded_at)
       VALUES (?, ?, 'PENDING', NOW())
     `;
 
-    connection.query(
-      sqlInsert,
-      [id_pendaftaran, bukti_transfer],
-      async (err2, result) => {
+        params = [id_pendaftaran, bukti_transfer];
+      }
+
+      // ======================
+      // EKSEKUSI 1x SAJA
+      // ======================
+      connection.query(query, params, async (err2, result) => {
         if (err2) {
           return res.status(500).json({
             message: "Gagal menyimpan pembayaran",
           });
+        }
+
+        if (!id_pembayaran) {
+          id_pembayaran = result.insertId;
         }
 
         let emailStatus = "GAGAL";
@@ -260,8 +312,8 @@ router.post("/", upload.single("bukti_transfer"), (req, res) => {
           id_pembayaran: result.insertId,
           status: "PENDING",
         });
-      },
-    );
+      });
+    });
   });
 });
 
@@ -581,7 +633,7 @@ router.put("/:id/validate", authAdmin, (req, res) => {
         });
 
         res.json({
-          message: "✅ Pembayaran valid + Email & WhatsApp terkirim",
+          message: "Pembayaran valid, notifikasi Email & WhatsApp terkirim",
         });
       });
     });
@@ -699,6 +751,8 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
             .json({ message: "Gagal update status pendaftaran" });
         }
 
+        const token = encryptId(id_pendaftaran);
+
         let emailStatus = "GAGAL";
         let emailError = null;
 
@@ -710,11 +764,11 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
         // ======================
         const pesanWA =
           `. ` +
-          `Halo ${nama_peserta}, pembayaran Anda belum dapat kami validasi. ` +
+          `Halo ${nama_peserta}, pembayaran Anda belum dapat kami validasi dikarenakan adanya kesalahan pada bukti pembayaran pelatihan Anda. ` +
           `Status saat ini: Verifikasi Pembayaran Invalid. ` +
           `Pelatihan: ${nama_pelatihan} (${waktuPelaksanaan}) di ${lokasi}. ` +
-          `Silakan upload ulang bukti pembayaran yang valid melalui sistem. ` +
-          `Terima kasih.`;
+          `Silakan upload ulang bukti pembayaran yang valid melalui melalui link berikut: http://localhost:8080/pelatihanmargono/frontend/uploadpembayaran.html?token=${token}` +
+          `Terima kasih`;
 
         // ======================
         // EMAIL (TERPISAH)
@@ -844,7 +898,7 @@ router.put("/:id/invalid", authAdmin, (req, res) => {
         });
 
         res.json({
-          message: "⚠️ Pembayaran INVALID + Email & WhatsApp terkirim",
+          message: "Pembayaran INVALID, notifikasi Email & WhatsApp terkirim",
         });
       });
     });
