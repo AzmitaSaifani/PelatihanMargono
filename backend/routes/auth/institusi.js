@@ -1,3 +1,5 @@
+// Institusi == Lembaga Mitra
+
 import express from "express";
 import connection from "../../config/db.js";
 import multer from "multer";

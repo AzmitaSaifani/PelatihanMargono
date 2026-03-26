@@ -229,9 +229,9 @@
     <div class="container py-4">
       <h2 class="mb-4 fw-bold">Kelola Dokumentasi</h2>
 
-      <!-- ==================== TABEL GALLERY ==================== -->
+      <!-- ==================== TABEL dokumentasi ==================== -->
       <div class="card">
-        <div class="card-header bg-dark text-white">Daftar Gallery</div>
+        <div class="card-header bg-dark text-white">Daftar Dokumentasi</div>
 
         <div class="col-md-4 mt-3 ms-3">
           <select id="filterKategori" class="form-control">
@@ -311,7 +311,7 @@
           <!-- HEADER -->
           <div class="modal-header">
             <h5 class="modal-title" id="modalTambahGalleryLabel">
-              Tambah Foto Gallery
+              Tambah Foto Dokumentasi
             </h5>
             <button
               type="button"
@@ -382,7 +382,7 @@
               Batal
             </button>
             <button type="submit" form="formGallery" class="btn btn-primary">
-              Simpan Gallery
+              Simpan Dokumentasi
             </button>
           </div>
         </div>
@@ -512,7 +512,7 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const API = "http://localhost:5000/api/gallery";
+        const API = "http://localhost:5000/api/dokumentasi";
 
         let filteredData = [];
         let currentPage = 1;
@@ -578,7 +578,7 @@
             }
 
             // ✅ SUKSES
-            alert("Gallery berhasil ditambahkan!");
+            alert("Dokumentasi berhasil ditambahkan!");
 
             formGallery.reset();
             preview.style.display = "none";
@@ -610,7 +610,7 @@
             tableBody.innerHTML = `
           <tr>
             <td colspan="6" class="text-center text-danger">
-              Gagal memuat data gallery
+              Gagal memuat data dokumentasi
             </td>
           </tr>`;
           }
@@ -663,7 +663,7 @@
               <tr>
                 <td>${start + index + 1}</td>
                 <td>
-                  <img src="http://localhost:5000/uploads/gallery/${
+                  <img src="http://localhost:5000/uploads/dokumentasi/${
                     item.foto
                   }" class="thumb-foto" style="width:70px;height:70px;object-fit:cover";>
                 </td>
@@ -759,7 +759,7 @@
             document.getElementById("edit_status").value = data.status;
 
             document.getElementById("edit_previewFoto").src =
-              `http://localhost:5000/uploads/gallery/${data.foto}`;
+              `http://localhost:5000/uploads/dokumentasi/${data.foto}`;
 
             new bootstrap.Modal(
               document.getElementById("modalEditGallery"),

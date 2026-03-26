@@ -9,10 +9,10 @@ const router = express.Router();
 
 const ALLOWED_KATEGORI = ["sarpras", "diskusi", "pelatihan"];
 
-// === Konfigurasi upload foto gallery ===
+// === Konfigurasi upload foto dokumentasi ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = "uploads/gallery";
+    const dir = "uploads/dokumentasi";
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -39,7 +39,7 @@ const upload = multer({
 });
 
 // ======================================================
-// ===============   CREATE GALLERY   ===================
+// ===============   CREATE dokumentasi   ===================
 // ======================================================
 router.post("/", authAdmin, upload.single("foto"), (req, res) => {
   const { keterangan, kategori, status } = req.body;
@@ -56,28 +56,28 @@ router.post("/", authAdmin, upload.single("foto"), (req, res) => {
   }
 
   const sql = `
-    INSERT INTO gallery_tb (keterangan, foto, kategori, status)
+    INSERT INTO dokumentasi_tb (keterangan, foto, kategori, status)
     VALUES (?, ?, ?, ?)
   `;
   const values = [keterangan || null, foto, kategori, status || "1"];
 
   connection.query(sql, values, (err, result) => {
     if (err) {
-      console.error("❌ Gagal menambahkan gallery:", err);
+      console.error("❌ Gagal menambahkan dokumentasi:", err);
       return res.status(500).json({
-        message: "❌ Gagal menambahkan gallery",
+        message: "❌ Gagal menambahkan dokumentasi",
         error: err.message,
       });
     }
     res.status(201).json({
-      message: "✅ Gallery berhasil ditambahkan!",
-      id_gallery: result.insertId,
+      message: "✅ dokumentasi berhasil ditambahkan!",
+      id_dokumentasi: result.insertId,
     });
   });
 });
 
 // ======================================================
-// ===============   READ ALL GALLERY   =================
+// ===============   READ ALL dokumentasi   =================
 // ======================================================
 router.get("/", (req, res) => {
   const { admin, kategori } = req.query;
@@ -91,13 +91,13 @@ router.get("/", (req, res) => {
   }
 
   const whereSQL = where.length ? `WHERE ${where.join(" AND ")}` : "";
-  const sql = `SELECT * FROM gallery_tb ${whereSQL} ORDER BY id DESC`;
+  const sql = `SELECT * FROM dokumentasi_tb ${whereSQL} ORDER BY id DESC`;
 
   connection.query(sql, params, (err, results) => {
     if (err) {
-      console.error("❌ Gagal mengambil gallery:", err);
+      console.error("❌ Gagal mengambil dokumentasi:", err);
       return res.status(500).json({
-        message: "❌ Gagal mengambil gallery",
+        message: "❌ Gagal mengambil dokumentasi",
         error: err.message,
       });
     }
@@ -107,22 +107,22 @@ router.get("/", (req, res) => {
 });
 
 // ======================================================
-// ===============   READ DETAIL GALLERY   ==============
+// ===============   READ DETAIL dokumentasi   ==============
 // ======================================================
 router.get("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  const sql = "SELECT * FROM gallery_tb WHERE id = ?";
+  const sql = "SELECT * FROM dokumentasi_tb WHERE id = ?";
   connection.query(sql, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Gallery tidak ditemukan." });
+      return res.status(404).json({ message: "❌ dokumentasi tidak ditemukan." });
     }
     res.status(200).json(results[0]);
   });
 });
 
 // ======================================================
-// ===============   UPDATE GALLERY   ===================
+// ===============   UPDATE dokumentasi   ===================
 // ======================================================
 router.put("/:id", authAdmin, upload.single("foto"), (req, res) => {
   const { id } = req.params;
@@ -135,22 +135,22 @@ router.put("/:id", authAdmin, upload.single("foto"), (req, res) => {
     });
   }
 
-  const getOld = "SELECT foto FROM gallery_tb WHERE id = ?";
+  const getOld = "SELECT foto FROM dokumentasi_tb WHERE id = ?";
   connection.query(getOld, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Gallery tidak ditemukan." });
+      return res.status(404).json({ message: "❌ dokumentasi tidak ditemukan." });
     }
 
     const oldFoto = results[0].foto;
 
     // hapus foto lama jika upload foto baru
     if (fotoBaru && oldFoto) {
-      const oldPath = path.join("uploads/gallery", oldFoto);
+      const oldPath = path.join("uploads/dokumentasi", oldFoto);
       if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
     }
 
     const sql = `
-      UPDATE gallery_tb
+      UPDATE dokumentasi_tb
       SET keterangan=?, foto=?, kategori=?, status=?
       WHERE id=?
     `;
@@ -165,43 +165,43 @@ router.put("/:id", authAdmin, upload.single("foto"), (req, res) => {
 
     connection.query(sql, values, (err) => {
       if (err) {
-        console.error("❌ Gagal memperbarui gallery:", err);
+        console.error("❌ Gagal memperbarui dokumentasi:", err);
         return res
           .status(500)
-          .json({ message: "❌ Gagal memperbarui gallery" });
+          .json({ message: "❌ Gagal memperbarui dokumentasi" });
       }
-      res.status(200).json({ message: "✅ Gallery berhasil diperbarui!" });
+      res.status(200).json({ message: "✅ dokumentasi berhasil diperbarui!" });
     });
   });
 });
 
 // ======================================================
-// ===============   DELETE GALLERY   ===================
+// ===============   DELETE dokumentasi   ===================
 // ======================================================
 router.delete("/:id", authAdmin, (req, res) => {
   const { id } = req.params;
 
-  const getFoto = "SELECT foto FROM gallery_tb WHERE id = ?";
+  const getFoto = "SELECT foto FROM dokumentasi_tb WHERE id = ?";
   connection.query(getFoto, [id], (err, results) => {
     if (err || results.length === 0) {
-      return res.status(404).json({ message: "❌ Gallery tidak ditemukan." });
+      return res.status(404).json({ message: "❌ dokumentasi tidak ditemukan." });
     }
 
     const foto = results[0].foto;
 
     // hapus file foto
     if (foto) {
-      const filePath = path.join("uploads/gallery", foto);
+      const filePath = path.join("uploads/dokumentasi", foto);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
-    const deleteSql = "DELETE FROM gallery_tb WHERE id = ?";
+    const deleteSql = "DELETE FROM dokumentasi WHERE id = ?";
     connection.query(deleteSql, [id], (err) => {
       if (err) {
-        console.error("❌ Gagal menghapus gallery:", err);
-        return res.status(500).json({ message: "❌ Gagal menghapus gallery" });
+        console.error("❌ Gagal menghapus dokumentasi:", err);
+        return res.status(500).json({ message: "❌ Gagal menghapus dokumentasi" });
       }
-      res.status(200).json({ message: "✅ Gallery berhasil dihapus!" });
+      res.status(200).json({ message: "✅ dokumentasi berhasil dihapus!" });
     });
   });
 });

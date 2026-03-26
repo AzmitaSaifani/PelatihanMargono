@@ -32,7 +32,7 @@ import pembayaranRoute from "./auth/pembayaran.js";
 import institusiRoute from "./auth/institusi.js";
 import penyelenggaraRoute from "./auth/penyelenggara.js";
 import fasilitatorRoute from "./auth/fasilitator.js";
-import galleryRoute from "./auth/gallery.js";
+import dokumentasiRoute from "./auth/dokumentasi.js";
 import kalenderRoute from "./auth/kalender_pelatihan.js";
 
 // ADMIN & PROFIL
@@ -87,7 +87,7 @@ router.use("/pembayaran", pembayaranRoute);
 router.use("/institusi", institusiRoute);
 router.use("/penyelenggara", penyelenggaraRoute);
 router.use("/fasilitator", fasilitatorRoute);
-router.use("/gallery", galleryRoute);
+router.use("/dokumentasi", dokumentasiRoute);
 
 /* ===========================
  KALENDER PELATIHAN
