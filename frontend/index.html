@@ -780,24 +780,6 @@
                   </li>
 
                   <li class="nav-item">
-                    <button
-                      class="nav-link"
-                      onclick="filterKategori('Nakes', this)"
-                    >
-                      Nakes
-                    </button>
-                  </li>
-
-                  <li class="nav-item">
-                    <button
-                      class="nav-link"
-                      onclick="filterKategori('Non Nakes', this)"
-                    >
-                      Non-Nakes
-                    </button>
-                  </li>
-
-                  <li class="nav-item">
                     <button class="nav-link"
                       onclick="filterKategori('selesai', this)">
                       Sudah Terlaksana
@@ -1080,7 +1062,7 @@
                         let hasil = [];
 
                         if (kategori === "all") {
-                          // ❗ ALL tapi hanya yang BELUM terlaksana
+                          // ALL tapi hanya yang BELUM terlaksana
                           hasil = allPelatihan.filter(p => {
                             const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
                             tanggalMulai.setHours(0, 0, 0, 0);
@@ -1100,14 +1082,6 @@
                               return bDate - aDate; // TERBARU DULU
                             })
                             .slice(0, 9); // Menampilkan maksimal 9 pelatihan
-                        }
-                        else {
-                          // kategori lain (misal: teknis, manajerial, dll)
-                          hasil = allPelatihan.filter(p => {
-                            const tanggalMulai = new Date(p.tanggal_mulai.split("T")[0]);
-                            tanggalMulai.setHours(0, 0, 0, 0);
-                            return p.kategori === kategori && tanggalMulai >= today;
-                          });
                         }
                         renderPelatihan(hasil);
                       }
