@@ -1,8 +1,2 @@
-Thanks for downloading this template!
 
-Template Name: MediTrust
-Template URL: https://bootstrapmade.com/meditrust-bootstrap-hospital-website-template/
-Author: BootstrapMade.com
-License: https://bootstrapmade.com/license/
-
-Website Pendaftaran Pelatihan Diklat RSUD Margono Soekarjo
+Website Sistem Pendaftaran Pelatihan Diklat RSUD Margono Soekarjo
