@@ -83,12 +83,12 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="dokumentasi.html">Dokumentasi</a>
+                  <a class="dropdown-item" href="dokumentasi.html"
+                    >Dokumentasi</a
+                  >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="ulasan.html"
-                    >Ulasan Peserta</a
-                  >
+                  <a class="dropdown-item" href="ulasan.html">Ulasan Peserta</a>
                 </li>
               </ul>
             </li>
@@ -248,11 +248,11 @@
             </select>
           </div>
 
-          <div class="col-md-2 mt-3">
+          <!-- <div class="col-md-2 mt-3">
             <input type="date" id="tanggalMulai" class="form-control" />
-          </div>
+          </div> -->
 
-          <div class="col-md-2 mt-3">
+          <div class="col-md-3 mt-3">
             <select id="filterStatus" class="form-select">
               <option value="">Semua Status</option>
               <option value="Menunggu Verifikasi Berkas">
@@ -264,7 +264,7 @@
             </select>
           </div>
 
-          <div class="col-md-2 mt-2 mt-3 ms-3">
+          <div class="col-md-2 mt-3">
             <button class="btn btn-success" onclick="exportExcel()">
               Export Excel
             </button>
@@ -404,7 +404,7 @@
         const filterPelatihan = document.getElementById("filterPelatihan");
         const filterNama = document.getElementById("filterNama");
         const filterStatus = document.getElementById("filterStatus");
-        const tanggalMulai = document.getElementById("tanggalMulai");
+        // const tanggalMulai = document.getElementById("tanggalMulai");
 
         // PRIORITAS STATUS UNTUK SORTING TABEL
         const statusPriority = {
@@ -462,16 +462,13 @@
                 .toLowerCase()
                 .includes(filterNama.value.toLowerCase());
 
-            const matchTanggal =
-              !tanggalMulai.value ||
-              item.tanggal_daftar.split("T")[0] >= tanggalMulai.value;
+            // const matchTanggal =
+            //   !tanggalMulai.value ||
+            //   item.tanggal_daftar.split("T")[0] >= tanggalMulai.value;
 
             return (
-              matchSearch &&
-              matchPelatihan &&
-              matchStatus &&
-              matchNama &&
-              matchTanggal
+              matchSearch && matchPelatihan && matchStatus && matchNama
+              // matchTanggal
             );
           });
 
@@ -516,7 +513,7 @@
           if (!Array.isArray(filteredData) || filteredData.length === 0) {
             tableBody.innerHTML = `
               <tr>
-                <td colspan="13" class="text-center text-muted">
+                <td colspan="14" class="text-center text-muted">
                   Data tidak ditemukan
                 </td>
               </tr>`;
@@ -703,7 +700,7 @@
         filterPelatihan.addEventListener("change", applyAllFilter);
         filterNama.addEventListener("input", applyAllFilter);
         filterStatus.addEventListener("change", applyAllFilter);
-        tanggalMulai.addEventListener("change", applyAllFilter);
+        // tanggalMulai.addEventListener("change", applyAllFilter);
 
         // Buka File Modal
         window.openPreview = (title, url) => {
@@ -782,15 +779,15 @@
 
           const nama = document.getElementById("filterNama")?.value;
           const pelatihan = document.getElementById("filterPelatihan")?.value;
-          const tahun = document.getElementById("filterTahun")?.value;
-          const tglMulai = document.getElementById("tanggalMulai")?.value;
+          // const tahun = document.getElementById("filterTahun")?.value;
+          // const tglMulai = document.getElementById("tanggalMulai")?.value;
 
           if (nama) params.append("nama_peserta", nama);
           if (pelatihan) params.append("id_pelatihan", pelatihan);
-          if (tahun) params.append("tahun", tahun);
-          if (tglMulai && tglSelesai) {
-            params.append("tanggal_mulai", tglMulai);
-          }
+          // if (tahun) params.append("tahun", tahun);
+          // if (tglMulai && tglSelesai) {
+          //   params.append("tanggal_mulai", tglMulai);
+          // }
 
           const url = `${API}/export/excel?${params.toString()}`;
           window.open(url, "_blank");
