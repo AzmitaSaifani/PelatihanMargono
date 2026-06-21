@@ -7157,3 +7157,11 @@ hero-image img {
   transform: scale(1.15);
   transition: 0.2s ease;
 }
+
+.chart-container {
+  height: 250px;
+}
+
+.chart-container canvas {
+  max-height: 250px !important;
+}

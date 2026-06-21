@@ -243,14 +243,6 @@
             </select>
           </div>
 
-          <div class="col-md-3 mt-3">
-            <select id="filterKategoriPelatihan" class="form-select">
-              <option value="">Semua Kategori</option>
-              <option value="Nakes">Nakes</option>
-              <option value="Non-Nakes">Non-Nakes</option>
-            </select>
-          </div>
-
           <div class="col-md-2 mt-3">
             <select id="filterTahunPelatihan" class="form-select">
               <option value="">Semua Tahun</option>
@@ -306,7 +298,6 @@
                 <th>Selesai</th>
                 <th>Kuota</th>
                 <th>Harga</th>
-                <th>Kategori</th>
                 <th>Kriteria Peserta</th>
                 <th>Tipe Pelatihan</th>
                 <th>Status</th>
@@ -447,14 +438,6 @@
                     min="0"
                     placeholder="Contoh: 250000"
                   />
-                </div>
-
-                <div class="col-md-4">
-                  <label class="form-label">Kategori Peserta</label>
-                  <select name="kategori" class="form-control">
-                    <option value="Nakes">Nakes</option>
-                    <option value="Non Nakes">Non-Nakes</option>
-                  </select>
                 </div>
 
                 <div class="col-md-4">
@@ -652,18 +635,6 @@
                 </div>
 
                 <div class="col-md-4">
-                  <label class="form-label">Kategori</label>
-                  <select
-                    id="edit_kategori"
-                    name="kategori"
-                    class="form-control"
-                  >
-                    <option value="Nakes">Nakes</option>
-                    <option value="Non Nakes">Non-Nakes</option>
-                  </select>
-                </div>
-
-                <div class="col-md-4">
                   <label class="form-label">Kriteria Peserta</label>
                   <input
                     id="edit_keterangan"
@@ -763,9 +734,6 @@
         const formEdit = document.getElementById("formEditPelatihan");
 
         const filterStatus = document.getElementById("filterStatusPelatihan");
-        const filterKategori = document.getElementById(
-          "filterKategoriPelatihan"
-        );
         const filterTahun = document.getElementById("filterTahunPelatihan");
         const infoData = document.getElementById("infoData");
         const prevBtn = document.getElementById("prevBtn");
@@ -864,7 +832,6 @@
                       : "Gratis"
                   }
                 </td>
-                <td>${item.kategori ?? "-"}</td>
                 <td>${item.kriteria_peserta ?? "-"}</td>
                 <td>${item.tipe_pelatihan ?? "-"}</td>
                 <td>
@@ -1039,12 +1006,6 @@
             );
           }
 
-          if (filterKategori.value) {
-            filteredData = filteredData.filter(
-              (d) => d.kategori === filterKategori.value
-            );
-          }
-
           if (filterTahun.value) {
             filteredData = filteredData.filter((d) => {
               return (
@@ -1059,7 +1020,6 @@
 
         // EVENT LISTENER AUTO REFRESH
         filterStatus?.addEventListener("change", applyFilterPelatihan);
-        filterKategori?.addEventListener("change", applyFilterPelatihan);
         filterTahun?.addEventListener("change", applyFilterPelatihan);
 
         // ==========================================
@@ -1070,7 +1030,6 @@
             const params = new URLSearchParams();
 
             if (filterStatus?.value) params.append("status", filterStatus.value);
-            if (filterKategori?.value) params.append("kategori", filterKategori.value);
             if (filterTahun?.value) params.append("tahun", filterTahun.value);
 
             const res = await fetch(`${API}/export/excel?${params.toString()}`, {
@@ -1124,7 +1083,6 @@
           edit_warna.value = data.warna ?? "#3498db";
           edit_harga.value = data.harga ?? 0;
           edit_link.value = data.link_grup;
-          edit_kategori.value = data.kategori;
           edit_keterangan.value = data.kriteria_peserta ?? "";
           edit_tipe_pelatihan.value = data.tipe_pelatihan ?? "";
           edit_durasi.value = data.durasi ?? "";

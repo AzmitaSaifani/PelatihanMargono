@@ -79,12 +79,12 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="dokumentasi.html">Dokumentasi</a>
+                  <a class="dropdown-item" href="dokumentasi.html"
+                    >Dokumentasi</a
+                  >
                 </li>
                 <li>
-                  <a class="dropdown-item" href="ulasan.html"
-                    >Ulasan Peserta</a
-                  >
+                  <a class="dropdown-item" href="ulasan.html">Ulasan Peserta</a>
                 </li>
               </ul>
             </li>
@@ -231,127 +231,51 @@
       </div>
 
       <!-- ================= STATISTIK ================= -->
-
-      <!-- PENDAFTARAN -->
-      <h5 class="fw-bold mb-3">
-        <a href="pendaftaran.html" class="text-decoration-none text-dark">
-          Statistik Pendaftaran Peserta
+      <div class="card mb-4">
+        <a
+          href="pendaftaran.html"
+          class="card-header text-decoration-none text-dark fw-bold"
+          style="display: block"
+        >
+          Statistik Pendaftaran
         </a>
-      </h5>
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <a href="pendaftaran.html" class="text-decoration-none">
-            <div class="stat-card bg-primary">
-              <div class="stat-title">Total Pendaftaran Peserta</div>
-              <div class="stat-value" id="pendaftaran_total">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pendaftaran.html" class="text-decoration-none">
-            <div class="stat-card bg-warning text-dark">
-              <div class="stat-title">Menunggu Verifikasi Berkas</div>
-              <div class="stat-value" id="verifikasi_berkas">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pendaftaran.html" class="text-decoration-none">
-            <div class="stat-card bg-info">
-              <div class="stat-title">Menunggu Pembayaran</div>
-              <div class="stat-value" id="pendaftaran_pembayaran">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pendaftaran.html" class="text-decoration-none">
-            <div class="stat-card bg-danger">
-              <div class="stat-title">Berkas Pendaftaran Invalid</div>
-              <div class="stat-value" id="pendaftaran_invalid_berkas">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pendaftaran.html" class="text-decoration-none">
-            <div class="stat-card bg-success">
-              <div class="stat-title">Total Peserta Diterima</div>
-              <div class="stat-value" id="pendaftaran_diterima">0</div>
-            </div>
-          </a>
+
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="chartPendaftaran"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- PEMBAYARAN -->
-      <h5 class="fw-bold mb-3">
-        <a href="pembayaran.html" class="text-decoration-none text-dark">
-          Statistik Pembayaran Pelatihan
+      <div class="card mb-4">
+        <a
+          href="pembayaran.html"
+          class="card-header text-decoration-none text-dark fw-bold"
+          style="display: block"
+        >
+          Statistik Pembayaran
         </a>
-      </h5>
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <a href="pembayaran.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-primary">
-              <div class="stat-title">Total Pembayaran Peserta</div>
-              <div class="stat-value" id="pembayaran_total">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pembayaran.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-warning text-dark">
-              <div class="stat-title">Menunggu Verifikasi Pembayaran</div>
-              <div class="stat-value" id="pembayaran_pending">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pembayaran.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-success">
-              <div class="stat-title">Bukti Pembayaran Valid</div>
-              <div class="stat-value" id="pembayaran_valid">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pembayaran.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-danger">
-              <div class="stat-title">Bukti Pembayaran Invalid</div>
-              <div class="stat-value" id="pembayaran_invalid">0</div>
-            </div>
-          </a>
+
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="chartPembayaran"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- PELATIHAN -->
-      <h5 class="fw-bold mb-3">
-        <a href="pelatihan.html" class="text-decoration-none text-dark">
+      <div class="card mb-4">
+        <a
+          href="pelatihan.html"
+          class="card-header text-decoration-none text-dark fw-bold"
+          style="display: block"
+        >
           Statistik Pelatihan
         </a>
-      </h5>
-      <div class="row g-3 mb-5">
-        <div class="col-md-3">
-          <a href="pelatihan.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-primary">
-              <div class="stat-title">Total Pelatihan</div>
-              <div class="stat-value" id="pelatihan_total">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pelatihan.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-success">
-              <div class="stat-title">Aktif</div>
-              <div class="stat-value" id="pelatihan_aktif">0</div>
-            </div>
-          </a>
-        </div>
-        <div class="col-md-3">
-          <a href="pelatihan.html" class="text-decoration-none text-dark">
-            <div class="stat-card bg-secondary">
-              <div class="stat-title">Draft</div>
-              <div class="stat-value" id="pelatihan_draft">0</div>
-            </div>
-          </a>
+
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="chartPelatihan"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -398,55 +322,125 @@
 
       document.addEventListener("DOMContentLoaded", loadAdminProfile);
 
+      let chartPendaftaran;
+      let chartPembayaran;
+      let chartPelatihan;
+
       async function loadDashboardStatistik() {
         try {
           const res = await fetch(
             "http://localhost:5000/api/dashboard/statistik",
-            { credentials: "include" },
+            {
+              credentials: "include",
+            },
           );
+
           const data = await res.json();
 
           // ================= PENDAFTARAN =================
-          document.getElementById("pendaftaran_total").innerText =
-            data.pendaftaran.total;
-
-          document.getElementById("verifikasi_berkas").innerText =
-            data.pendaftaran.menunggu_verifikasi_berkas;
-
-          document.getElementById("pendaftaran_pembayaran").innerText =
-            data.pendaftaran.menunggu_pembayaran;
-
-          document.getElementById("pendaftaran_invalid_berkas").innerText =
-            data.pendaftaran.pendaftaran_invalid_berkas;
-
-          document.getElementById("pendaftaran_diterima").innerText =
-            data.pendaftaran.diterima;
+          chartPendaftaran = new Chart(
+            document.getElementById("chartPendaftaran"),
+            {
+              type: "doughnut",
+              data: {
+                labels: [
+                  "Verifikasi Berkas",
+                  "Menunggu Pembayaran",
+                  "Berkas Invalid",
+                  "Diterima",
+                ],
+                datasets: [
+                  {
+                    data: [
+                      data.pendaftaran.menunggu_verifikasi_berkas,
+                      data.pendaftaran.menunggu_pembayaran,
+                      data.pendaftaran.pendaftaran_invalid_berkas,
+                      data.pendaftaran.diterima,
+                    ],
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                  },
+                },
+                onClick: () => {
+                  window.location.href = "pendaftaran.html";
+                },
+              },
+            },
+          );
 
           // ================= PEMBAYARAN =================
-          document.getElementById("pembayaran_total").innerText =
-            data.pembayaran.total;
-
-          document.getElementById("pembayaran_pending").innerText =
-            data.pembayaran.pending;
-
-          document.getElementById("pembayaran_valid").innerText =
-            data.pembayaran.valid;
-
-          document.getElementById("pembayaran_invalid").innerText =
-            data.pembayaran.invalid;
+          chartPembayaran = new Chart(
+            document.getElementById("chartPembayaran"),
+            {
+              type: "doughnut",
+              data: {
+                labels: ["Pending", "Valid", "Invalid"],
+                datasets: [
+                  {
+                    data: [
+                      data.pembayaran.pending,
+                      data.pembayaran.valid,
+                      data.pembayaran.invalid,
+                    ],
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                  },
+                },
+                onClick: () => {
+                  window.location.href = "pembayaran.html";
+                },
+              },
+            },
+          );
 
           // ================= PELATIHAN =================
-          document.getElementById("pelatihan_total").innerText =
-            data.pelatihan.total;
-
-          document.getElementById("pelatihan_aktif").innerText =
-            data.pelatihan.aktif;
-
-          document.getElementById("pelatihan_draft").innerText =
-            data.pelatihan.draft;
+          chartPelatihan = new Chart(
+            document.getElementById("chartPelatihan"),
+            {
+              type: "doughnut",
+              data: {
+                labels: ["Draft", "Publish", "Selesai", "Batal"],
+                datasets: [
+                  {
+                    data: [
+                      data.pelatihan.draft,
+                      data.pelatihan.publish,
+                      data.pelatihan.selesai,
+                      data.pelatihan.batal,
+                    ],
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                  },
+                },
+                onClick: () => {
+                  window.location.href = "pelatihan.html";
+                },
+              },
+            },
+          );
         } catch (err) {
-          alert("Gagal memuat statistik dashboard");
           console.error(err);
+          alert("Gagal memuat statistik dashboard");
         }
       }
 
@@ -457,5 +451,7 @@
     <script src="admin_nav_role.js"></script>
 
     <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </body>
 </html>

@@ -265,14 +265,18 @@
                     <!-- Pilih Pelatihan -->
                     <div class="col-md-12">
                       <label class="form-label">Program Pelatihan</label>
-                      <select
-                        id="menupelatihan"
-                        name="id_pelatihan"
+                      <input
+                        type="text"
+                        id="nama_pelatihan"
                         class="form-control"
-                        required
+                        readonly
                       >
-                        <option value="">-- Pilih Pelatihan --</option>
-                      </select>
+
+                      <input
+                        type="hidden"
+                        id="id_pelatihan"
+                        name="id_pelatihan"
+                      >
                     </div>
 
                     <!-- Nama Peserta -->
@@ -280,10 +284,10 @@
                       <label class="form-label">Nama Lengkap</label>
                       <input
                         type="text"
+                        id="nama_peserta"
                         name="nama_peserta"
                         class="form-control"
-                        placeholder="Nama Lengkap"
-                        required
+                        readonly
                       >
                       <small class="text-danger">
                         *Pastikan Nama Lengkap yang anda inputkan di sini sama dengan Nama Lengkap yang anda daftarkan di formulir pendaftaran.
@@ -295,13 +299,10 @@
                       <label class="form-label">No. WhatsApp</label>
                       <input
                         type="text"
+                        id="no_wa"
                         name="no_wa"
                         class="form-control"
-                        maxlength="15"
-                        placeholder="08xxxxxxxxxx"
-                        inputmode="numeric"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                        required
+                        readonly
                       >
                       <small class="text-danger">
                         *Pastikan Nomor yang anda inputkan di sini sama dengan Nomor yang anda daftarkan di formulir pendaftaran.
@@ -313,10 +314,10 @@
                       <label class="form-label">Email</label>
                       <input
                         type="email"
+                        id="email"
                         name="email"
                         class="form-control"
-                        placeholder="email@example.com"
-                        required
+                        readonly
                       >
                       <small class="text-danger">
                         *Pastikan Email yang anda inputkan di sini sama dengan Email yang anda daftarkan di formulir pendaftaran.
@@ -462,8 +463,25 @@
                   return data;
                 })
                 .then(data => {
-                  document.getElementById("id_pendaftaran").value = data.id_pendaftaran;
+                  document.getElementById("id_pendaftaran").value =
+                    data.id_pendaftaran;
+
                   document.getElementById("token").value = token;
+
+                  document.getElementById("id_pelatihan").value =
+                    data.id_pelatihan;
+
+                  document.getElementById("nama_pelatihan").value =
+                    data.nama_pelatihan;
+
+                  document.getElementById("nama_peserta").value =
+                    data.nama_peserta;
+
+                  document.getElementById("email").value =
+                    data.email;
+
+                  document.getElementById("no_wa").value =
+                    data.no_wa || "-";
                 })
                 .catch(err => {
                   alert(err.message);
@@ -480,44 +498,6 @@
                   const y = date.getFullYear();
                   return `${d}/${m}/${y}`;
                 }
-
-              // ================= LOAD PELATIHAN =================
-              async function loadPelatihan() {
-                const res = await fetch(
-                  "http://localhost:5000/api/pelatihan",
-                );
-                if (!res.ok) {
-                  console.error("Response error:", res.status);
-                  return;
-                }
-
-                const data = await res.json();
-                const select = document.getElementById("menupelatihan");
-                const today = new Date().toISOString().split("T")[0];
-
-                data.forEach((item) => {
-                  // HANYA tampilkan status publish
-                  if (item.status !== "publish") return;
-
-                  const tanggalISO = item.tanggal_mulai;
-                  if (!tanggalISO) return;
-
-                  const tanggalOnly = tanggalISO.split("T")[0];
-
-                  // Hanya tampilkan pelatihan yang belum lewat
-                  if (tanggalOnly >= today) {
-                    const opt = document.createElement("option");
-                    opt.value = item.id_pelatihan;
-
-                    const tanggalFormatted = formatTanggalIndo(tanggalISO);
-                    opt.textContent = `${item.nama_pelatihan} - (${tanggalFormatted})`;
-
-                    select.appendChild(opt);
-                  }
-                });
-              }
-
-              loadPelatihan();
 
               // ================= MODAL =================
               const form = document.getElementById("formPendaftaran");
@@ -565,6 +545,8 @@
                   credentials: "include",
                   body: formData
                 });
+
+                const text = await res.text();
 
                 let data = {};
                 try {

@@ -37,17 +37,18 @@ router.get("/statistik", async (req, res) => {
       // ======================
       connection.promise().query(`
         SELECT
-          COUNT(*) AS total,
-          SUM(status = 'publish') AS aktif,
-          SUM(status = 'draft') AS draft,
-          SUM(status = 'selesai') AS selesai,
-          SUM(kuota) AS total_kuota,
-          (
-            SELECT COUNT(*) 
-            FROM pendaftaran_tb 
-            WHERE status = 'Diterima'
-          ) AS total_peserta_diterima
-        FROM pelatihan_tb
+        COUNT(*) AS total,
+        SUM(status = 'draft') AS draft,
+        SUM(status = 'publish') AS publish,
+        SUM(status = 'selesai') AS selesai,
+        SUM(status = 'batal') AS batal,
+        SUM(kuota) AS total_kuota,
+        (
+          SELECT COUNT(*)
+          FROM pendaftaran_tb
+          WHERE status = 'Diterima'
+        ) AS total_peserta_diterima
+      FROM pelatihan_tb
       `),
     ]);
 

@@ -1136,10 +1136,19 @@ router.get("/validate-token/:token", (req, res) => {
   }
 
   const sql = `
-    SELECT id_pendaftaran, status
-    FROM pendaftaran_tb
-    WHERE id_pendaftaran = ?
-  `;
+    SELECT
+    p.id_pendaftaran,
+    p.id_pelatihan,
+    p.nama_peserta,
+    p.email,
+    p.no_wa,
+    p.status,
+    pel.nama_pelatihan
+  FROM pendaftaran_tb p
+  JOIN pelatihan_tb pel
+    ON pel.id_pelatihan = p.id_pelatihan
+  WHERE p.id_pendaftaran = ?
+`;
 
   connection.query(sql, [id_pendaftaran], (err, rows) => {
     if (err) {
@@ -1169,7 +1178,14 @@ router.get("/validate-token/:token", (req, res) => {
 
     res.json({
       ok: true,
-      id_pendaftaran,
+      id_pendaftaran: rows[0].id_pendaftaran,
+      id_pelatihan: rows[0].id_pelatihan,
+      nama_peserta: rows[0].nama_peserta,
+      email: rows[0].email,
+      no_wa: rows[0].no_wa,
+      nik: rows[0].nik,
+      nip: rows[0].nip,
+      nama_pelatihan: rows[0].nama_pelatihan
     });
   });
 });
